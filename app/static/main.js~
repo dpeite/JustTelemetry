@@ -1,0 +1,7 @@
+var app = angular.module('WordcountApp', []);
+
+app.controller('WordcountController', function($scope, $log) {
+    $scope.getResults = function() {
+      $log.log("test");
+    };
+  }

@@ -1,0 +1,15 @@
+<html>
+  <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.9/angular.min.js"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+<html ng-app="WordcountApp">
+  <body ng-controller="WordcountController">
+    <form role="form" ng-submit="getResults()">
+  <head>
+    <title>{{ title }} - A LPRO proyect</title>
+  </head>
+  <body>
+    <h1>Hola, {{ user.nickname  }}!</h1>
+    <input type="text" ng-model="url" name="url" class="form-control" id="url-box" placeholder="Enter URL..." style="max-width: 300px;">
+    
+  </body>
+</html>
