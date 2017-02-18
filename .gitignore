@@ -1,0 +1,7 @@
+*.py[co]
+
+#IDE
+*~
+\#*\#
+nbproject/
+.idea/
