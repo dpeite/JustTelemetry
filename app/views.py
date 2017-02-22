@@ -35,8 +35,23 @@ def tablas():
 
 @app.route("/sesiones.html")
 def sesiones():
-    resp = make_response(render_template("sesiones.html"))
+    posts = [  # fake array of posts
+        {
+            'fecha':'20/02/2017 11:50',
+            'nombre': 'Prueba frenos',
+            'tiempo': '1m 2s',
+            'metros': '100'
+        },
+        {
+            'fecha': '20/02/2017 11:00',
+            'nombre': 'Prueba motor',
+            'tiempo': '2m 24s',
+            'metros': '500'
+        },
+    ]
+    resp = make_response(render_template("sesiones.html", posts=posts))
     resp.cache_control.no_cache = True
+    
     return resp
 
 @app.route("/importar-exportar.html")
