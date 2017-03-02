@@ -37,12 +37,14 @@ def tablas():
 def sesiones():
     posts = [  # fake array of posts
         {
+            'id': '0',
             'fecha':'20/02/2017 11:50',
             'nombre': 'Prueba frenos',
             'tiempo': '1m 2s',
             'metros': '100'
         },
         {
+            'id': '1',
             'fecha': '20/02/2017 11:00',
             'nombre': 'Prueba motor',
             'tiempo': '2m 24s',
