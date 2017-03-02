@@ -1,3 +1,5 @@
+import json
+
 from app import app
 from flask import render_template, make_response
 
@@ -35,22 +37,9 @@ def tablas():
 
 @app.route("/sesiones.html")
 def sesiones():
-    posts = [  # fake array of posts
-        {
-            'id': '0',
-            'fecha':'20/02/2017 11:50',
-            'nombre': 'Prueba frenos',
-            'tiempo': '1m 2s',
-            'metros': '100'
-        },
-        {
-            'id': '1',
-            'fecha': '20/02/2017 11:00',
-            'nombre': 'Prueba motor',
-            'tiempo': '2m 24s',
-            'metros': '500'
-        },
-    ]
+    with open('app/static/data/sesiones.json') as data_file:
+        posts = json.load(data_file)
+        
     resp = make_response(render_template("sesiones.html", posts=posts))
     resp.cache_control.no_cache = True
     
