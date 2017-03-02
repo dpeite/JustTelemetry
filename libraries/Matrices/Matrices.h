@@ -13,7 +13,10 @@ class Matrices
     void mulMatrizVector(float* matriz, float* vector, float* res);
     void mulMatrizMatriz(float* matriz_izq, float* matriz_der, float* res);
     void sumaMatrizMatriz(float* matriz_izq, float* matriz_der, float* res);
+    void restaMatrizMatriz(float* matriz_izq, float* matriz_der, float* res);
     void trasponerMatriz(float* matriz, float* res);
+    void sumaVectorVector(float* A, float* B, float* res);
+    void restaVectorVector(float* A, float* B, float* res);
     int invertirMatriz(float* A);
     void imprimirMatriz(float* A);
     void imprimirVector(float* res);

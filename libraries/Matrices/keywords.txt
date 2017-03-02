@@ -2,6 +2,9 @@ Matrices	KEYWORD1
 mulMatrizVector	KEYWORD2
 mulMatrizMatriz	KEYWORD2
 sumaMatrizMatriz	KEYWORD2
+restaMatrizMatriz	KEYWORD2
+sumaVectorVector	KEYWORD2
+restaVectorVector	KEYWORD2
 trasponerMatriz	KEYWORD2
 invertirMatriz	KEYWORD2
 imprimirMatriz	KEYWORD2

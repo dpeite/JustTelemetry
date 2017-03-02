@@ -42,6 +42,21 @@ void Matrices::sumaMatrizMatriz(float* matriz_izq, float* matriz_der, float* res
 	res[8] = matriz_izq[8] + matriz_der[8];
 }
 
+void Matrices::restaMatrizMatriz(float* matriz_izq, float* matriz_der, float* res) {
+
+  res[0] = matriz_izq[0] - matriz_der[0];
+  res[1] = matriz_izq[1] - matriz_der[1];
+  res[2] = matriz_izq[2] - matriz_der[2];
+
+  res[3] = matriz_izq[3] - matriz_der[3];
+  res[4] = matriz_izq[4] - matriz_der[4];
+  res[5] = matriz_izq[5] - matriz_der[5];
+
+  res[6] = matriz_izq[6] - matriz_der[6];
+  res[7] = matriz_izq[7] - matriz_der[7];
+  res[8] = matriz_izq[8] - matriz_der[8];
+}
+
 void Matrices::trasponerMatriz(float* matriz, float* res) {
 
 	res[1] = matriz[3];
@@ -137,6 +152,18 @@ int Matrices::invertirMatriz(float* A) {
     	}
     }
     return 1;
+}
+
+void Matrices::sumaVectorVector(float * A, float * B, float * res) {
+  res[0] = A[0] + B[0];
+  res[1] = A[1] + B[1];
+  res[2] = A[2] + B[2];
+}
+
+void Matrices::restaVectorVector(float * A, float * B, float * res) {
+  res[0] = A[0] - B[0];
+  res[1] = A[1] - B[1];
+  res[2] = A[2] - B[2];
 }
 
 void Matrices::imprimirMatriz(float* A) {
