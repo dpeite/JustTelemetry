@@ -24,9 +24,10 @@ void setup() {
     if (gps.encode(c)) {
       // returns +/- latitude/longitude in degrees
       gps.f_get_position(&flat, &flon, &fix_age);
-      lat1 = flat;  // inicializamos los valores de lat1 y lon1
-      lon1 = flon;
-      delay(5000);
+      lat2 = flat;  // inicializamos los valores de lat2 y lon2, así en la primera iteración
+      lon2 = flon;  //se pasan a lat1 y lon2
+      //delay(5000);
+      break;
     }
   }
 }
