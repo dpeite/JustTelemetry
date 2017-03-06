@@ -7,10 +7,37 @@ $(function() {
 	xaxis: { show: false },
 	yaxis: { show: false },
 	grid: { show:true,
-		color: "transparent"
+		color: "transparent",
+		hoverable: true,
+		clickable: true
 	      }
     };
-    $.plot("#flot-line-chart", [d2], options);
+    var plot = $.plot("#flot-line-chart", [d2], options);
+    var coord1 = null;
+    var coord2 = null;
+    $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
+	if (item) {
+	    // $("#clickdata").text(" - click point " + item.datapoint);
+	    //plot.highlight(item.series, item.datapoint);
+	    if (coord1 == null){
+		coord1 = item.datapoint;
+		plot.highlight(item.series, item.datapoint);
+	    }
+	    else if (coord2 == null){
+		coord2 = item.datapoint;
+		plot.highlight(item.series, item.datapoint);
+	    }
+	    else {
+		plot.unhighlight(item.series, coord1);
+		plot.unhighlight(item.series, coord2);
+		coord1 = item.datapoint;
+		plot.highlight(item.series, coord1);
+		coord2 = null;
+	    }
+	}
+	$("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
+	console.log(coord1+" "+coord2);
+    });
 });
 
 
