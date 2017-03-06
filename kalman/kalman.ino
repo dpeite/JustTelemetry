@@ -11,7 +11,7 @@
 #include "MPU9250.h"
 
 // Dimensión del estado
-#define n 3
+#define n 6
 #define lim 300
 
 int cont = 0;
@@ -19,14 +19,14 @@ float or_inicial = 0.0;
 float hist[5];
 
 // Matrices de Kalman
-float P[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}}; // Cuanto menor más eficaz
-float P_ant[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}}; // P_ant no hace falta, usamos P_estimada
-float P_estimada[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}};
-float Q[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float R[n][n] = {{2, 0, 0}, {0, 2, 0}, {0, 0, 2}}; // Cuanto mayor menor confianza
-float K[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float H[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float F[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
+float P_ant[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // P_ant no hace falta, usamos P_estimada
+float P_estimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
+float Q[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float R[n][n] = {{2, 0, 0, 0, 0, 0}, {0, 2, 0, 0, 0, 0}, {0, 0, 2, 0, 0, 0}, {0, 0, 0, 2, 0, 0}, {0, 0, 0, 0, 2, 0}, {0, 0, 0, 0, 0, 2}}; // Cuanto mayor menor confianza
+float K[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float H[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
 
 // Vectores de Kalman
 float x[n];
@@ -110,7 +110,12 @@ void loop() {
 
     // Calculamos Kalman
     // x = F * x_ant
-    oper.mulMatrizVector((float*)F, (float*)x_estimada, (float*)x);
+    x[0] = x_ant[0] + x_ant[2]*0.5*delta_t*delta_t + x_ant[4]*delta_t;
+    x[1] = x_ant[1] + x_ant[3]*0.5*delta_t*delta_t + x_ant[5]*delta_t;
+    x[2] = x_ant[2];
+    x[3] = x_ant[3];
+    x[4] = x_ant[2]*delta_t + x_ant[4];
+    x[5] = x_ant[3]*delta_t + x_ant[5];
 
     // P = F * P_ant * F_tras + Q
     //    oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
@@ -159,4 +164,3 @@ void grafica(float *z1) {
   Serial.print(",");
   Serial.println(z1[2]); // Rojo
 }
-
