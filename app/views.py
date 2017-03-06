@@ -1,5 +1,5 @@
 import json
-
+import os
 from app import app
 from flask import render_template, make_response
 
@@ -37,9 +37,15 @@ def tablas():
 
 @app.route("/sesiones.html")
 def sesiones():
-    with open('app/static/data/sesiones.json') as data_file:
-        posts = json.load(data_file)
-        
+    # with open('app/static/data/sesiones.json') as data_file:
+    #     posts = json.load(data_file)
+    posts = []
+    for path, dirs, files in os.walk("app/static/data/sesiones/"):
+        for d in dirs:
+            with open("app/static/data/sesiones/"+d+"/info.json") as data_file:
+                info = json.load(data_file)
+                posts.append(info)                      
+    
     resp = make_response(render_template("sesiones.html", posts=posts))
     resp.cache_control.no_cache = True
     
