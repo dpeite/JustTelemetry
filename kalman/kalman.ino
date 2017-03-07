@@ -1,3 +1,4 @@
+
 /*Hardware setup:
   MPU9250 Breakout --------- Arduino
   VDD ---------------------- 3.3V
@@ -8,15 +9,12 @@
 */
 
 #include <Matrices.h>
-#include "MPU9250.h"
+#include <TinyGPS.h>
+#include <MPU9250.h>
+#include <SoftwareSerial.h>
 
-// Dimensión del estado
+// Dimensión del tamaño del estado
 #define n 6
-#define lim 300
-
-int cont = 0;
-float or_inicial = 0.0;
-float hist[5];
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
@@ -57,9 +55,21 @@ float K_zHx[n];
 long t_inicial, t_final;
 double delta_t, orientacion;
 
+//Variables del GPS
+float flat, flon, medida_giroscopio, lat_ini, lon_ini, or_inicial = 0.0; velocidad;
+unsigned long age, distancia;
+
+// Constantes
+const float grado_to_radian = 0.0174533;
+const float gravedad = 9.80665; // m/s
+
 // Creamos la instancia de la librería
 Matrices oper(n);
 MPU9250 myIMU;
+TinyGPS gps;
+SoftwareSerial ss(A7, 3);  // RX, TX
+
+static void smartdelay(unsigned long ms);
 
 void setup() {
 
@@ -80,6 +90,9 @@ void setup() {
 
     // Get magnetometer calibration from AK8963 ROM
     myIMU.initAK8963(myIMU.magCalibration);
+
+    myIMU.getGres();
+    myIMU.getAres();  // Obtenemos la resolución del acelerómetro
   } // cierre if (c == 0x71)
   else
   {
@@ -87,8 +100,31 @@ void setup() {
     while (1) ; // Loop forever if communication doesn't happen
   }
 
-  pinMode(13, OUTPUT);
+  Serial.println("Esperando a adquirir la posición...");
+  int cont = 0;
+  while (1) {
+    smartdelay(1000);
+    gps.f_get_position(&flat, &flon, &age);
 
+    if (flat != TinyGPS::GPS_INVALID_F_ANGLE) {
+
+      // Para comprobar que ha detectado bien la posición esperamos hasta recibir 5 veces las mismas coordenadas
+      if (flat == lat_ini && flon == lon_ini) {
+        
+        cont++;
+        
+        if (cont == 5) {
+          Serial.println("Fixed position");
+          break;
+        }
+      } else {
+        // Si no coinciden tomamos las que acabamos de coger como iniciales
+        lat_ini = flat;
+        lon_ini = flon;
+      }
+      
+    } // Cierre if valid coords
+  } // Cierre while
 } // Cierre setup
 
 void loop() {
@@ -97,31 +133,51 @@ void loop() {
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
   {
 
+    // La resolución la he movido arriba, si da error volver a ponerlas aquí
     myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
-    myIMU.getGres();
+    myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
+   
+    // Valor del giroscopio en º/s
+    medida_giroscopio = (float)myIMU.gyroCount[2] * myIMU.gRes; // - myIMU.gyroBias[2];
+    gps.f_get_position(&flat, &flon, &age);
+    velocidad = gps.f_speed_mps();
+    distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
+
+    //TODO: Revisar la posición de los tiempos
+    t_final = millis();
+    delta_t = (t_final - t_inicial);
+
+    orientacion += delta_t * x_estimada[2] / 1000.0f;
+
+    z[0] = distancia * cos(grado_to_radian * orientacion);
+    z[1] = distancia * sin(grado_to_radian * orientacion);
+    z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
+    z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
+    z[4] = velocidad * cos(grado_to_radian * orientacion);
+    z[5] = velocidad * sin(grado_to_radian * orientacion);
+
+     //DEBUG
+    Serial.print("Distancia respecto X, Y: ");
+    Serial.print(z[0]);
+    Serial.print(", ");
+    Serial.println(z[1]);
 
     t_inicial = millis();
 
-    // Calculate the gyro value into actual degrees per second
-    // This depends on scale being set
-    z[0] = (float)myIMU.gyroCount[0] * myIMU.gRes; // En grados segundo
-    z[1] = (float)myIMU.gyroCount[1] * myIMU.gRes;
-    z[2] = (float)myIMU.gyroCount[2] * myIMU.gRes; // - myIMU.gyroBias[2];
-
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = x_ant[0] + x_ant[2]*0.5*delta_t*delta_t + x_ant[4]*delta_t;
-    x[1] = x_ant[1] + x_ant[3]*0.5*delta_t*delta_t + x_ant[5]*delta_t;
-    x[2] = x_ant[2];
-    x[3] = x_ant[3];
-    x[4] = x_ant[2]*delta_t + x_ant[4];
-    x[5] = x_ant[3]*delta_t + x_ant[5];
+    x[0] = x_estimada[0] + x_estimada[2] * 0.5 * delta_t*delta_t + x_estimada[4] * delta_t;
+    x[1] = x_estimada[1] + x_estimada[3] * 0.5 * delta_t*delta_t + x_estimada[5] * delta_t;
+    x[2] = x_estimada[2];
+    x[3] = x_estimada[3];
+    x[4] = x_estimada[2] * delta_t + x_estimada[4];
+    x[5] = x_estimada[3] * delta_t + x_estimada[5];
 
     // P = F * P_ant * F_tras + Q
-    //    oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
-    //    oper.trasponerMatriz((float*)F, (float*)Ftras);
-    //    oper.mulMatrizMatriz((float*)FPant, (float*)Ftras, (float*)FPantFtras);
-    //    oper.sumaMatrizMatriz((float*)FPantFtras, (float*)Q, (float*)P);
+    oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
+    oper.trasponerMatriz((float*)F, (float*)Ftras);
+    oper.mulMatrizMatriz((float*)FPant, (float*)Ftras, (float*)FPantFtras);
+    oper.sumaMatrizMatriz((float*)FPantFtras, (float*)Q, (float*)P);
 
     // K = P * Ht (H * P * Ht + R)^-1
     oper.mulMatrizMatriz((float*)H, (float*)P, (float*)HP);
@@ -131,7 +187,6 @@ void loop() {
     oper.invertirMatriz((float*)HPHtras_R);
     oper.mulMatrizMatriz((float*)P, (float*)Htras, (float*)PHtras);
     oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
-
 
     // x' = x + K (z - H * x)
     oper.mulMatrizVector((float*)H, (float*)x, (float*)Hx);
@@ -143,16 +198,28 @@ void loop() {
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
-    t_final = millis();
-    delta_t = (t_final - t_inicial);
-    
-    orientacion += delta_t * x_estimada[2] / 1000.0f;
+    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
 
-    Serial.println(orientacion);
-   
-    //grafica(x_estimada);
+    // Para el GPS
+    smartdelay(1000);
   }
 } // Cierre Loop
+
+static void smartdelay(unsigned long ms)
+{
+  unsigned long start = millis();
+  do
+  {
+    while (ss.available())
+      gps.encode(ss.read());
+  } while (millis() - start < ms);
+}
+
+void imprimir_coordenadas(float lat, float lon) {
+  Serial.print(lat);
+  Serial.print(',');
+  Serial.println(lon);
+}
 
 /*
    Imprime la aceleración en el eje x (azul), eje y (naranja) y eje z (rojo)
