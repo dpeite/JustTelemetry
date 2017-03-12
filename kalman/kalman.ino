@@ -141,8 +141,8 @@ void loop() {
     orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
     cont_reset_orientacion++;
 
-    if (ss.available()) {
-      if (gps.encode(ss.read())) {
+    if (Serial1.available()) {
+      if (gps.encode(Serial1.read())) {
         gps.f_get_position(&flat, &flon, &age);
         velocidad = gps.f_speed_mps();
         distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
