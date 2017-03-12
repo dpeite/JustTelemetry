@@ -1,8 +1,24 @@
 //Trazada
 $(function() {
-    var d2 = [[42.224581, -8.732471], [42.224325, -8.731725], [42.224096, -8.731065], [42.223774, -8.731172], [42.223415, -8.731054], [42.223107, -8.730708], [42.222640, -8.731089], [42.223028, -8.7316], [42.224581, -8.732471]];
+    // var d2 = [[42.224581, -8.732471], [42.224325, -8.731725], [42.224096, -8.731065], [42.223774, -8.731172], [42.223415, -8.731054], [42.223107, -8.730708], [42.222640, -8.731089], [42.223028, -8.7316], [42.224581, -8.732471]];
+
+    var id = getCookie("id")
+
+    var choiceContainer = $("#vueltas");
+    choiceContainer.find("input").click(plotAccordingToChoices);
+
+    function plotAccordingToChoices() {
+
+	var key
+        choiceContainer.find("input:checked").each(function () {
+	    key = $(this).attr("value");
+		});
+	
+	
+    // $.getJSON("static/data/sesiones/"+id+"/trazada.json", function(d2){
+    $.getJSON("static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json", function(d2){    
     var options = {
-	points: { show: true, radius: 10, lineWidth: 4, fill: false },
+	points: { show: false, radius: 5, lineWidth: 4, fill: false },
 	lines: { show: true },
 	xaxis: { show: false },
 	yaxis: { show: false },
@@ -12,9 +28,11 @@ $(function() {
 		clickable: true
 	      }
     };
-    var plot = $.plot("#flot-line-chart", [d2], options);
-    var coord1 = null;
-    var coord2 = null;
+	
+	var plot = $.plot("#flot-line-chart", [d2], options);
+	var coord1 = null;
+	var coord2 = null;
+	
     $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
 	if (item) {
 	    // $("#clickdata").text(" - click point " + item.datapoint);
@@ -38,8 +56,9 @@ $(function() {
 	$("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
 	console.log(coord1+" "+coord2);
     });
+    });
+    }
 });
-
 
 //Velocidad de las ruedas
 $(document).ready(function() {
