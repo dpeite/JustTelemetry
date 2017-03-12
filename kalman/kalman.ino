@@ -15,6 +15,7 @@
 
 // Dimensión del tamaño del estado
 #define n 6
+#define RESET_ORIENTACION 5
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
@@ -34,15 +35,9 @@ float x_estimada[n];
 float z[n];
 
 // Matrices auxiliares
-float Ftras[n][n];
-float FPant[n][n];
-float FPantFtras[n][n];
+float Ftras[n][n], FPant[n][n], FPantFtras[n][n];
 
-float HP[n][n];
-float Htras[n][n];
-float HPHtras[n][n];
-float HPHtras_R[n][n];
-float PHtras[n][n];
+float HP[n][n], Htras[n][n], HPHtras[n][n], HPHtras_R[n][n], PHtras[n][n];
 
 float KHP[n][n];
 
@@ -53,11 +48,14 @@ float K_zHx[n];
 
 // Para calcular la orientación
 long t_inicial, t_final;
-double delta_t, orientacion;
 
 //Variables del GPS
-float flat, flon, medida_giroscopio, lat_ini, lon_ini, or_inicial = 0.0; velocidad;
+float flat, flon, medida_giroscopio, lat_ini, lon_ini, or_inicial = 0.0, velocidad;
+float orientacion, delta_t;
 unsigned long age, distancia;
+int cont_reset_orientacion = 0;
+
+boolean first = true;
 
 // Constantes
 const float grado_to_radian = 0.0174533;
@@ -67,14 +65,14 @@ const float gravedad = 9.80665; // m/s
 Matrices oper(n);
 MPU9250 myIMU;
 TinyGPS gps;
-SoftwareSerial ss(A7, 3);  // RX, TX
 
 static void smartdelay(unsigned long ms);
 
 void setup() {
 
   Wire.begin();
-  Serial.begin(38400);
+  Serial.begin(38400); // Para imprimir por pantalla
+  Serial1.begin(112500); // Para leer el GPS
 
   // Read the WHO_AM_I register, this is a good test of communication
   byte c = myIMU.readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);
@@ -110,9 +108,9 @@ void setup() {
 
       // Para comprobar que ha detectado bien la posición esperamos hasta recibir 5 veces las mismas coordenadas
       if (flat == lat_ini && flon == lon_ini) {
-        
+
         cont++;
-        
+
         if (cont == 5) {
           Serial.println("Fixed position");
           break;
@@ -122,7 +120,7 @@ void setup() {
         lat_ini = flat;
         lon_ini = flon;
       }
-      
+
     } // Cierre if valid coords
   } // Cierre while
 } // Cierre setup
@@ -132,37 +130,47 @@ void loop() {
   // Comprobamos que haya nuevos datos
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
   {
+    t_inicial = millis();
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
     myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
-   
+
     // Valor del giroscopio en º/s
     medida_giroscopio = (float)myIMU.gyroCount[2] * myIMU.gRes; // - myIMU.gyroBias[2];
-    gps.f_get_position(&flat, &flon, &age);
-    velocidad = gps.f_speed_mps();
-    distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
+    orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
+    cont_reset_orientacion++;
 
-    //TODO: Revisar la posición de los tiempos
-    t_final = millis();
-    delta_t = (t_final - t_inicial);
+    if (ss.available()) {
+      if (gps.encode(ss.read())) {
+        gps.f_get_position(&flat, &flon, &age);
+        velocidad = gps.f_speed_mps();
+        distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
+      }
+    }
 
-    orientacion += delta_t * x_estimada[2] / 1000.0f;
+    if (first || cont_reset_orientacion == RESET_ORIENTACION) {
+      first = false;
+      cont_reset_orientacion = 0;
 
-    z[0] = distancia * cos(grado_to_radian * orientacion);
-    z[1] = distancia * sin(grado_to_radian * orientacion);
-    z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
-    z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
-    z[4] = velocidad * cos(grado_to_radian * orientacion);
-    z[5] = velocidad * sin(grado_to_radian * orientacion);
+      orientacion += gps.course_to(lat_ini, lon_ini, flat, flon);
+      Serial.print("Orientación inicial: ");
+      Serial.print(orientacion);
+    }
 
-     //DEBUG
-    Serial.print("Distancia respecto X, Y: ");
-    Serial.print(z[0]);
-    Serial.print(", ");
-    Serial.println(z[1]);
+    // Comprobamos que nos hemos movido del origen
+    if (distancia != 0) {
+      z[0] = distancia * cos(grado_to_radian * orientacion);
+      z[1] = distancia * sin(grado_to_radian * orientacion);
+      z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
+      z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
+      z[4] = velocidad * cos(grado_to_radian * orientacion);
+      z[5] = velocidad * sin(grado_to_radian * orientacion);
+    }
 
-    t_inicial = millis();
+    //DEBUG
+    //Serial.print("Distancia respecto X, Y: ");
+    //imprimir_coordenadas(z[0], z[1]);
 
     // Calculamos Kalman
     // x = F * x_ant
@@ -198,13 +206,20 @@ void loop() {
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
+    //Serial.print("Coordenadas relativas: ");
     imprimir_coordenadas(x_estimada[0], x_estimada[1]);
 
     // Para el GPS
-    smartdelay(1000);
+    //smartdelay(1000);
+
+    //TODO: Revisar la posición de los tiempos
+    t_final = millis();
+    delta_t = (t_final - t_inicial) / 1000.0f;
   }
 } // Cierre Loop
 
+// No tengo muy claro como se supone que va este método, venía en el ejemplo de la librería.
+// Parece que el parámetro que se le pasa es el tiempo entre muestras
 static void smartdelay(unsigned long ms)
 {
   unsigned long start = millis();
@@ -215,19 +230,11 @@ static void smartdelay(unsigned long ms)
   } while (millis() - start < ms);
 }
 
-void imprimir_coordenadas(float lat, float lon) {
-  Serial.print(lat);
-  Serial.print(',');
-  Serial.println(lon);
-}
-
 /*
-   Imprime la aceleración en el eje x (azul), eje y (naranja) y eje z (rojo)
-*/
-void grafica(float *z1) {
-  Serial.print(z1[0]); // Azul
-  Serial.print(",");
-  Serial.print(z1[1]); // Naranja
-  Serial.print(",");
-  Serial.println(z1[2]); // Rojo
+ * Método para imprimir las coordenadas en formato LAT,LON
+ */
+void imprimir_coordenadas(float lat, float lon) {
+  Serial.print(lat, 6);
+  Serial.print(',');
+  Serial.println(lon, 6);
 }
