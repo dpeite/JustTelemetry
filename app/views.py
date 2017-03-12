@@ -44,7 +44,8 @@ def sesiones():
         for d in dirs:
             with open("app/static/data/sesiones/"+d+"/info.json") as data_file:
                 info = json.load(data_file)
-                posts.append(info)                      
+                posts.append(info)
+        break
     
     resp = make_response(render_template("sesiones.html", posts=posts))
     resp.cache_control.no_cache = True
