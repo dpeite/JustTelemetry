@@ -50,16 +50,43 @@
           <thead>
             <tr>
               <th></th>
+              <th></th>
               <th>Fecha</th>
               <th>Nombre</th>
               <th>Duracion</th>
               <th>Metros</th>
             </tr>
           </thead>
+
+          <!-- Modal -->
+          <div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                  <h4 class="modal-title" id="myModalLabel">Seleccionar punto inicio vuelta</h4>
+                </div>
+                <!-- <div class="modal-body" id="vueltas" style="height:200%; width:200%;"> -->
+                <div id="modalcontent" class="modal-body">
+              </div>
+              <!-- /.modal-content -->
+            </div>
+            <!-- /.modal-dialog -->
+          </div>
+          <!-- /.modal -->
+
           <tbody>
             {% for post in posts %}
             <tr >
               <td><input type="radio" name="optionsRadios" value="{{ post.id }}"></td>
+              <td>
+                <button type="button" class="btn btn-primary btn-lg vueltas">
+                  Vuelta
+                </button>
+
+                <!-- </div> -->
+
+              </td>
               <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.fecha }}</td>
               <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.nombre }}</td>
               <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.tiempo }}</td>
@@ -89,4 +116,11 @@
 {% block javascript %}
 {{ super() }}
 <script src="static/js/sesiones.js"></script>
+<!-- Flot Charts JavaScript -->
+<script src="static/js/flot/excanvas.min.js"></script>
+<script src="static/js/flot/jquery.flot.js"></script>
+<script src="static/js/flot/jquery.flot.pie.js"></script>
+<script src="static/js/flot/jquery.flot.resize.js"></script>
+<script src="static/js/flot/jquery.flot.time.js"></script>
+<script src="static/js/flot-tooltip/jquery.flot.tooltip.min.js"></script>
 {% endblock %}
