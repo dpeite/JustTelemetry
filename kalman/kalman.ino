@@ -11,7 +11,9 @@
 #include <Matrices.h>
 #include <TinyGPS.h>
 #include <MPU9250.h>
-#include <SoftwareSerial.h>
+
+// Comentar para imprimir en formato JSON para la web
+#define JSON
 
 // Dimensión del tamaño del estado
 #define n 6
@@ -51,7 +53,10 @@ long t_inicial, t_final;
 
 //Variables del GPS
 float flat, flon, medida_giroscopio, lat_ini, lon_ini, or_inicial = 0.0, velocidad;
+float flat_ant, flon_ant;
+float orientacion_gps = 0.0;
 float orientacion, delta_t;
+float angulo = 0.0;
 unsigned long age, distancia;
 int cont_reset_orientacion = 0;
 
@@ -103,16 +108,15 @@ void setup() {
   while (1) {
     smartdelay(1000);
     gps.f_get_position(&flat, &flon, &age);
-
+    
     if (flat != TinyGPS::GPS_INVALID_F_ANGLE) {
 
       // Para comprobar que ha detectado bien la posición esperamos hasta recibir 5 veces las mismas coordenadas
       if (flat == lat_ini && flon == lon_ini) {
-
         cont++;
 
         if (cont == 5) {
-          Serial.println("Fixed position");
+          Serial.println("Posición fijada");
           break;
         }
       } else {
@@ -120,9 +124,15 @@ void setup() {
         lat_ini = flat;
         lon_ini = flon;
       }
-
     } // Cierre if valid coords
   } // Cierre while
+
+  flat_ant = lat_ini;
+  flon_ant = lon_ini;
+
+#ifdef JSON
+  Serial.println('[');
+#endif
 } // Cierre setup
 
 void loop() {
@@ -133,44 +143,45 @@ void loop() {
     t_inicial = millis();
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
-    myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
+    //myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
 
     // Valor del giroscopio en º/s
     medida_giroscopio = (float)myIMU.gyroCount[2] * myIMU.gRes; // - myIMU.gyroBias[2];
-    orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
-    cont_reset_orientacion++;
+    //orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
+    //cont_reset_orientacion++;
 
-    if (Serial1.available()) {
-      if (gps.encode(Serial1.read())) {
-        gps.f_get_position(&flat, &flon, &age);
-        velocidad = gps.f_speed_mps();
-        distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
-      }
-    }
+    smartdelay(100);
+    gps.f_get_position(&flat, &flon, &age);
+   // Serial.print("He obtenido la pos ");
+    //Serial.println(flat, 8);
+    distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
+    orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
 
+    
     if (first || cont_reset_orientacion == RESET_ORIENTACION) {
       first = false;
       cont_reset_orientacion = 0;
 
-      orientacion += gps.course_to(lat_ini, lon_ini, flat, flon);
-      Serial.print("Orientación inicial: ");
-      Serial.print(orientacion);
+      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
     }
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
-      z[0] = distancia * cos(grado_to_radian * orientacion);
-      z[1] = distancia * sin(grado_to_radian * orientacion);
+      z[0] = distancia * cos(grado_to_radian * angulo);
+      z[1] = distancia * sin(grado_to_radian * angulo);
       z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
       z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
       z[4] = velocidad * cos(grado_to_radian * orientacion);
       z[5] = velocidad * sin(grado_to_radian * orientacion);
+    } else {
+      // Si no nos movemos la velocidad y la aceleración son 0. Así evitamos errores de sincronía entre GPS e IMU
+     // z[2] = 0.0;
+     // z[3] = 0.0;
+     /// z[4] = 0.0;
+     // z[5] = 0.0;
     }
-
-    //DEBUG
-    //Serial.print("Distancia respecto X, Y: ");
-    //imprimir_coordenadas(z[0], z[1]);
 
     // Calculamos Kalman
     // x = F * x_ant
@@ -206,11 +217,13 @@ void loop() {
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
-    //Serial.print("Coordenadas relativas: ");
-    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
+#ifdef JSON
+    imprimir_json(x_estimada[0], x_estimada[1]);
+#endif
 
-    // Para el GPS
-    //smartdelay(1000);
+#ifndef JSON
+    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
+#endif
 
     //TODO: Revisar la posición de los tiempos
     t_final = millis();
@@ -225,16 +238,36 @@ static void smartdelay(unsigned long ms)
   unsigned long start = millis();
   do
   {
-    while (ss.available())
-      gps.encode(ss.read());
+    while (Serial1.available())
+      gps.encode(Serial1.read());
   } while (millis() - start < ms);
 }
 
 /*
- * Método para imprimir las coordenadas en formato LAT,LON
- */
-void imprimir_coordenadas(float lat, float lon) {
-  Serial.print(lat, 6);
+   Método para imprimir las coordenadas en formato LAT,LON,MILLIS
+*/
+void imprimir_coordenadas_tiempo(float lat, float lon) {
+  Serial.print(lat, 8);
   Serial.print(',');
-  Serial.println(lon, 6);
+  Serial.print(lon, 8);
+  Serial.print(',');
+  Serial.println(millis());
 }
+
+void imprimir_coordenadas(float lat, float lon) {
+  Serial.print(lat, 8);
+  Serial.print(',');
+  Serial.println(lon, 8);
+}
+
+void imprimir_json(float lat, float lon) {
+  Serial.print('[');
+  Serial.print(lat, 8);
+  Serial.print(',');
+  Serial.print(lon, 8);
+  Serial.print(',');
+  Serial.print(millis());
+  Serial.print(']');
+  Serial.println(',');
+}
+
