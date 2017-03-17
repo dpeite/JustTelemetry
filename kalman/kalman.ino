@@ -21,7 +21,6 @@
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
-float P_ant[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // P_ant no hace falta, usamos P_estimada
 float P_estimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
 float Q[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
 float R[n][n] = {{2, 0, 0, 0, 0, 0}, {0, 2, 0, 0, 0, 0}, {0, 0, 2, 0, 0, 0}, {0, 0, 0, 2, 0, 0}, {0, 0, 0, 0, 2, 0}, {0, 0, 0, 0, 0, 2}}; // Cuanto mayor menor confianza
@@ -31,7 +30,6 @@ float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0,
 
 // Vectores de Kalman
 float x[n];
-float x_ant[n]; // x_ant no hace falta, usamos x_estimada
 float x_estimada[n];
 
 float z[n];
@@ -52,9 +50,8 @@ float K_zHx[n];
 long t_inicial, t_final;
 
 //Variables del GPS
-float flat, flon, medida_giroscopio, lat_ini, lon_ini, or_inicial = 0.0, velocidad;
+float flat, flon, medida_giroscopio, lat_ini, lon_ini, velocidad;
 float flat_ant, flon_ant;
-float orientacion_gps = 0.0;
 float orientacion, delta_t;
 float angulo = 0.0;
 unsigned long age, distancia;
@@ -106,9 +103,9 @@ void setup() {
   Serial.println("Esperando a adquirir la posición...");
   int cont = 0;
   while (1) {
-    smartdelay(1000);
+    smartdelay(500);
     gps.f_get_position(&flat, &flon, &age);
-    
+
     if (flat != TinyGPS::GPS_INVALID_F_ANGLE) {
 
       // Para comprobar que ha detectado bien la posición esperamos hasta recibir 5 veces las mismas coordenadas
@@ -142,6 +139,12 @@ void loop() {
   {
     t_inicial = millis();
 
+    smartdelay(100);
+    gps.f_get_position(&flat, &flon, &age);
+    distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
+    orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
+
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
     //myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
@@ -151,21 +154,11 @@ void loop() {
     //orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
     //cont_reset_orientacion++;
 
-    smartdelay(100);
-    gps.f_get_position(&flat, &flon, &age);
-   // Serial.print("He obtenido la pos ");
-    //Serial.println(flat, 8);
-    distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
-    orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
-    angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
-
-    
-    if (first || cont_reset_orientacion == RESET_ORIENTACION) {
-      first = false;
-      cont_reset_orientacion = 0;
-
-      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
-    }
+//    if (first || cont_reset_orientacion == RESET_ORIENTACION) {
+//      first = false;
+//      cont_reset_orientacion = 0;
+//      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+//    }
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
@@ -177,20 +170,20 @@ void loop() {
       z[5] = velocidad * sin(grado_to_radian * orientacion);
     } else {
       // Si no nos movemos la velocidad y la aceleración son 0. Así evitamos errores de sincronía entre GPS e IMU
-     // z[2] = 0.0;
-     // z[3] = 0.0;
-     /// z[4] = 0.0;
-     // z[5] = 0.0;
+      // z[2] = 0.0;
+      // z[3] = 0.0;
+      // z[4] = 0.0;
+      // z[5] = 0.0;
     }
 
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = x_estimada[0] + x_estimada[2] * 0.5 * delta_t*delta_t + x_estimada[4] * delta_t;
-    x[1] = x_estimada[1] + x_estimada[3] * 0.5 * delta_t*delta_t + x_estimada[5] * delta_t;
-    x[2] = x_estimada[2];
-    x[3] = x_estimada[3];
-    x[4] = x_estimada[2] * delta_t + x_estimada[4];
-    x[5] = x_estimada[3] * delta_t + x_estimada[5];
+    x[0] = x_estimada[0] + x_estimada[2] * 0.5 * delta_t*delta_t + x_estimada[4] * delta_t; //px
+    x[1] = x_estimada[1] + x_estimada[3] * 0.5 * delta_t*delta_t + x_estimada[5] * delta_t; //py
+    x[2] = x_estimada[2]; // ax
+    x[3] = x_estimada[3]; //ay
+    x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
+    x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
     // P = F * P_ant * F_tras + Q
     oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
@@ -225,14 +218,15 @@ void loop() {
     imprimir_coordenadas(x_estimada[0], x_estimada[1]);
 #endif
 
-    //TODO: Revisar la posición de los tiempos
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
   }
 } // Cierre Loop
 
-// No tengo muy claro como se supone que va este método, venía en el ejemplo de la librería.
-// Parece que el parámetro que se le pasa es el tiempo entre muestras
+/*
+   No tengo muy claro como se supone que va este método, venía en el ejemplo de la librería.
+   Parece que el parámetro que se le pasa es el tiempo entre muestras
+*/
 static void smartdelay(unsigned long ms)
 {
   unsigned long start = millis();
@@ -254,12 +248,18 @@ void imprimir_coordenadas_tiempo(float lat, float lon) {
   Serial.println(millis());
 }
 
+/*
+   Método para imprimir las coordenadas en formato LAT,LON
+*/
 void imprimir_coordenadas(float lat, float lon) {
   Serial.print(lat, 8);
   Serial.print(',');
   Serial.println(lon, 8);
 }
 
+/*
+   Método para imprimir las coordenadas en formato [LAT,LON,MILLIS]
+*/
 void imprimir_json(float lat, float lon) {
   Serial.print('[');
   Serial.print(lat, 8);
