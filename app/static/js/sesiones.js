@@ -87,3 +87,8 @@ $('input[name="optionsRadios"]').on("click", function(e) {
   document.cookie = "id="+value;
   console.log(document.cookie);
 });
+
+$('.tooltip-demo').tooltip({
+    selector: "[data-toggle=tooltip]",
+    container: "body"
+})

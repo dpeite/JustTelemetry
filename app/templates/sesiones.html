@@ -88,12 +88,18 @@
               <tr >
                 <td><input type="radio" name="optionsRadios" value="{{ post.id }}"></td>
                 <td>
-                  <button type="button" class="btn btn-primary btn-lg vueltas">
-                    Vuelta
-                  </button>
-
-                  <!-- </div> -->
-
+		  <div class="tooltip-demo">
+                    <button type="button" class="btn btn-primary btn-xs vueltas" data-toggle="tooltip" data-placement="top" title="Selección punto inicio vuelta">
+		      <i class="fa fa-undo fa-fw"></i>
+                    </button>
+		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Editar sesión">
+		      <i class="fa fa-edit fa-fw"></i>
+                    </button>
+		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
+		      <i class="glyphicon glyphicon-remove fa-fw"></i>
+                    </button>
+                    <!-- </div> -->
+		  </div>
                 </td>
                 <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.fecha }}</td>
                 <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.nombre }}</td>
