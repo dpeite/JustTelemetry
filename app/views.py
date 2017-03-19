@@ -1,7 +1,7 @@
 import json
 import os
 from app import app
-from flask import render_template, make_response
+from flask import render_template, make_response, request
 
 @app.route("/")
 @app.route("/index.html")
@@ -13,7 +13,14 @@ def index():
 
 @app.route("/tiempo.html")
 def tiempo():
-    resp = make_response(render_template("tiempo.html"))
+    ID = str(request.cookies.get("id"))
+    try:
+        path, dirs, files = os.walk("app/static/data/sesiones/"+ID+"/vueltas").next()
+        vueltas = len(files)
+    except:
+        vueltas = 0
+        pass
+    resp = make_response(render_template("tiempo.html", vueltas=vueltas))
     resp.cache_control.no_cache = True
     return resp
 
@@ -57,3 +64,21 @@ def importar_exportar():
     resp = make_response(render_template("importar-exportar.html"))
     resp.cache_control.no_cache = True
     return resp
+
+##################Local endpoints#######################
+@app.route("/cortar_vueltas")
+def cortar_vueltas():
+    lat = float(request.args.get("lat"))
+    lon = float(request.args.get("lon"))
+    ID = str(request.args.get("id"))
+    try:
+        print "aklfadfklad"
+        import vueltas
+#        vueltas.cortar()
+        vueltas.cortar(lat, lon, ID)
+        print "fin1"
+        return "", 200
+    except Exception as exc:
+        print exc
+        return "", 500
+

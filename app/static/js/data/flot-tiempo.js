@@ -5,6 +5,7 @@ $(function() {
     var id = getCookie("id")
 
     var choiceContainer = $("#vueltas");
+    plotAccordingToChoices();
     choiceContainer.find("input").click(plotAccordingToChoices);
 
     function plotAccordingToChoices() {
@@ -14,9 +15,17 @@ $(function() {
 	    key = $(this).attr("value");
 		});
 	
-	
+	console.log(key);
+	var path = null;
+	if (key == "trazada"){
+	    path = "static/data/sesiones/"+id+"/trazada.json";
+	}
+	else{
+	    path = "static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json";
+	}
     // $.getJSON("static/data/sesiones/"+id+"/trazada.json", function(d2){
-    $.getJSON("static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json", function(d2){    
+	// $.getJSON("static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json", function(d2){
+	$.getJSON(path, function(d2){    
     var options = {
 	points: { show: false, radius: 5, lineWidth: 4, fill: false },
 	lines: { show: true },
