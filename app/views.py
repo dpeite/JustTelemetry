@@ -72,11 +72,8 @@ def cortar_vueltas():
     lon = float(request.args.get("lon"))
     ID = str(request.args.get("id"))
     try:
-        print "aklfadfklad"
         import vueltas
-#        vueltas.cortar()
         vueltas.cortar(lat, lon, ID)
-        print "fin1"
         return "", 200
     except Exception as exc:
         print exc
