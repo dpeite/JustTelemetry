@@ -59,9 +59,9 @@ def sesiones():
     
     return resp
 
-@app.route("/importar-exportar.html")
+@app.route("/controlremoto.html")
 def importar_exportar():
-    resp = make_response(render_template("importar-exportar.html"))
+    resp = make_response(render_template("controlremoto.html"))
     resp.cache_control.no_cache = True
     return resp
 
