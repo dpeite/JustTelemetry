@@ -89,9 +89,7 @@ def cortar_json():
     try:
         import tramo
         from flask import jsonify
-        resp = jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID)), 200
-        print resp
-        return resp
+        return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID)), 200
     except Exception as exc:
         print exc
         return "", 500
