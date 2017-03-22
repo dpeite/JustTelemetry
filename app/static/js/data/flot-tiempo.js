@@ -8,6 +8,10 @@ $(function() {
   plotAccordingToChoices();
   choiceContainer.find("input").click(plotAccordingToChoices);
 
+          var plot
+      var coord1 = null;
+      var coord2 = null;
+
   function plotAccordingToChoices() {
 
     var key
@@ -38,9 +42,9 @@ $(function() {
         }
       };
 
-      var plot = $.plot("#flot-line-chart", [d2], options);
-      var coord1 = null;
-      var coord2 = null;
+	plot = $.plot("#flot-line-chart", [d2], options);
+});
+    }
 
       $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
         if (item) {
@@ -66,8 +70,8 @@ $(function() {
         $("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
         console.log(coord1+" "+coord2);
       });
-    });
-  }
+    
+
 });
 
 //Velocidad de las ruedas
