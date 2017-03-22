@@ -1,7 +1,3 @@
-$(function() {
-    vel_ruedas();
-});
-
 //Trazada
 $(function() {
   // var d2 = [[42.224581, -8.732471], [42.224325, -8.731725], [42.224096, -8.731065], [42.223774, -8.731172], [42.223415, -8.731054], [42.223107, -8.730708], [42.222640, -8.731089], [42.223028, -8.7316], [42.224581, -8.732471]];
@@ -44,8 +40,8 @@ $(function() {
           hoverable: true,
           clickable: true
         }
-      };
-
+	};
+	vel_ruedas(d2[0],d2[d2.length-1]);
 	plot = $.plot("#flot-line-chart", [d2], options);
 });
     }
@@ -105,7 +101,7 @@ function vel_ruedas(coord1, coord2){
   // countries are turned on/off
 
     var id = getCookie("id")
-    path = "static/data/sesiones/"+id+"/ruedas3.json";
+    path = "static/data/sesiones/"+id+"/ruedas.json";
 //     $.getJSON(path, function(datasets){
     console.log(coord1+"antes cortar ladfkadf"+coord2)
     $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id}, function(data, status, xhr){
