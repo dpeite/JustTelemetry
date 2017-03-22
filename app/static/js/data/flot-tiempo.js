@@ -1,3 +1,7 @@
+$(function() {
+    vel_ruedas();
+});
+
 //Trazada
 $(function() {
   // var d2 = [[42.224581, -8.732471], [42.224325, -8.731725], [42.224096, -8.731065], [42.223774, -8.731172], [42.223415, -8.731054], [42.223107, -8.730708], [42.222640, -8.731089], [42.223028, -8.7316], [42.224581, -8.732471]];
@@ -57,7 +61,8 @@ $(function() {
           }
           else if (coord2 == null){
             coord2 = item.datapoint;
-            plot.highlight(item.series, item.datapoint);
+              plot.highlight(item.series, item.datapoint);
+	      vel_ruedas(coord1, coord2)
           }
           else {
             plot.unhighlight(item.series, coord1);
@@ -75,7 +80,7 @@ $(function() {
 });
 
 //Velocidad de las ruedas
-$(document).ready(function() {
+function vel_ruedas(coord1, coord2){
 
   // var datasets = {
   //   "usa": {
@@ -100,26 +105,32 @@ $(document).ready(function() {
   // countries are turned on/off
 
     var id = getCookie("id")
-    path = "static/data/sesiones/"+id+"/ruedas.json";
-    $.getJSON(path, function(datasets){
-	console.log("siiiiii")
+    path = "static/data/sesiones/"+id+"/ruedas3.json";
+//     $.getJSON(path, function(datasets){
+    console.log(coord1+"antes cortar ladfkadf"+coord2)
+    $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id}, function(data, status, xhr){
+	var datasets = data
+    console.log("siiiiii")
     
     
   var i = 0;
-  $.each(datasets, function(key, val) {
+$.each(datasets, function(key, val) {
     val.color = i;
     ++i;
   });
 
   // insert checkboxes
   var choiceContainer = $("#choices");
-  $.each(datasets, function(key, val) {
+if (!$.trim(choiceContainer.html())){
+	$.each(datasets, function(key, val) {
+
+	    
     choiceContainer.append("<br/><input type='checkbox' name='" + key +
     "' checked='checked' id='id" + key + "'></input>" +
     "<label for='id" + key + "'>"
-    + val.label + "</label>");
+			   + key + "</label>");
   });
-
+	    }
   choiceContainer.find("input").click(plotAccordingToChoices);
 
   function plotAccordingToChoices() {
@@ -148,7 +159,7 @@ $(document).ready(function() {
   plotAccordingToChoices();
 
 });
-});
+}
 
 //Compresion del Amortiguador
 $(document).ready(function() {
@@ -230,7 +241,6 @@ $(function() {
   var id = getCookie("id")
   path = "static/data/sesiones/"+id+"/volante.json";
     $.getJSON(path, function(d2){
-    console.log("siiiiii")
     $.plot("#flot-line-chart-moving", [{data:d2.direccion}]);
   });
 });
