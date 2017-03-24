@@ -13,10 +13,13 @@
 #include <MPU9250.h>
 
 // Desomentar para imprimir en formato JSON para la web
-#define JSON
+//#define JSON
 
 // Descomentar para enviar las coordenadas originales junto a las obtenidas por Kalman
 //#define COMPARE
+
+// Descomentar para enviar la distancia
+#define DIST
 
 // Dimensión del tamaño del estado
 #define n 6
@@ -57,7 +60,7 @@ float flat, flon, medida_giroscopio, lat_ini, lon_ini, velocidad;
 float flat_ant, flon_ant;
 float orientacion, delta_t;
 float angulo = 0.0;
-unsigned long age, distancia;
+unsigned long age, distancia, dist_acumulada;
 int cont_reset_orientacion = 0;
 
 boolean first = true;
@@ -144,7 +147,9 @@ void loop() {
 
     smartdelay(100);
     gps.f_get_position(&flat, &flon, &age);
+    
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
+    dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
     orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
     angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
 
@@ -217,13 +222,17 @@ void loop() {
     imprimir_json(x_estimada[0], x_estimada[1]);
 #endif
 
+#ifdef DIST
+    imprimir_json_dist(x_estimada[0], x_estimada[1], dist_acumulada);
+#endif
+
 #ifdef COMPARE
     imprimir_json_comp(x_estimada[0], x_estimada[1], z[0], z[1]);
 #endif
 
-//#ifndef JSON
-//    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
-//#endif
+    //#ifndef JSON
+    //    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
+    //#endif
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
@@ -279,9 +288,25 @@ void imprimir_json(float lat, float lon) {
 }
 
 /*
-   Método para imprimir las coordenadas en formato [LAT_KAL,LONLAT_KAL,LAT_ORI,LON_ORI,MILLIS]
+   Método para imprimir las coordenadas en formato [LAT, LON, DIST, MILLIS]
 */
-void imprimir_json_comp(float lat_kal, float lon_kal, float lat_ori, float lon_ori) {  
+void imprimir_json_dist(float lat, float lon, unsigned long dist) {
+  Serial.print('[');
+  Serial.print(lat, 8);
+  Serial.print(',');
+  Serial.print(lon, 8);
+  Serial.print(',');
+  Serial.print(dist);
+  Serial.print(',');
+  Serial.print(millis());
+  Serial.print(']');
+  Serial.println(',');
+}
+
+/*
+   Método para imprimir las coordenadas en formato [LAT_KAL,LON_KAL,LAT_ORI,LON_ORI,MILLIS]
+*/
+void imprimir_json_comp(float lat_kal, float lon_kal, float lat_ori, float lon_ori) {
   Serial.print('[');
   Serial.print(lat_kal, 8);
   Serial.print(',');
