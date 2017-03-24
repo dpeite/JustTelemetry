@@ -4,8 +4,8 @@
  * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap/blob/gh-pages/LICENSE)
  */
 
-.oculto{
-    display:none;
+ .oculto{
+  display:none;
 }
 
 body {
@@ -179,17 +179,17 @@ body {
   height: 400px;
 }
 .flot-chart-content {
-    width: 85%;
-    height: 100%;
+  width: 85%;
+  height: 100%;
 }
-/* .flot-chart-content { */
-/*   width: 100%; */
-/*   height: 100%; */
-/* } */
+.flot-chart-content-wide {
+ width: 100%;
+ height: 100%;
+} 
 
 td.hiddenRow {
-    padding: 0 !important;
-    border: none !important;
+  padding: 0 !important;
+  border: none !important;
 }
 
 table.dataTable thead .sorting,
