@@ -12,8 +12,11 @@
 #include <TinyGPS.h>
 #include <MPU9250.h>
 
-// Comentar para imprimir en formato JSON para la web
+// Desomentar para imprimir en formato JSON para la web
 #define JSON
+
+// Descomentar para enviar las coordenadas originales junto a las obtenidas por Kalman
+//#define COMPARE
 
 // Dimensión del tamaño del estado
 #define n 6
@@ -127,7 +130,7 @@ void setup() {
   flat_ant = lat_ini;
   flon_ant = lon_ini;
 
-#ifdef JSON
+#if defined(JSON) || defined(COMPARE)
   Serial.println('[');
 #endif
 } // Cierre setup
@@ -154,15 +157,15 @@ void loop() {
     //orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
     //cont_reset_orientacion++;
 
-//    if (first || cont_reset_orientacion == RESET_ORIENTACION) {
-//      first = false;
-//      cont_reset_orientacion = 0;
-//      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
-//    }
+    //    if (first || cont_reset_orientacion == RESET_ORIENTACION) {
+    //      first = false;
+    //      cont_reset_orientacion = 0;
+    //      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    //    }
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
-      z[0] = distancia * cos(grado_to_radian * angulo);
+      z[0] = distancia * cos(grado_to_radian * angulo) * (-1); // Para invertir la imagen
       z[1] = distancia * sin(grado_to_radian * angulo);
       z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
       z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
@@ -214,9 +217,13 @@ void loop() {
     imprimir_json(x_estimada[0], x_estimada[1]);
 #endif
 
-#ifndef JSON
-    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
+#ifdef COMPARE
+    imprimir_json_comp(x_estimada[0], x_estimada[1], z[0], z[1]);
 #endif
+
+//#ifndef JSON
+//    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
+//#endif
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
@@ -265,6 +272,24 @@ void imprimir_json(float lat, float lon) {
   Serial.print(lat, 8);
   Serial.print(',');
   Serial.print(lon, 8);
+  Serial.print(',');
+  Serial.print(millis());
+  Serial.print(']');
+  Serial.println(',');
+}
+
+/*
+   Método para imprimir las coordenadas en formato [LAT_KAL,LONLAT_KAL,LAT_ORI,LON_ORI,MILLIS]
+*/
+void imprimir_json_comp(float lat_kal, float lon_kal, float lat_ori, float lon_ori) {  
+  Serial.print('[');
+  Serial.print(lat_kal, 8);
+  Serial.print(',');
+  Serial.print(lon_kal, 8);
+  Serial.print(',');
+  Serial.print(lat_ori, 8);
+  Serial.print(',');
+  Serial.print(lon_ori, 8);
   Serial.print(',');
   Serial.print(millis());
   Serial.print(']');
