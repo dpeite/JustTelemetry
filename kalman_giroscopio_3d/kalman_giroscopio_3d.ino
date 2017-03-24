@@ -91,11 +91,10 @@ void loop() {
   // Comprobamos que haya nuevos datos
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
   {
-
+    t_inicial = millis();
+    
     myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
     myIMU.getGres();
-
-    t_inicial = millis();
 
     // Calculate the gyro value into actual degrees per second
     // This depends on scale being set
