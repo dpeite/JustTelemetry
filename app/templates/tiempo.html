@@ -41,11 +41,12 @@
 			    </div>
 			    <!-- /.panel-heading -->
 			    <div class="panel-body">
-			      <p id="choices" style="float:right; width:15%;"></p>
+			      <!-- <p id="choices" style="float:right; width:15%;"></p> -->
+			      <!-- <div id="choices" class="btn-group" data-toggle="buttons" style="float:right; width:15%;"> -->
 			      <div class="flot-chart">
-				  <div class="flot-chart-content" id="flot-pie-chart"></div>
-
-				</div>
+				  <div class="flot-chart-content-wide" id="flot-pie-chart"></div>
+			      </div>
+			      <div id="choices" class="btn-group col-xs-12" data-toggle="buttons"></div>
 			    </div>
 			    <!-- /.panel-body -->
 			</div>
@@ -138,4 +139,5 @@
 	<script src="static/js/flot/jquery.flot.time.js"></script>
 	<script src="static/js/flot-tooltip/jquery.flot.tooltip.min.js"></script>
 	<script src="static/js/data/flot-tiempo.js"></script>
+	<script src="static/js/flot/jquery.flot.crosshair.js"></script>
 {% endblock %}

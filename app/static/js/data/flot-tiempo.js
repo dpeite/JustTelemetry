@@ -121,41 +121,145 @@ if (!$.trim(choiceContainer.html())){
 	$.each(datasets, function(key, val) {
 
 	    
-    choiceContainer.append("<br/><input type='checkbox' name='" + key +
-    "' checked='checked' id='id" + key + "'></input>" +
-    "<label for='id" + key + "'>"
-			   + key + "</label>");
+	// choiceContainer.append("<br/><input type='checkbox' name='" + key + "' checked='checked' id='VR-" + val.label + "'></input>" + "<label for='VR-" + val.label + "'>" + key + "</label>");
+	choiceContainer.append("<label class='btn btn-primary active col-xs-3' for='VR2-" + val.label + "'>" +"<input type='checkbox' name='" + key + "' checked='checked' id='VR2-" + val.label + "'></input>"+"<div id='VR-"+val.label+"'> "+val.label+" </div>"  + "</label>");
   });
-	    }
-  choiceContainer.find("input").click(plotAccordingToChoices);
+}
+	// choiceContainer.append("<label class='btn btn-primary col-xs-6 hidden '>" + "<div id='VR-lat'>  </div>"  + "</label>");
+	// choiceContainer.append("<label class='btn btn-primary col-xs-6 hidden'>" + "<div id='VR-lon'>  </div>"  + "</label>");
+
+	choiceContainer.append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='VR-lat'>Lat</div>"  + "</label>");
+	choiceContainer.append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='VR-lon'>Lon</div>"  + "</label>");
+
+	
+	// choiceContainer.find("input").click(plotAccordingToChoices);
+	choiceContainer.find(":input").change(plotAccordingToChoices);
 
   function plotAccordingToChoices() {
 
     var data = [];
 
-    choiceContainer.find("input:checked").each(function () {
-      var key = $(this).attr("name");
+      choiceContainer.find("input:checked").each(function () {
+          // choiceContainer.find(".active").each(function () {
+	  var key = $(this).attr("name");
+	  console.log(key)
       if (key && datasets[key]) {
         data.push(datasets[key]);
       }
     });
 
     if (data.length > 0) {
-      $.plot("#flot-pie-chart", data, {
-        yaxis: {
-          min: 0
-        },
+	plot = $.plot("#flot-pie-chart", data, {
         xaxis: {
           tickDecimals: 0
-        }
+        },
+	  crosshair: {
+	      mode: "x"
+	  },
+	      grid : {
+		  hoverable : true,
+		  autoHighlight: false
+	      },
+	    legend: {
+		labelFormatter: function(label, series) {
+		    // series is the series object for the label
+		    return null
+		}
+	    }
+
       });
     }
+
+	  $("#flot-pie-chart tbody").append('<tr><td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;border:5px solid rgb(237,194,64);overflow:hidden"></div></div></td><td class="legendLabel">Posicion = 5.46</td></tr>')
+
+      var legends = $("#flot-pie-chart .legendLabel");
+      var updateLegendTimeout = null;
+      var latestPosition = null;
+
+      function updateLegend() {	  
+	  updateLegendTimeout = null;
+
+	  var pos = latestPosition;
+
+	  var axes = plot.getAxes();
+	  if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
+	      pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
+	      return;
+	  }
+
+	  var i, j, dataset = plot.getData();
+	  for (i = 0; i < dataset.length; ++i) {
+
+	      var series = dataset[i];
+
+	      // Find the nearest points, x-wise
+
+	      for (j = 0; j < series.data.length; ++j) {
+		  if (series.data[j][0] > pos.x) {
+		      break;
+		  }
+	      }
+
+	      // console.log(series.data[j])
+	      // y = series.data[j][1]
+	      
+	      // Now Interpolate
+
+	      var y,
+	      	  p1 = series.data[j - 1],
+	      	  p2 = series.data[j];
+
+	      if (p1 == null) {
+	      	  y = p2[1];
+	      } else if (p2 == null) {
+	      	  y = p1[1];
+	      } else {0
+	      	  y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+	      }
+	      $("#VR-lat").text("Lat: "+ (p1[2] + (p2[2] - p1[2]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
+	      // $("#VR-lat").parent().removeClass("hidden")
+	      $("#VR-lat").parent().css('visibility', 'visible');
+	      $("#VR-lon").text("Lon: "+(p1[3] + (p2[3] - p1[3]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
+	      // $("#VR-lon").parent().removeClass("hidden")
+	      $("#VR-lon").parent().css('visibility', 'visible');
+	      $("#VR-"+series.label).text(series.label+" = "+y.toFixed(2))
+	      // legends.eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2)));
+	      // legends.eq(4).text(series.label.replace(/=.*/, "= " + p2[2].toFixed(2)));
+	  }
+      }
+
+      $("#flot-pie-chart").bind("plothover",  function (event, pos, item) {
+	  latestPosition = pos;
+	  if (!updateLegendTimeout) {
+	      updateLegendTimeout = setTimeout(updateLegend, 50);
+	  }
+      });
+
+
+
+
+
+
+
+      
   }
 
   plotAccordingToChoices();
 
 });
 }
+
+$(".flot-chart-content-wide").mouseleave(function(){
+    $("#choices").find("div").each(function() {
+	console.log("Saaaalgo")
+	var id = this.id;
+	$("#"+id).text(id.split("-")[1])
+	if (id == "VR-lat" || id == "VR-lon"){
+	    // $("#"+id).parent().addClass("hidden")
+	    $("#"+id).parent().css('visibility', 'hidden')
+	}
+    });
+});
 
 //Compresion del Amortiguador
 $(document).ready(function() {
