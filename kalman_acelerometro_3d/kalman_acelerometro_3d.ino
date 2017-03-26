@@ -2,17 +2,16 @@
 #include "MPU9250.h"
 
 // Dimensión del estado
-#define n 3
+#define n 6
 
 // Matrices de Kalman
-float P[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}}; // Cuanto menor más eficaz
-float P_ant[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}}; // P_ant no hace falta, usamos P_estimada
-float P_estimada[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}};
-float Q[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float R[n][n] = {{2, 0, 0}, {0, 2, 0}, {0, 0, 2}}; // Cuanto mayor menor confianza
-float K[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float H[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float F[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
+float P_estimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
+float Q[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float R[n][n] = {{2, 0, 0, 0, 0, 0}, {0, 2, 0, 0, 0, 0}, {0, 0, 2, 0, 0, 0}, {0, 0, 0, 2, 0, 0}, {0, 0, 0, 0, 2, 0}, {0, 0, 0, 0, 0, 2}}; // Cuanto mayor menor confianza
+float K[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float H[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
 
 // Vectores de Kalman
 float x[n];
@@ -47,7 +46,7 @@ MPU9250 myIMU;
 void setup() {
 
   Wire.begin();
-  Serial.begin(38400);
+  Serial.begin(115200);
 
   // Read the WHO_AM_I register, this is a good test of communication
   byte c = myIMU.readByte(MPU9250_ADDRESS, WHO_AM_I_MPU9250);

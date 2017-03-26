@@ -1,4 +1,4 @@
-#Filtro de Kalman
+# Filtro de Kalman
 
  Nuestra implementación del filtro de Kalman fusiona la información proveniente del acelerómetro, giroscopio y del GPS.
  

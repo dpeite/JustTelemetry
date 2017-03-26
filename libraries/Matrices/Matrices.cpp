@@ -19,6 +19,7 @@ void Matrices::mulMatrizVector(float* matriz, float* vector, float* res)
 
 // Corregida
 void Matrices::mulMatrizMatriz(float* matriz_izq, float* matriz_der, float* res) {
+  /*
 	res[0] = matriz_izq[0] * matriz_der[0] + matriz_izq[1] * matriz_der[6] + matriz_izq[2] * matriz_der[12] + matriz_izq[3] * matriz_der[18] + matriz_izq[4] * matriz_der[24] + matriz_izq[5] * matriz_der[30];
 	res[1] = matriz_izq[0] * matriz_der[1] + matriz_izq[1] * matriz_der[7] + matriz_izq[2] * matriz_der[13] + matriz_izq[3] * matriz_der[19] + matriz_izq[4] * matriz_der[25] + matriz_izq[5] * matriz_der[31];
   res[2] = matriz_izq[0] * matriz_der[2] + matriz_izq[1] * matriz_der[8] + matriz_izq[2] * matriz_der[14] + matriz_izq[3] * matriz_der[20] + matriz_izq[4] * matriz_der[26] + matriz_izq[5] * matriz_der[32];
@@ -60,7 +61,22 @@ void Matrices::mulMatrizMatriz(float* matriz_izq, float* matriz_der, float* res)
   res[33] = matriz_izq[30] * matriz_der[3] + matriz_izq[31] * matriz_der[9] + matriz_izq[32] * matriz_der[15] + matriz_izq[33] * matriz_der[21] + matriz_izq[34] * matriz_der[27] + matriz_izq[35] * matriz_der[33];
   res[34] = matriz_izq[30] * matriz_der[4] + matriz_izq[31] * matriz_der[10] + matriz_izq[32] * matriz_der[16] + matriz_izq[33] * matriz_der[22] + matriz_izq[34] * matriz_der[28] + matriz_izq[35] * matriz_der[34];
   res[35] = matriz_izq[30] * matriz_der[5] + matriz_izq[31] * matriz_der[11] + matriz_izq[32] * matriz_der[17] + matriz_izq[33] * matriz_der[23] + matriz_izq[34] * matriz_der[29] + matriz_izq[35] * matriz_der[35];
+  */
 
+  // A = input matrix (m x p)
+  // B = input matrix (p x n)
+  // m = number of rows in A
+  // p = number of columns in A = number of rows in B
+  // n = number of columns in B
+  // C = output matrix = A*B (m x n)
+  int i, j, k;
+  for (i = 0; i < _tam; i++)
+    for(j = 0; j < _tam; j++)
+    {
+      res[_tam * i + j] = 0;
+      for (k = 0; k < _tam; k++)
+        res[_tam * i + j] = res[_tam * i + j] + matriz_izq[_tam * i + k] * matriz_der[_tam * k + j];
+    }
 }
 
 // Corregida
@@ -155,7 +171,7 @@ void Matrices::restaMatrizMatriz(float* matriz_izq, float* matriz_der, float* re
   res[35] = matriz_izq[35] - matriz_der[35];
 }
 
-void Matrices::trasponerMatriz(float* matriz, float* res, float* tras) {
+void Matrices::trasponerMatriz(float* matriz, float* res) {
 
   // A = input matrix (m x n)
   // m = number of rows in A
@@ -164,7 +180,7 @@ void Matrices::trasponerMatriz(float* matriz, float* res, float* tras) {
   int i, j;
   for (i = 0; i < _tam; i++)
     for(j = 0; j < _tam; j++)
-      tras[_tam * j + i] = matriz[_tam * i + j];
+      res[_tam * j + i] = matriz[_tam * i + j];
 }
 
 int Matrices::invertirMatriz(float* A) {
@@ -274,17 +290,73 @@ void Matrices::imprimirMatriz(float* A) {
   Serial.print(" | ");
   Serial.print(A[1]);
   Serial.print(" | ");
-  Serial.println(A[2]);
+  Serial.print(A[2]);
+  Serial.print(" | ");
   Serial.print(A[3]);
   Serial.print(" | ");
   Serial.print(A[4]);
   Serial.print(" | ");
   Serial.println(A[5]);
+
   Serial.print(A[6]);
   Serial.print(" | ");
   Serial.print(A[7]);
   Serial.print(" | ");
-  Serial.println(A[8]);
+  Serial.print(A[8]);
+  Serial.print(" | ");
+  Serial.print(A[9]);
+  Serial.print(" | ");
+  Serial.print(A[10]);
+  Serial.print(" | ");
+  Serial.println(A[11]);
+
+  Serial.print(A[12]);
+  Serial.print(" | ");
+  Serial.print(A[13]);
+  Serial.print(" | ");
+  Serial.print(A[14]);
+  Serial.print(" | ");
+  Serial.print(A[15]);
+  Serial.print(" | ");
+  Serial.print(A[16]);
+  Serial.print(" | ");
+  Serial.println(A[17]);
+
+  Serial.print(A[18]);
+  Serial.print(" | ");
+  Serial.print(A[19]);
+  Serial.print(" | ");
+  Serial.print(A[20]);
+  Serial.print(" | ");
+  Serial.print(A[21]);
+  Serial.print(" | ");
+  Serial.print(A[22]);
+  Serial.print(" | ");
+  Serial.println(A[23]);
+
+  Serial.print(A[24]);
+  Serial.print(" | ");
+  Serial.print(A[25]);
+  Serial.print(" | ");
+  Serial.print(A[26]);
+  Serial.print(" | ");
+  Serial.print(A[27]);
+  Serial.print(" | ");
+  Serial.print(A[28]);
+  Serial.print(" | ");
+  Serial.println(A[29]);
+
+  Serial.print(A[30]);
+  Serial.print(" | ");
+  Serial.print(A[31]);
+  Serial.print(" | ");
+  Serial.print(A[32]);
+  Serial.print(" | ");
+  Serial.print(A[33]);
+  Serial.print(" | ");
+  Serial.print(A[34]);
+  Serial.print(" | ");
+  Serial.println(A[35]);
   Serial.print("\n");
 }
 
