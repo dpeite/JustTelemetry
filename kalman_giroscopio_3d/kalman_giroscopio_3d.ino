@@ -11,22 +11,17 @@
 #include "MPU9250.h"
 
 // Dimensión del estado
-#define n 3
-#define lim 300
-
-int cont = 0;
-float or_inicial = 0.0;
-float hist[5];
+#define n 6
 
 // Matrices de Kalman
-float P[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}}; // Cuanto menor más eficaz
-float P_ant[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}}; // P_ant no hace falta, usamos P_estimada
-float P_estimada[n][n] = {{0.1, 0, 0}, {0, 0.1, 0}, {0, 0, 0.1}};
-float Q[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float R[n][n] = {{2, 0, 0}, {0, 2, 0}, {0, 0, 2}}; // Cuanto mayor menor confianza
-float K[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float H[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
-float F[n][n] = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1}};
+float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
+float P_estimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
+float Q[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float R[n][n] = {{2, 0, 0, 0, 0, 0}, {0, 2, 0, 0, 0, 0}, {0, 0, 2, 0, 0, 0}, {0, 0, 0, 2, 0, 0}, {0, 0, 0, 0, 2, 0}, {0, 0, 0, 0, 0, 2}}; // Cuanto mayor menor confianza
+float K[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float H[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
+
 
 // Vectores de Kalman
 float x[n];
@@ -55,7 +50,7 @@ float K_zHx[n];
 
 // Para calcular la orientación
 long t_inicial, t_final;
-double delta_t, orientacion;
+double delta_t, orientacion = 0.0;;
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -96,11 +91,10 @@ void loop() {
   // Comprobamos que haya nuevos datos
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
   {
-
+    t_inicial = millis();
+    
     myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
     myIMU.getGres();
-
-    t_inicial = millis();
 
     // Calculate the gyro value into actual degrees per second
     // This depends on scale being set
@@ -127,7 +121,6 @@ void loop() {
     oper.mulMatrizMatriz((float*)P, (float*)Htras, (float*)PHtras);
     oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
 
-
     // x' = x + K (z - H * x)
     oper.mulMatrizVector((float*)H, (float*)x, (float*)Hx);
     oper.restaVectorVector((float*)z, (float*)Hx, (float*)resta_zHx);
@@ -139,12 +132,11 @@ void loop() {
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
     t_final = millis();
-    delta_t = (t_final - t_inicial);
-    
-    orientacion += delta_t * x_estimada[2] / 1000.0f;
+    delta_t = (t_final - t_inicial) / 1000.0f;
+
+    orientacion += delta_t * x_estimada[2];
 
     Serial.println(orientacion);
-
     //grafica(x_estimada);
   }
 } // Cierre Loop
