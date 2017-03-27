@@ -1,4 +1,4 @@
-# Librería de pruebas
+﻿#Librería de pruebas
 
 ### Forma de usarla
 
@@ -19,4 +19,4 @@
     - Pruebas 19-24: Valor muy pequeño (0.05) en el elemento Qnn, siendo n un número del 0 al 5.
     - Pruebas 25, 26 y 27: Valor muy pequeño (0.05) en las componentes de la posición, velocidad y aceleración respectivamente.
     - Pruebas 28-33: Valor muy grande (200) en el elemento Qnn, siendo n un número del 0 al 5.
-    - Pruebas 34, 35 y 136: Valor muy grande (200) en las componentes de la posición, velocidad y aceleración respectivamente.
+    - Pruebas 34, 35 y 36: Valor muy grande (200) en las componentes de la posición, velocidad y aceleración respectivamente.
