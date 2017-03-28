@@ -1,5 +1,5 @@
 {"Del Derecho":
- {"label": "Del Derecho",
+ {"label": "DD",
   "data":
 [
 [0.00000000,0.00000000,4828],
@@ -1501,7 +1501,7 @@
  },
 
  "Del Izquierdo":
-  {"label": "Del Izquierdo",
+  {"label": "DI",
   "data":
 [
 [0.00000000,0.00000000,4828],
@@ -3003,7 +3003,7 @@
   },
 
  "Tras Derecho":
-  {"label": "Tras Derecho",
+  {"label": "TD",
   "data":
 [
 [0.00000000,0.00000000,4828],
@@ -4505,7 +4505,7 @@
   },
 
  "Tras Izquierdo":
-  {"label": "Tras Izquierdo",
+  {"label": "TI",
   "data":
 [
 [0.00000000,0.00000000,4828],
