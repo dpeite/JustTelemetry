@@ -6,8 +6,7 @@ $('.vueltas').click(function(event){
   </div> \
   </div> \
   <div class="modal-footer"> \
-  <button type="button" class="btn btn-danger delete_v" data-dismiss="modal">Borrar</button> \
-  <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button> \
+  <button type="button" class="btn btn-danger delete_v buttonleft" data-dismiss="modal">Borrar</button> \
   <button type="button" class="btn btn-primary save disabled">Guardar</button> \
   </div>';
   $("#modalcontent").empty();
