@@ -6,7 +6,7 @@ $('.vueltas').click(function(event){
   </div> \
   </div> \
   <div class="modal-footer"> \
-  <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button> \
+  <button type="button" class="btn btn-danger delete_v buttonleft" data-dismiss="modal">Borrar</button> \
   <button type="button" class="btn btn-primary save disabled">Guardar</button> \
   </div>';
   $("#modalcontent").empty();
@@ -56,24 +56,40 @@ $('.vueltas').click(function(event){
 	$.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
         // alert("Data: " + data + "\nStatus: " + status);
         console.log(xhr.status);
-        $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
+        $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".cortar-vueltas-correcto").slideUp(500);
         });
 
 
       })
       .fail(function(response) {
-        $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-danger").slideUp(500);
+        $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".cortar-vueltas-incorrecto").slideUp(500);
         });
       });
     }
 
   });
 
+  // Borrar las vueltas
+  $('.delete_v').click(function(){
+   $.get("borrar_vuelta", {id: value.val()}, function(data, status, xhr){
+        // alert("Data: " + data + "\nStatus: " + status);
+        console.log(xhr.status);
+        $(".borrar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".borrar-vueltas-correcto").slideUp(500);
+        });
 
 
-});
+      })
+      .fail(function(response) {
+        $(".borrar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".borrar-vueltas-incorrecto").slideUp(500);
+        });
+      });
+  }); // Cierre delete_v
+}); // Cierre event
+
 
 $(function() {
   $("input[name=optionsRadios][value="+getCookie("id")+"]").prop("checked",true);
@@ -91,4 +107,5 @@ $('input[name="optionsRadios"]').on("click", function(e) {
 $('.tooltip-demo').tooltip({
     selector: "[data-toggle=tooltip]",
     container: "body"
-})
+});
+

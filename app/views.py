@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 from app import app
 from flask import render_template, make_response, request
 
@@ -94,3 +95,8 @@ def cortar_json():
     except Exception as exc:
         print exc
         return "", 500
+
+@app.route("/borrar_vuelta")
+def borar_vuelta(): 
+    shutil.rmtree('app/static/data/sesiones/' + str(request.args.get("id")) + '/vueltas')
+    return "", 200
