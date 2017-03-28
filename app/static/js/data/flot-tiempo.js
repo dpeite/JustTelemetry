@@ -111,6 +111,7 @@ function vel_ruedas(coord1, coord2, sensor){
     switch (sensor){
     case "ruedas":
 	// var path = "static/data/sesiones/"+id+"/ruedas.json";
+	var ylabel = "rpm"
 	var choiceContainer = $("#choices");
 	var plotContainer = "#flot-pie-chart"
 	var ids = "VR"
@@ -118,6 +119,7 @@ function vel_ruedas(coord1, coord2, sensor){
 	break;
     case "amortiguadores":
 	// var path = "static/data/sesiones/"+id+"/amortiguador.json";
+	var ylabel = "mm"
 	var choiceContainer = $("#choices2");
 	var plotContainer = "#flot-line-chart-multi"
 	var ids = "CA"
@@ -125,6 +127,7 @@ function vel_ruedas(coord1, coord2, sensor){
 	break;
     case "acelerador":
 	// var path = "static/data/sesiones/"+id+"/amortiguador.json";
+	var ylabel = "Grados"
 	var choiceContainer = $("#choices3");
 	var plotContainer = "#flot-bar-chart"
 	var ids = "AT"
@@ -132,6 +135,7 @@ function vel_ruedas(coord1, coord2, sensor){
 	break;
     case "volante":
 	// var path = "static/data/sesiones/"+id+"/amortiguador.json";
+	var ylabel = "Porcentaje"
 	var choiceContainer = $("#choices4");
 	var plotContainer = "#flot-line-chart-moving"
 	var ids = "GD"
@@ -203,7 +207,16 @@ if (!$.trim(choiceContainer.html())){
 		    // series is the series object for the label
 		    return null
 		}
-	    }
+	    },
+	    axisLabels: {
+		show: true
+	    },
+	    xaxes: [{
+		axisLabel: 'ms',
+	    }],
+	    yaxes: [{
+		axisLabel: ylabel,
+	    }]
 
       });
     }
