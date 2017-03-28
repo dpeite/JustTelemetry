@@ -314,14 +314,15 @@ if (!$.trim(choiceContainer.html())){
 
 	
 $(".flot-chart-content-wide").mouseleave(function(){
+    choiceContainer.find("div").each(function() {
+	var id = this.id;
+	$("#"+id).text(id.split("-")[1])
+    });
+
     choiceContainer.next().find("div").each(function() {
 	console.log("Saaaalgo")
 	var id = this.id;
-	// console.log(id);
-	// console.log(""+ids+"-lat")
-	$("#"+id).text(id.split("-")[1])
 	if (id == ""+ids+"-lat" || id == ""+ids+"-lon"){
-	    // $("#"+id).parent().addClass("hidden")
 	    $("#"+id).parent().css('visibility', 'hidden')
 	}
     });
