@@ -57,15 +57,15 @@ $('.vueltas').click(function(event){
 	$.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
         // alert("Data: " + data + "\nStatus: " + status);
         console.log(xhr.status);
-        $(".alert-success").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-success").slideUp(500);
+        $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".cortar-vueltas-correcto").slideUp(500);
         });
 
 
       })
       .fail(function(response) {
-        $(".alert-danger").fadeTo(2000, 500).slideUp(500, function(){
-          $(".alert-danger").slideUp(500);
+        $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".cortar-vueltas-incorrecto").slideUp(500);
         });
       });
     }
@@ -74,10 +74,22 @@ $('.vueltas').click(function(event){
 
   // Borrar las vueltas
   $('.delete_v').click(function(){
-   $.get("borrar_vuelta", {id: value.val()
+   $.get("borrar_vuelta", {id: value.val()}, function(data, status, xhr){
+        // alert("Data: " + data + "\nStatus: " + status);
+        console.log(xhr.status);
+        $(".borrar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".borrar-vueltas-correcto").slideUp(500);
+        });
+
+
+      })
+      .fail(function(response) {
+        $(".borrar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".borrar-vueltas-incorrecto").slideUp(500);
+        });
+      });
+
   });
-});
-});
 
 
 $(function() {
@@ -96,4 +108,6 @@ $('input[name="optionsRadios"]').on("click", function(e) {
 $('.tooltip-demo').tooltip({
     selector: "[data-toggle=tooltip]",
     container: "body"
-})
+});
+
+});
