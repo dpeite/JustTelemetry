@@ -4,20 +4,13 @@
 #include <MPU9250.h>
 #include <PruebasKalman.h>
 
-// Desomentar para imprimir en formato JSON para la web
-//#define JSON
-
-// Descomentar para enviar las coordenadas originales junto a las obtenidas por Kalman
-//#define COMPARE
-
-// Descomentar para enviar la distancia
-#define DIST
-
-#define PRUEBAS
-
 // Dimensión del tamaño del estado
 #define n 6
-#define RESET_ORIENTACION 5
+
+#define PERDIDA
+#define apagar_gps 100
+#define encender_gps 50
+int cont_gps = 0;
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
@@ -136,8 +129,31 @@ void loop() {
   {
     t_inicial = millis();
 
+#ifdef PERDIDA
+    if (cont_gps < apagar_gps) { // Si el contador es menor que la marca, obtiene posición
+      cont_gps++;
+      smartdelay(50);
+      gps.f_get_position(&flat, &flon, &age);
+    } else if (cont_gps > apagar_gps + encender_gps) { 
+      // Si el contador es superior al tiempo de apagado
+      // reiniciamos el contador y obtenemos posición
+      cont_gps = 0;
+      smartdelay(50);
+      gps.f_get_position(&flat, &flon, &age);
+    } else { // En otro caso esperamos 50ms y no obtenemos posición
+      cont_gps++;
+      delay(50);
+
+      // Si queremos probar que el GPS envía posición invalida:
+      //flat = TinyGPS::GPS_INVALID_F_ANGLE;
+      //flon = TinyGPS::GPS_INVALID_F_ANGLE;
+    }
+#endif
+
+#ifndef PERDIDA
     smartdelay(50);
     gps.f_get_position(&flat, &flon, &age);
+#endif
 
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
@@ -196,9 +212,7 @@ void loop() {
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
-#ifdef PRUEBAS
-  imprimir_json_comp(x_estimada[0], x_estimada[1], flat, flon);
-#endif
+    imprimir_json_comp(x_estimada[0], x_estimada[1], flat, flon);
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
