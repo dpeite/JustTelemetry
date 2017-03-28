@@ -88,8 +88,8 @@ $('.vueltas').click(function(event){
           $(".borrar-vueltas-incorrecto").slideUp(500);
         });
       });
-
-  });
+  }); // Cierre delete_v
+}); // Cierre event
 
 
 $(function() {
@@ -110,4 +110,3 @@ $('.tooltip-demo').tooltip({
     container: "body"
 });
 
-});
