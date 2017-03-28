@@ -164,8 +164,8 @@ if (!$.trim(choiceContainer.html())){
 	// choiceContainer.append("<label class='btn btn-primary col-xs-6 hidden '>" + "<div id='VR-lat'>  </div>"  + "</label>");
 	// choiceContainer.append("<label class='btn btn-primary col-xs-6 hidden'>" + "<div id='VR-lon'>  </div>"  + "</label>");
 
-	choiceContainer.append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lat'>Lat</div>"  + "</label>");
-	choiceContainer.append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
+    choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lat'>Lat</div>"  + "</label>");
+    choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
 
 }	
 	// choiceContainer.find("input").click(plotAccordingToChoices);
@@ -314,10 +314,11 @@ if (!$.trim(choiceContainer.html())){
 
 	
 $(".flot-chart-content-wide").mouseleave(function(){
-    choiceContainer.find("div").each(function() {
+    choiceContainer.next().find("div").each(function() {
 	console.log("Saaaalgo")
 	var id = this.id;
 	// console.log(id);
+	// console.log(""+ids+"-lat")
 	$("#"+id).text(id.split("-")[1])
 	if (id == ""+ids+"-lat" || id == ""+ids+"-lon"){
 	    // $("#"+id).parent().addClass("hidden")

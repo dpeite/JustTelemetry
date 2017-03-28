@@ -8,6 +8,11 @@
   display:none;
 }
 
+.latlon{
+    padding-right: 17px;
+    padding-top: 2px;
+}
+
 body {
   background-color: #f8f8f8;
 }
