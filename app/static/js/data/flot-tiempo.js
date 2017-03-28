@@ -1,310 +1,509 @@
 //Trazada
 $(function() {
-    // var d2 = [[42.224581, -8.732471], [42.224325, -8.731725], [42.224096, -8.731065], [42.223774, -8.731172], [42.223415, -8.731054], [42.223107, -8.730708], [42.222640, -8.731089], [42.223028, -8.7316], [42.224581, -8.732471]];
+  // var d2 = [[42.224581, -8.732471], [42.224325, -8.731725], [42.224096, -8.731065], [42.223774, -8.731172], [42.223415, -8.731054], [42.223107, -8.730708], [42.222640, -8.731089], [42.223028, -8.7316], [42.224581, -8.732471]];
 
-    var id = getCookie("id")
+  var id = getCookie("id")
 
-    var choiceContainer = $("#vueltas");
-    plotAccordingToChoices();
-    choiceContainer.find("input").click(plotAccordingToChoices);
+  var choiceContainer = $("#vueltas");
+  plotAccordingToChoices();
+  choiceContainer.find("input").click(plotAccordingToChoices);
 
-    function plotAccordingToChoices() {
+          var plot
+      var coord1 = null;
+      var coord2 = null;
 
-	var key
-        choiceContainer.find("input:checked").each(function () {
-	    key = $(this).attr("value");
-		});
-	
-	console.log(key);
-	var path = null;
-	if (key == "trazada"){
-	    path = "static/data/sesiones/"+id+"/trazada.json";
-	}
-	else{
-	    path = "static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json";
-	}
-    // $.getJSON("static/data/sesiones/"+id+"/trazada.json", function(d2){
-	// $.getJSON("static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json", function(d2){
-	$.getJSON(path, function(d2){    
-    var options = {
-	points: { show: false, radius: 5, lineWidth: 4, fill: false },
-	lines: { show: true },
-	xaxis: { show: false },
-	yaxis: { show: false },
-	grid: { show:true,
-		color: "transparent",
-		hoverable: true,
-		clickable: true
-	      }
-    };
-	
-	var plot = $.plot("#flot-line-chart", [d2], options);
-	var coord1 = null;
-	var coord2 = null;
-	
-    $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
-	if (item) {
-	    // $("#clickdata").text(" - click point " + item.datapoint);
-	    //plot.highlight(item.series, item.datapoint);
-	    if (coord1 == null){
-		coord1 = item.datapoint;
-		plot.highlight(item.series, item.datapoint);
-	    }
-	    else if (coord2 == null){
-		coord2 = item.datapoint;
-		plot.highlight(item.series, item.datapoint);
-	    }
-	    else {
-		plot.unhighlight(item.series, coord1);
-		plot.unhighlight(item.series, coord2);
-		coord1 = item.datapoint;
-		plot.highlight(item.series, coord1);
-		coord2 = null;
-	    }
-	}
-	$("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
-	console.log(coord1+" "+coord2);
+  function plotAccordingToChoices() {
+
+    var key
+    choiceContainer.find("input:checked").each(function () {
+      key = $(this).attr("value");
     });
-    });
+
+    console.log(key);
+    var path = null;
+    if (key == "trazada"){
+      path = "static/data/sesiones/"+id+"/trazada.json";
     }
+    else{
+      path = "static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json";
+    }
+    // $.getJSON("static/data/sesiones/"+id+"/trazada.json", function(d2){
+    // $.getJSON("static/data/sesiones/"+id+"/vueltas/vuelta_"+key+".json", function(d2){
+    $.getJSON(path, function(d2){
+	var options = {
+        points: { show: false, radius: 5, lineWidth: 4, fill: false },
+        lines: { show: true },
+        xaxis: { show: false },
+        yaxis: { show: false },
+        grid: { show:true,
+          color: "transparent",
+          hoverable: true,
+          clickable: true
+        }
+	};
+	vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
+	vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
+	vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
+	vel_ruedas(d2[0],d2[d2.length-1],"volante");
+	plot = $.plot("#flot-line-chart", [d2], options);
+});
+    }
+
+      $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
+        if (item) {
+          // $("#clickdata").text(" - click point " + item.datapoint);
+          //plot.highlight(item.series, item.datapoint);
+          console.log(item.series.data[item.dataIndex][2])
+          if (coord1 == null){
+            coord1 = item.datapoint;
+            plot.highlight(item.series, item.datapoint);
+          }
+          else if (coord2 == null){
+            coord2 = item.datapoint;
+              plot.highlight(item.series, item.datapoint);
+	      vel_ruedas(coord1, coord2, "ruedas")
+	      vel_ruedas(coord1, coord2, "amortiguadores")
+	      vel_ruedas(coord1, coord2, "acelerador")
+	      vel_ruedas(coord1, coord2, "volante")
+          }
+          else {
+            plot.unhighlight(item.series, coord1);
+            plot.unhighlight(item.series, coord2);
+            coord1 = item.datapoint;
+            plot.highlight(item.series, coord1);
+            coord2 = null;
+          }
+        }
+        $("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
+        console.log(coord1+" "+coord2);
+      });
+    
+
 });
 
 //Velocidad de las ruedas
-$(document).ready(function() {
+function vel_ruedas(coord1, coord2, sensor){
 
-    var datasets = {
-	"usa": {
-	    label: "Del Derecha",
-	    data: [[1988, 483994], [1989, 479060], [1990, 457648], [1991, 401949], [1992, 424705], [1993, 402375], [1994, 377867], [1995, 357382], [1996, 337946], [1997, 336185], [1998, 328611], [1999, 329421], [2000, 342172], [2001, 344932], [2002, 387303], [2003, 440813], [2004, 480451], [2005, 504638], [2006, 528692]]
-	},
-	"russia": {
-	    label: "Del Izquierda",
-	    data: [[1988, 218000], [1989, 203000], [1990, 171000], [1992, 42500], [1993, 37600], [1994, 36600], [1995, 21700], [1996, 19200], [1997, 21300], [1998, 13600], [1999, 14000], [2000, 19100], [2001, 21300], [2002, 23600], [2003, 25100], [2004, 26100], [2005, 31100], [2006, 34700]]
-	},
-	"uk": {
-	    label: "Tras Derecha",
-	    data: [[1988, 62982], [1989, 62027], [1990, 60696], [1991, 62348], [1992, 58560], [1993, 56393], [1994, 54579], [1995, 50818], [1996, 50554], [1997, 48276], [1998, 47691], [1999, 47529], [2000, 47778], [2001, 48760], [2002, 50949], [2003, 57452], [2004, 60234], [2005, 60076], [2006, 59213]]
-	},
-	"germany": {
-	    label: "Tras Izquierda",
-	    data: [[1988, 55627], [1989, 55475], [1990, 58464], [1991, 55134], [1992, 52436], [1993, 47139], [1994, 43962], [1995, 43238], [1996, 42395], [1997, 40854], [1998, 40993], [1999, 41822], [2000, 41147], [2001, 40474], [2002, 40604], [2003, 40044], [2004, 38816], [2005, 38060], [2006, 36984]]
-	},
-    };
+  // var datasets = {
+  //   "usa": {
+  //     label: "Del Derecha",
+  //     data: [[1988, 483994], [1989, 479060], [1990, 457648], [1991, 401949], [1992, 424705], [1993, 402375], [1994, 377867], [1995, 357382], [1996, 337946], [1997, 336185], [1998, 328611], [1999, 329421], [2000, 342172], [2001, 344932], [2002, 387303], [2003, 440813], [2004, 480451], [2005, 504638], [2006, 528692]]
+  //   },
+  //   "russia": {
+  //     label: "Del Izquierda",
+  //     data: [[1988, 218000], [1989, 203000], [1990, 171000], [1992, 42500], [1993, 37600], [1994, 36600], [1995, 21700], [1996, 19200], [1997, 21300], [1998, 13600], [1999, 14000], [2000, 19100], [2001, 21300], [2002, 23600], [2003, 25100], [2004, 26100], [2005, 31100], [2006, 34700]]
+  //   },
+  //   "uk": {
+  //     label: "Tras Derecha",
+  //     data: [[1988, 62982], [1989, 62027], [1990, 60696], [1991, 62348], [1992, 58560], [1993, 56393], [1994, 54579], [1995, 50818], [1996, 50554], [1997, 48276], [1998, 47691], [1999, 47529], [2000, 47778], [2001, 48760], [2002, 50949], [2003, 57452], [2004, 60234], [2005, 60076], [2006, 59213]]
+  //   },
+  //   "germany": {
+  //     label: "Tras Izquierda",
+  //     data: [[1988, 55627], [1989, 55475], [1990, 58464], [1991, 55134], [1992, 52436], [1993, 47139], [1994, 43962], [1995, 43238], [1996, 42395], [1997, 40854], [1998, 40993], [1999, 41822], [2000, 41147], [2001, 40474], [2002, 40604], [2003, 40044], [2004, 38816], [2005, 38060], [2006, 36984]]
+  //   },
+  // };
 
-    // hard-code color indices to prevent them from shifting as
-    // countries are turned on/off
+  // hard-code color indices to prevent them from shifting as
+  // countries are turned on/off
 
-    var i = 0;
-    $.each(datasets, function(key, val) {
-	val.color = i;
-	++i;
+    var id = getCookie("id")
+    var plot = {};
+    switch (sensor){
+    case "ruedas":
+	// var path = "static/data/sesiones/"+id+"/ruedas.json";
+	var choiceContainer = $("#choices");
+	var plotContainer = "#flot-pie-chart"
+	var ids = "VR"
+	var colsize = "col-xs-3"
+	break;
+    case "amortiguadores":
+	// var path = "static/data/sesiones/"+id+"/amortiguador.json";
+	var choiceContainer = $("#choices2");
+	var plotContainer = "#flot-line-chart-multi"
+	var ids = "CA"
+	var colsize = "col-xs-3"
+	break;
+    case "acelerador":
+	// var path = "static/data/sesiones/"+id+"/amortiguador.json";
+	var choiceContainer = $("#choices3");
+	var plotContainer = "#flot-bar-chart"
+	var ids = "AT"
+	var colsize = "col-xs-3"
+	break;
+    case "volante":
+	// var path = "static/data/sesiones/"+id+"/amortiguador.json";
+	var choiceContainer = $("#choices4");
+	var plotContainer = "#flot-line-chart-moving"
+	var ids = "GD"
+	var colsize = "col-xs-12"
+	break;
+
+
+    }
+    // console.log(path)
+
+//     $.getJSON(path, function(datasets){
+    $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor}, function(data, status, xhr){
+	var datasets = data
+    
+  var i = 0;
+$.each(datasets, function(key, val) {
+    val.color = i;
+    ++i;
+  });
+
+  // insert checkboxes
+if (!$.trim(choiceContainer.html())){
+	$.each(datasets, function(key, val) {
+
+	    
+	// choiceContainer.append("<br/><input type='checkbox' name='" + key + "' checked='checked' id='VR-" + val.label + "'></input>" + "<label for='VR-" + val.label + "'>" + key + "</label>");
+	choiceContainer.append("<label class='btn btn-primary active "+colsize+"' for='"+ids+"2-" + val.label + "'>" +"<input type='checkbox' name='" + key + "' checked='checked' id='"+ids+"2-" + val.label + "'></input>"+"<div id='"+ids+"-"+val.label+"'> "+val.label+" </div>"  + "</label>");
+  });
+
+	// choiceContainer.append("<label class='btn btn-primary col-xs-6 hidden '>" + "<div id='VR-lat'>  </div>"  + "</label>");
+	// choiceContainer.append("<label class='btn btn-primary col-xs-6 hidden'>" + "<div id='VR-lon'>  </div>"  + "</label>");
+
+    choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lat'>Lat</div>"  + "</label>");
+    choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
+
+}	
+	// choiceContainer.find("input").click(plotAccordingToChoices);
+	choiceContainer.find(":input").change(plotAccordingToChoices);
+	
+  function plotAccordingToChoices() {
+
+    var data = [];
+   choiceContainer.find("input:not(:checked)").each(function () {
+       $(this).parent().css("background-color", "")
+   });
+      
+      choiceContainer.find("input:checked").each(function () {
+          // choiceContainer.find(".active").each(function () {	  
+	  var key = $(this).attr("name");
+      if (key && datasets[key]) {
+        data.push(datasets[key]);
+      }
     });
 
-    // insert checkboxes
-    var choiceContainer = $("#choices");
-    $.each(datasets, function(key, val) {
-	choiceContainer.append("<br/><input type='checkbox' name='" + key +
-			       "' checked='checked' id='id" + key + "'></input>" +
-			       "<label for='id" + key + "'>"
-			       + val.label + "</label>");
-    });
-
-    choiceContainer.find("input").click(plotAccordingToChoices);
-
-    function plotAccordingToChoices() {
-
-	var data = [];
-
-	choiceContainer.find("input:checked").each(function () {
-	    var key = $(this).attr("name");
-	    if (key && datasets[key]) {
-		data.push(datasets[key]);
-	    }
-	});
-
-	if (data.length > 0) {
-	    $.plot("#flot-pie-chart", data, {
-		yaxis: {
-		    min: 0
-		},
-		xaxis: {
-		    tickDecimals: 0
+    if (data.length > 0) {
+	plot[ids] = $.plot(plotContainer, data, {
+        xaxis: {
+          tickDecimals: 0
+        },
+	  crosshair: {
+	      mode: "x"
+	  },
+	      grid : {
+		  hoverable : true,
+		  autoHighlight: false
+	      },
+	    legend: {
+		labelFormatter: function(label, series) {
+		    // series is the series object for the label
+		    return null
 		}
-	    });
-	}
+	    }
+
+      });
     }
 
-    plotAccordingToChoices();
+
+      var series = plot[ids].getData();
+      console.log(series.length)
+      for (var i = 0; i < series.length; ++i){
+	  // alert(series[i].color);
+	  // console.log(series[i].label+" "+series[i].color)
+	  // console.log(ids+"-"+series[i].label)
+	  $("#"+ids+"-"+series[i].label).parent().css("background-color",series[i].color)
+      }
+	  
+      
+	  // $("#flot-pie-chart tbody").append('<tr><td class="legendColorBox"><div style="border:1px solid #ccc;padding:1px"><div style="width:4px;height:0;border:5px solid rgb(237,194,64);overflow:hidden"></div></div></td><td class="legendLabel">Posicion = 5.46</td></tr>')
+
+      // var legends = $("#flot-pie-chart .legendLabel");
+      var updateLegendTimeout = null;
+      var latestPosition = null;
+
+      function updateLegend() {	  
+	  updateLegendTimeout = null;
+	  var pos = latestPosition;
+
+	  var axes = plot[ids].getAxes();
+	  if (pos.x < axes.xaxis.min || pos.x > axes.xaxis.max ||
+	      pos.y < axes.yaxis.min || pos.y > axes.yaxis.max) {
+	      return;
+	  }
+
+	  var i, j, dataset = plot[ids].getData();
+	  for (i = 0; i < dataset.length; ++i) {
+
+	      var series = dataset[i];
+
+	      // Find the nearest points, x-wise
+
+	      for (j = 0; j < series.data.length; ++j) {
+		  if (series.data[j][0] > pos.x) {
+		      break;
+		  }
+	      }
+
+	      // console.log(series.data[j])
+	      // y = series.data[j][1]
+	      
+	      // Now Interpolate
+
+	      var y,
+	      	  p1 = series.data[j - 1],
+	      	  p2 = series.data[j];
+
+	      if (p1 == null) {
+	      	  y = p2[1];
+	      } else if (p2 == null) {
+	      	  y = p1[1];
+	      } else {0
+	      	  y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+	      }
+	      $("#"+ids+"-lat").text("Lat: "+ (p1[2] + (p2[2] - p1[2]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
+	      // $("#VR-lat").parent().removeClass("hidden")
+	      $("#"+ids+"-lat").parent().css('visibility', 'visible');
+	      $("#"+ids+"-lon").text("Lon: "+(p1[3] + (p2[3] - p1[3]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
+	      // $("#VR-lon").parent().removeClass("hidden")
+	      $("#"+ids+"-lon").parent().css('visibility', 'visible');
+	      $("#"+ids+"-"+series.label).text(series.label+" = "+y.toFixed(2))
+	      // legends.eq(i).text(series.label.replace(/=.*/, "= " + y.toFixed(2)));
+	      // legends.eq(4).text(series.label.replace(/=.*/, "= " + p2[2].toFixed(2)));
+	  }
+      }
+
+      $(plotContainer).bind("plothover",  function (event, pos, item) {
+	  latestPosition = pos;
+	      choiceContainer.find("div").each(function() {
+	console.log("Entroooo")
+	var id = this.id;
+	// console.log(id.split("-")[0]);
+		  ids = id.split("-")[0]
+	// console.log(ids)
+    });
+	  if (!updateLegendTimeout) {
+	      updateLegendTimeout = setTimeout(updateLegend, 50);
+	  }
+
+      });
 
 
+
+
+
+
+
+      
+  }
+
+  plotAccordingToChoices();
+
+// $(".flot-chart-content-wide").mouseenter(function(){
+//     choiceContainer.find("div").each(function() {
+// 	console.log("Entroooo")
+// 	var id = this.id;
+// 	console.log(id.split("-")[0]);
+// 	ids = id.split("-")[0]
+// 	console.log(ids)
+//     });
+// });
+
+	
+$(".flot-chart-content-wide").mouseleave(function(){
+    choiceContainer.find("div").each(function() {
+	var id = this.id;
+	$("#"+id).text(id.split("-")[1])
+    });
+
+    choiceContainer.next().find("div").each(function() {
+	console.log("Saaaalgo")
+	var id = this.id;
+	if (id == ""+ids+"-lat" || id == ""+ids+"-lon"){
+	    $("#"+id).parent().css('visibility', 'hidden')
+	}
+    });
 });
+
+	
+});
+}
+
+
 
 //Compresion del Amortiguador
-$(document).ready(function() {
+// $(document).ready(function() {
 
-    var datasets = {
-	"usa": {
-	    label: "Del Derecho",
-	    data: [[1988, 483994], [1989, 479060], [1990, 457648], [1991, 401949], [1992, 424705], [1993, 402375], [1994, 377867], [1995, 357382], [1996, 337946], [1997, 336185], [1998, 328611], [1999, 329421], [2000, 342172], [2001, 344932], [2002, 387303], [2003, 440813], [2004, 480451], [2005, 504638], [2006, 528692]]
-	},
-	"russia": {
-	    label: "Del Izquierdo",
-	    data: [[1988, 218000], [1989, 203000], [1990, 171000], [1992, 42500], [1993, 37600], [1994, 36600], [1995, 21700], [1996, 19200], [1997, 21300], [1998, 13600], [1999, 14000], [2000, 19100], [2001, 21300], [2002, 23600], [2003, 25100], [2004, 26100], [2005, 31100], [2006, 34700]]
-	},
-	"uk": {
-	    label: "Tras Derecho",
-	    data: [[1988, 62982], [1989, 62027], [1990, 60696], [1991, 62348], [1992, 58560], [1993, 56393], [1994, 54579], [1995, 50818], [1996, 50554], [1997, 48276], [1998, 47691], [1999, 47529], [2000, 47778], [2001, 48760], [2002, 50949], [2003, 57452], [2004, 60234], [2005, 60076], [2006, 59213]]
-	},
-	"germany": {
-	    label: "Tras Izquierdo",
-	    data: [[1988, 55627], [1989, 55475], [1990, 58464], [1991, 55134], [1992, 52436], [1993, 47139], [1994, 43962], [1995, 43238], [1996, 42395], [1997, 40854], [1998, 40993], [1999, 41822], [2000, 41147], [2001, 40474], [2002, 40604], [2003, 40044], [2004, 38816], [2005, 38060], [2006, 36984]]
-	},
-    };
+//   var datasets = {
+//     "usa": {
+//       label: "Del Derecho",
+//       data: [[1988, 483994], [1989, 479060], [1990, 457648], [1991, 401949], [1992, 424705], [1993, 402375], [1994, 377867], [1995, 357382], [1996, 337946], [1997, 336185], [1998, 328611], [1999, 329421], [2000, 342172], [2001, 344932], [2002, 387303], [2003, 440813], [2004, 480451], [2005, 504638], [2006, 528692]]
+//     },
+//     "russia": {
+//       label: "Del Izquierdo",
+//       data: [[1988, 218000], [1989, 203000], [1990, 171000], [1992, 42500], [1993, 37600], [1994, 36600], [1995, 21700], [1996, 19200], [1997, 21300], [1998, 13600], [1999, 14000], [2000, 19100], [2001, 21300], [2002, 23600], [2003, 25100], [2004, 26100], [2005, 31100], [2006, 34700]]
+//     },
+//     "uk": {
+//       label: "Tras Derecho",
+//       data: [[1988, 62982], [1989, 62027], [1990, 60696], [1991, 62348], [1992, 58560], [1993, 56393], [1994, 54579], [1995, 50818], [1996, 50554], [1997, 48276], [1998, 47691], [1999, 47529], [2000, 47778], [2001, 48760], [2002, 50949], [2003, 57452], [2004, 60234], [2005, 60076], [2006, 59213]]
+//     },
+//     "germany": {
+//       label: "Tras Izquierdo",
+//       data: [[1988, 55627], [1989, 55475], [1990, 58464], [1991, 55134], [1992, 52436], [1993, 47139], [1994, 43962], [1995, 43238], [1996, 42395], [1997, 40854], [1998, 40993], [1999, 41822], [2000, 41147], [2001, 40474], [2002, 40604], [2003, 40044], [2004, 38816], [2005, 38060], [2006, 36984]]
+//     },
+//   };
 
-    // hard-code color indices to prevent them from shifting as
-    // countries are turned on/off
+//   // hard-code color indices to prevent them from shifting as
+//   // countries are turned on/off
 
-    var i = 0;
-    $.each(datasets, function(key, val) {
-	val.color = i;
-	++i;
-    });
+//   var i = 0;
+//   $.each(datasets, function(key, val) {
+//     val.color = i;
+//     ++i;
+//   });
 
-    // insert checkboxes
-    var choiceContainer = $("#choices2");
-    $.each(datasets, function(key, val) {
-	choiceContainer.append("<br/><input type='checkbox' name='" + key +
-			       "' checked='checked' id='id" + key + "'></input>" +
-			       "<label for='id" + key + "'>"
-			       + val.label + "</label>");
-    });
+//   // insert checkboxes
+//   var choiceContainer = $("#choices2");
+//   $.each(datasets, function(key, val) {
+//     choiceContainer.append("<br/><input type='checkbox' name='" + key +
+//     "' checked='checked' id='id" + key + "'></input>" +
+//     "<label for='id" + key + "'>"
+//     + val.label + "</label>");
+//   });
 
-    choiceContainer.find("input").click(plotAccordingToChoices);
+//   choiceContainer.find("input").click(plotAccordingToChoices);
 
-    function plotAccordingToChoices() {
+//   function plotAccordingToChoices() {
 
-	var data = [];
+//     var data = [];
 
-	choiceContainer.find("input:checked").each(function () {
-	    var key = $(this).attr("name");
-	    if (key && datasets[key]) {
-		data.push(datasets[key]);
-	    }
-	});
+//     choiceContainer.find("input:checked").each(function () {
+//       var key = $(this).attr("name");
+//       if (key && datasets[key]) {
+//         data.push(datasets[key]);
+//       }
+//     });
 
-	if (data.length > 0) {
-	    $.plot("#flot-line-chart-multi", data, {
-		yaxis: {
-		    min: 0
-		},
-		xaxis: {
-		    tickDecimals: 0
-		}
-	    });
-	}
-    }
+//     if (data.length > 0) {
+//       $.plot("#flot-line-chart-multi", data, {
+//         yaxis: {
+//           min: 0
+//         },
+//         xaxis: {
+//           tickDecimals: 0
+//         }
+//       });
+//     }
+//   }
 
-    plotAccordingToChoices();
+//   plotAccordingToChoices();
 
 
-});
+// });
 
 
 //Giro de la direccion
-$(function() {
-    var d1 = [];
-    for (var i = 0; i < 14; i += 0.5) {
-	d1.push([i, ((Math.tan(3.141596)*Math.tan(3.141596))-Math.sin(3.141596*(i/2)*Math.cos(i*i)))+89]);
-    }
-    $.plot("#flot-line-chart-moving", [d1]);
-});
+// $(function() {
+//   // var d1 = [];
+//   // for (var i = 0; i < 14; i += 0.5) {
+//   // 	d1.push([i, ((Math.tan(3.141596)*Math.tan(3.141596))-Math.sin(3.141596*(i/2)*Math.cos(i*i)))+89]);
+//   // }
+//   var id = getCookie("id")
+//   path = "static/data/sesiones/"+id+"/volante.json";
+//     $.getJSON(path, function(d2){
+//     $.plot("#flot-line-chart-moving", [{data:d2.direccion}]);
+//   });
+// });
 
-//Porcentaje del acelerador
-$(document).ready(function() {
+// //Porcentaje del acelerador
+// $(document).ready(function() {
 
-    var datasets = {
-	"usa": {
-	    label: "1",
-	    data: [[1988, 483994], [1989, 479060], [1990, 457648], [1991, 401949], [1992, 424705], [1993, 402375], [1994, 377867], [1995, 357382], [1996, 337946], [1997, 336185], [1998, 328611], [1999, 329421], [2000, 342172], [2001, 344932], [2002, 387303], [2003, 440813], [2004, 480451], [2005, 504638], [2006, 528692]]
-	},
-	"russia": {
-	    label: "2",
-	    data: [[1988, 218000], [1989, 203000], [1990, 171000], [1992, 42500], [1993, 37600], [1994, 36600], [1995, 21700], [1996, 19200], [1997, 21300], [1998, 13600], [1999, 14000], [2000, 19100], [2001, 21300], [2002, 23600], [2003, 25100], [2004, 26100], [2005, 31100], [2006, 34700]]
-	},
-	"uk": {
-	    label: "3",
-	    data: [[1988, 62982], [1989, 62027], [1990, 60696], [1991, 62348], [1992, 58560], [1993, 56393], [1994, 54579], [1995, 50818], [1996, 50554], [1997, 48276], [1998, 47691], [1999, 47529], [2000, 47778], [2001, 48760], [2002, 50949], [2003, 57452], [2004, 60234], [2005, 60076], [2006, 59213]]
-	},
-	"germany": {
-	    label: "4",
-	    data: [[1988, 55627], [1989, 55475], [1990, 58464], [1991, 55134], [1992, 52436], [1993, 47139], [1994, 43962], [1995, 43238], [1996, 42395], [1997, 40854], [1998, 40993], [1999, 41822], [2000, 41147], [2001, 40474], [2002, 40604], [2003, 40044], [2004, 38816], [2005, 38060], [2006, 36984]]
-	},
-    };
+//   var datasets = {
+//     "usa": {
+//       label: "1",
+//       data: [[1988, 483994], [1989, 479060], [1990, 457648], [1991, 401949], [1992, 424705], [1993, 402375], [1994, 377867], [1995, 357382], [1996, 337946], [1997, 336185], [1998, 328611], [1999, 329421], [2000, 342172], [2001, 344932], [2002, 387303], [2003, 440813], [2004, 480451], [2005, 504638], [2006, 528692]]
+//     },
+//     "russia": {
+//       label: "2",
+//       data: [[1988, 218000], [1989, 203000], [1990, 171000], [1992, 42500], [1993, 37600], [1994, 36600], [1995, 21700], [1996, 19200], [1997, 21300], [1998, 13600], [1999, 14000], [2000, 19100], [2001, 21300], [2002, 23600], [2003, 25100], [2004, 26100], [2005, 31100], [2006, 34700]]
+//     },
+//     "uk": {
+//       label: "3",
+//       data: [[1988, 62982], [1989, 62027], [1990, 60696], [1991, 62348], [1992, 58560], [1993, 56393], [1994, 54579], [1995, 50818], [1996, 50554], [1997, 48276], [1998, 47691], [1999, 47529], [2000, 47778], [2001, 48760], [2002, 50949], [2003, 57452], [2004, 60234], [2005, 60076], [2006, 59213]]
+//     },
+//     "germany": {
+//       label: "4",
+//       data: [[1988, 55627], [1989, 55475], [1990, 58464], [1991, 55134], [1992, 52436], [1993, 47139], [1994, 43962], [1995, 43238], [1996, 42395], [1997, 40854], [1998, 40993], [1999, 41822], [2000, 41147], [2001, 40474], [2002, 40604], [2003, 40044], [2004, 38816], [2005, 38060], [2006, 36984]]
+//     },
+//   };
 
-    // hard-code color indices to prevent them from shifting as
-    // countries are turned on/off
+//   // hard-code color indices to prevent them from shifting as
+//   // countries are turned on/off
 
-    var i = 0;
-    $.each(datasets, function(key, val) {
-	val.color = i;
-	++i;
-    });
+//   var i = 0;
+//   $.each(datasets, function(key, val) {
+//     val.color = i;
+//     ++i;
+//   });
 
-    // insert checkboxes
-    var choiceContainer = $("#choices3");
-    $.each(datasets, function(key, val) {
-	choiceContainer.append("<br/><input type='checkbox' name='" + key +
-			       "' checked='checked' id='id" + key + "'></input>" +
-			       "<label for='id" + key + "'>"
-			       + val.label + "</label>");
-    });
+//   // insert checkboxes
+//   var choiceContainer = $("#choices3");
+//   $.each(datasets, function(key, val) {
+//     choiceContainer.append("<br/><input type='checkbox' name='" + key +
+//     "' checked='checked' id='id" + key + "'></input>" +
+//     "<label for='id" + key + "'>"
+//     + val.label + "</label>");
+//   });
 
-    choiceContainer.find("input").click(plotAccordingToChoices);
+//   choiceContainer.find("input").click(plotAccordingToChoices);
 
-    function plotAccordingToChoices() {
+//   function plotAccordingToChoices() {
 
-	var data = [];
+//     var data = [];
 
-	choiceContainer.find("input:checked").each(function () {
-	    var key = $(this).attr("name");
-	    if (key && datasets[key]) {
-		data.push(datasets[key]);
-	    }
-	});
+//     choiceContainer.find("input:checked").each(function () {
+//       var key = $(this).attr("name");
+//       if (key && datasets[key]) {
+//         data.push(datasets[key]);
+//       }
+//     });
 
-	if (data.length > 0) {
-	    $.plot("#flot-bar-chart", data, {
-		yaxis: {
-		    min: 0
-		},
-		xaxis: {
-		    tickDecimals: 0
-		}
-	    });
-	}
-    }
+//     if (data.length > 0) {
+//       $.plot("#flot-bar-chart", data, {
+//         yaxis: {
+//           min: 0
+//         },
+//         xaxis: {
+//           tickDecimals: 0
+//         }
+//       });
+//     }
+//   }
 
-    plotAccordingToChoices();
+//   plotAccordingToChoices();
 
 
-});
+// });
 
 
 //Fuerzas G
 $(function() {
-    var d2 = [[-2.5, -2.5], [2.5, 2.5], [-2.5, 0], [2.5, 0],[0, 2.5],[0, -2.5],[2.5, -2.5],[-2.5, 2.5]];
-    var options = {
-	lines : {show : false},
-	points : {show : true},
-	grid: { show:true,
-		markings: [
-		    { xaxis: { from: 0, to: 0 }, color:"red" },
-		    { yaxis: { from: 0, to: 0 }, color:"red" }
-		]
-	      }    
-	
+  var d2 = [[-2.5, -2.5], [2.5, 2.5], [-2.5, 0], [2.5, 0],[0, 2.5],[0, -2.5],[2.5, -2.5],[-2.5, 2.5]];
+  var options = {
+    lines : {show : false},
+    points : {show : true},
+    grid: { show:true,
+      markings: [
+        { xaxis: { from: 0, to: 0 }, color:"red" },
+        { yaxis: { from: 0, to: 0 }, color:"red" }
+      ]
     }
-    $.plot("#flot-bar-chart2", [d2], options);
+
+  }
+  $.plot("#flot-bar-chart2", [d2], options);
 });
 
 // //Flot Line Chart
