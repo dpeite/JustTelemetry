@@ -39,7 +39,7 @@ def sensores():
 
 @app.route("/tablas.html")
 def tablas():
-    resp = make_response(render_template("tables.html"))
+    resp = make_response(render_template("tablas.html"))
     resp.cache_control.no_cache = True
     return resp
 

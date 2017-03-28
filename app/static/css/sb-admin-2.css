@@ -17,6 +17,14 @@
     float : left;
 }
 
+.latlon1boton{
+    padding-top: 2px;
+}
+
+.vueltas{
+    margin-top: 2px;
+}
+
 body {
   background-color: #f8f8f8;
 }

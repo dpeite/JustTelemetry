@@ -6,7 +6,7 @@ $(function() {
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
-  choiceContainer.find("input").click(plotAccordingToChoices);
+  choiceContainer.find("input").change(plotAccordingToChoices);
 
           var plot
       var coord1 = null;

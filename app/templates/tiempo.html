@@ -18,16 +18,22 @@
 			    </div>
 			    <!-- /.panel-heading -->
 			    <div class="panel-body">
-			      <p id="vueltas" style="float:right; width:15%;">
-				<input type="radio" name="vuelta" value="trazada" checked="True"> Trazada<br>
+			      <div id="vueltas" style="float:right; width:15%;" data-toggle="buttons">
+				<label class="btn btn-primary col-xs-12 vueltas">
+				  <input type="radio" name="vuelta" value="trazada" checked="True" id="LAP-trazada"></input>
+				  <div id="asdf">Trazada</div>
+				</label>
 				{% for n in range(vueltas) %}
-				<input type="radio" name="vuelta" value={{n}}> {{n}}<br>
+				  <label class="btn btn-primary col-xs-12 vueltas">
+				    <input type="radio" name="vuelta" value="{{n}}" id="LAP-{n{}}"></input>
+				    <div>{{n}}</div>
+				  </label>
 				{% endfor %}
-			      </p>
-				<div class="flot-chart">
-				    <div class="flot-chart-content" id="flot-line-chart"></div>
 				</div>
-				<span id="clickdata"></span>
+			      <div class="flot-chart">
+				<div class="flot-chart-content" id="flot-line-chart"></div>
+			      </div>
+			      <span id="clickdata"></span>
 			    </div>
 			    <!-- /.panel-body -->
 			</div>
@@ -84,7 +90,7 @@
 				    <div class="flot-chart-content-wide" id="flot-line-chart-moving"></div>
 				</div>
 				<div id="choices4" class="btn-group col-xs-12" data-toggle="buttons"></div>
-				<div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+				<div class="btn-group col-xs-12 latlon1boton" data-toggle="buttons"></div>
 			    </div>
 			    <!-- /.panel-body -->
 			</div>
