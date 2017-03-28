@@ -1,7 +1,7 @@
 import json
 
-def cortar(lat1, lon1, lat2, lon2, ID):
-    with open("app/static/data/sesiones/"+ID+"/ruedas.json") as data_file:
+def cortar(lat1, lon1, lat2, lon2, ID, sensor):
+    with open("app/static/data/sesiones/"+ID+"/"+sensor+".json") as data_file:
         info = json.load(data_file)
 
     for key in info.keys():

@@ -86,10 +86,11 @@ def cortar_json():
     lat2 = float(request.args.get("lat2"))
     lon2 = float(request.args.get("lon2"))
     ID = str(request.args.get("id"))
+    sensor = str(request.args.get("sensor"))
     try:
         import tramo
         from flask import jsonify
-        return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID)), 200
+        return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor)), 200
     except Exception as exc:
         print exc
         return "", 500
