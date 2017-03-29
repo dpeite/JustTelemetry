@@ -68,6 +68,7 @@ boolean first = true;
 // Constantes
 const float grado_to_radian = 0.0174533;
 const float gravedad = 9.80665; // m/s
+const float km_to_ms = 0.277778;
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -152,6 +153,7 @@ void loop() {
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
     orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
     angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
+    velocidad = gps.f_speed_kmph() * km_to_ms;
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
     //myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
