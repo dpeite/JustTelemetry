@@ -9,8 +9,11 @@
 
 #define PERDIDA
 #define apagar_gps 100
-#define encender_gps 50
+#define encender_gps 300
+
+unsigned long dist_coords;
 int cont_gps = 0;
+int cont_coincide = 0;
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
@@ -47,6 +50,8 @@ unsigned long age, distancia, dist_acumulada;
 // Constantes
 const float grado_to_radian = 0.0174533;
 const float gravedad = 9.80665; // m/s
+const float km_to_ms = 0.277778;
+const int perdida_gps = 5;
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -117,9 +122,8 @@ void setup() {
   pruebas.prueba1((float*) R, (float*) Q);
   oper.imprimirMatriz((float*) R);
 
-#if defined(JSON) || defined(COMPARE)
   Serial.println('[');
-#endif
+
 } // Cierre setup
 
 void loop() {
@@ -134,7 +138,7 @@ void loop() {
       cont_gps++;
       smartdelay(50);
       gps.f_get_position(&flat, &flon, &age);
-    } else if (cont_gps > apagar_gps + encender_gps) { 
+    } else if (cont_gps > apagar_gps + encender_gps) {
       // Si el contador es superior al tiempo de apagado
       // reiniciamos el contador y obtenemos posición
       cont_gps = 0;
@@ -159,6 +163,7 @@ void loop() {
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
     orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
     angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
+    velocidad = gps.f_speed_kmph() * km_to_ms;
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
@@ -172,10 +177,12 @@ void loop() {
       z[4] = velocidad * cos(grado_to_radian * orientacion);
       z[5] = velocidad * sin(grado_to_radian * orientacion);
     } else {
-      // z[2] = 0.0;
-      // z[3] = 0.0;
-      // z[4] = 0.0;
-      // z[5] = 0.0;
+      z[0] = 0.0;
+      z[1] = 0.0;
+      z[2] = 0.0;
+      z[3] = 0.0;
+      z[4] = 0.0;
+      z[5] = 0.0;
     }
 
     // Calculamos Kalman
@@ -186,6 +193,17 @@ void loop() {
     x[3] = x_estimada[3]; // ay
     x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
+
+    // DESCONEXION SOFTWARE
+    if ((flat_ant == flat) && (flon_ant == flon)) {
+      cont_coincide++;
+      if (cont_coincide == perdida_gps) {
+        z[0] = x[0];
+        z[1] = x[1];
+        z[4] = x[4];
+        z[5] = x[5];
+      }
+    }
 
     // P = F * P_ant * F_tras + Q
     oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
@@ -237,16 +255,17 @@ static void smartdelay(unsigned long ms)
    Método para imprimir las coordenadas en formato [LAT_KAL,LON_KAL,LAT_ORI,LON_ORI,MILLIS]
 */
 void imprimir_json_comp(float lat_kal, float lon_kal, float lat_ori, float lon_ori) {
+  dist_coords = (unsigned long) gps.distance_between(lat_ini, lon_ini, lat_ori, lon_ori);
   Serial.print('[');
   Serial.print(lat_kal, 8);
   Serial.print(',');
   Serial.print(lon_kal, 8);
   Serial.print(',');
-  Serial.print(lat_ori, 8);
+  Serial.print(dist_coords * cos(grado_to_radian * angulo) * (-1), 8);
   Serial.print(',');
-  Serial.print(lon_ori, 8);
+  Serial.print(dist_coords * sin(grado_to_radian * angulo), 8);
   Serial.print(',');
   Serial.print(millis());
-  Serial.print(']');
+  Serial.println(']');
 }
 
