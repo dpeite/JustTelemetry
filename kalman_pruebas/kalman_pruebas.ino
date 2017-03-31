@@ -8,8 +8,8 @@
 #define n 6
 
 #define PERDIDA
-#define apagar_gps 100
-#define encender_gps 300
+#define apagar_gps 50
+#define encender_gps 25 
 
 unsigned long dist_coords;
 int cont_gps = 0;
@@ -51,7 +51,7 @@ unsigned long age, distancia, dist_acumulada;
 const float grado_to_radian = 0.0174533;
 const float gravedad = 9.80665; // m/s
 const float km_to_ms = 0.277778;
-const int perdida_gps = 5;
+const int perdida_gps = 3;
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -119,7 +119,7 @@ void setup() {
   flon_ant = lon_ini;
 
   // Modificación de las matrices
-  pruebas.prueba1((float*) R, (float*) Q);
+  // pruebas.prueba18((float*) R, (float*) Q);
   oper.imprimirMatriz((float*) R);
 
   Serial.println('[');
@@ -147,6 +147,7 @@ void loop() {
     } else { // En otro caso esperamos 50ms y no obtenemos posición
       cont_gps++;
       delay(50);
+     // Serial.println("PERDIDA");
 
       // Si queremos probar que el GPS envía posición invalida:
       //flat = TinyGPS::GPS_INVALID_F_ANGLE;
@@ -195,14 +196,24 @@ void loop() {
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
     // DESCONEXION SOFTWARE
+//    Serial.println(flon_ant,8);
+//    Serial.println(flon,8);
+//    Serial.println(flat_ant,8);
+//    Serial.println(flat,8);
+//    Serial.println(cont_coincide);
+   
     if ((flat_ant == flat) && (flon_ant == flon)) {
       cont_coincide++;
-      if (cont_coincide == perdida_gps) {
+     // Serial.println("UNO");
+      if (cont_coincide >= perdida_gps) {
         z[0] = x[0];
         z[1] = x[1];
         z[4] = x[4];
         z[5] = x[5];
+       // Serial.println("Prueba");
       }
+    } else {
+      cont_coincide = 0;
     }
 
     // P = F * P_ant * F_tras + Q
@@ -234,6 +245,9 @@ void loop() {
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
+
+    flat_ant = flat;
+    flon_ant = flon;
   }
 } // Cierre Loop
 
