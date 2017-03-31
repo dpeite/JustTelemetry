@@ -148,7 +148,7 @@ void loop() {
 
     smartdelay(100);
     gps.f_get_position(&flat, &flon, &age);
-    
+
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
     orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
@@ -238,6 +238,9 @@ void loop() {
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
+
+    flat_ant = flat;
+    flon_ant = flon;
   }
 } // Cierre Loop
 
