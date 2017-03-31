@@ -195,6 +195,14 @@ void loop() {
     x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
+        // Corrección de ejes
+//    x[0] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[1] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[2] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[3] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[4] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[5] *= cos(grado_to_radian * orientacion - 90.0);
+
     // DESCONEXION SOFTWARE
 //    Serial.println(flon_ant,8);
 //    Serial.println(flon,8);
