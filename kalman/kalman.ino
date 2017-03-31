@@ -146,9 +146,9 @@ void loop() {
   {
     t_inicial = millis();
 
-    smartdelay(100);
+    smartdelay(50);
     gps.f_get_position(&flat, &flon, &age);
-    
+
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
     orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
@@ -195,6 +195,15 @@ void loop() {
     x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
+    // Corrección de ejes
+//    x[0] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[1] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[2] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[3] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[4] *= cos(grado_to_radian * orientacion - 90.0);
+//    x[5] *= cos(grado_to_radian * orientacion - 90.0);
+    
+
     // P = F * P_ant * F_tras + Q
     oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
     oper.trasponerMatriz((float*)F, (float*)Ftras);
@@ -238,6 +247,9 @@ void loop() {
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
+
+    flat_ant = flat;
+    flon_ant = flon;
   }
 } // Cierre Loop
 
