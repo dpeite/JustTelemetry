@@ -1,5 +1,8 @@
+import json
+import os
+import shutil
 from app import app
-from flask import render_template, make_response
+from flask import render_template, make_response, request
 
 @app.route("/")
 @app.route("/index.html")
@@ -9,74 +12,91 @@ def index():
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/flot.html")
-def flot():
-    resp = make_response(render_template("flot.html"))
+@app.route("/tiempo.html")
+def tiempo():
+    ID = str(request.cookies.get("id"))
+    try:
+        path, dirs, files = os.walk("app/static/data/sesiones/"+ID+"/vueltas").next()
+        vueltas = len(files)
+    except:
+        vueltas = 0
+        pass
+    resp = make_response(render_template("tiempo.html", vueltas=vueltas))
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/morris.html")
-def morris():
-    resp = make_response(render_template("morris.html"))
+@app.route("/posicion.html")
+def posicion():
+    resp = make_response(render_template("posicion.html"))
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/tables.html")
-def tables():
-    resp = make_response(render_template("tables.html"))
+@app.route("/sensores.html")
+def sensores():
+    resp = make_response(render_template("sensores.html"))
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/forms.html")
-def forms():
-    resp = make_response(render_template("forms.html"))
+@app.route("/tablas.html")
+def tablas():
+    resp = make_response(render_template("tablas.html"))
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/panels-wells.html")
-def panels():
-    resp = make_response(render_template("panels-wells.html"))
+@app.route("/sesiones.html")
+def sesiones():
+    # with open('app/static/data/sesiones.json') as data_file:
+    #     posts = json.load(data_file)
+    posts = []
+    for path, dirs, files in os.walk("app/static/data/sesiones/"):
+        for d in dirs:
+            with open("app/static/data/sesiones/"+d+"/info.json") as data_file:
+                info = json.load(data_file)
+                posts.append(info)
+        break
+    
+    resp = make_response(render_template("sesiones.html", posts=posts))
+    resp.cache_control.no_cache = True
+    
+    return resp
+
+@app.route("/controlremoto.html")
+def importar_exportar():
+    resp = make_response(render_template("controlremoto.html"))
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/buttons.html")
-def buttons():
-    resp = make_response(render_template("buttons.html"))
-    resp.cache_control.no_cache = True
-    return resp
+##################Local endpoints#######################
+@app.route("/cortar_vueltas")
+def cortar_vueltas():
+    lat = float(request.args.get("lat"))
+    lon = float(request.args.get("lon"))
+    ID = str(request.args.get("id"))
+    try:
+        import vueltas
+        vueltas.cortar(lat, lon, ID)
+        return "", 200
+    except Exception as exc:
+        print exc
+        return "", 500
 
-@app.route("/notifications.html")
-def notifications():
-    resp = make_response(render_template("notifications.html"))
-    resp.cache_control.no_cache = True
-    return resp
+@app.route("/cortar_json")
+def cortar_json():
+    lat1 = float(request.args.get("lat1"))
+    lon1 = float(request.args.get("lon1"))
+    lat2 = float(request.args.get("lat2"))
+    lon2 = float(request.args.get("lon2"))
+    ID = str(request.args.get("id"))
+    sensor = str(request.args.get("sensor"))
+    try:
+        import tramo
+        from flask import jsonify
+        return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor)), 200
+    except Exception as exc:
+        print exc
+        return "", 500
 
-@app.route("/typography.html")
-def typography():
-    resp = make_response(render_template("typography.html"))
-    resp.cache_control.no_cache = True
-    return resp
-
-@app.route("/icons.html")
-def icons():
-    resp = make_response(render_template("icons.html"))
-    resp.cache_control.no_cache = True
-    return resp
-
-@app.route("/grid.html")
-def grid():
-    resp = make_response(render_template("grid.html"))
-    resp.cache_control.no_cache = True
-    return resp
-
-@app.route("/blank.html")
-def blank():
-    resp = make_response(render_template("blank.html"))
-    resp.cache_control.no_cache = True
-    return resp
-
-@app.route("/login.html")
-def login():
-    resp = make_response(render_template("login.html"))
-    resp.cache_control.no_cache = True
-    return resp
+@app.route("/borrar_vuelta")
+def borar_vuelta(): 
+    shutil.rmtree('app/static/data/sesiones/' + str(request.args.get("id")) + '/vueltas')
+    return "", 200
