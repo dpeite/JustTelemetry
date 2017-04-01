@@ -75,7 +75,44 @@ $(function() {
     console.log(coord1+" "+coord2);
   });
 
-
+    $("#flot-line-chart").bind("plothover",function (event, pos, item) {
+	if (item) {
+	    $("#inst_data").show()
+	    var x = item.datapoint[0].toFixed(2),
+		y = item.datapoint[1].toFixed(2);
+	    datos = item.series.data[item.dataIndex]
+	    for (i=3; i < datos.length; i++) {
+		var html = '';
+		    console.log(datos[i]["data"])
+		    $.each(datos[i]["data"], function(key, value){
+			html += '<tr>';
+			html += '<td>'+key+'</td>' ;
+			html += '<td>'+value+'</td>' ;
+			html += '</tr>';
+		    });
+		    console.log(datos[i]["label"])
+		    switch (datos[i]["label"]){
+		    case "ruedas":
+			table_id = "VR-TR"
+			break
+		    case "amortiguadores":
+			table_id = "CA-TR"
+			break
+		    case "acelerador":
+			table_id = "AC-TR"
+			break
+		    case "volante":
+			table_id = "GD-TR"
+			break
+		    }
+		    $("#"+table_id).html(html)
+		}
+	    }
+	else {
+	    console.log("Ocultamos")
+	    $("#inst_data").hide()
+	}
+    });
 });
 
 //Velocidad de las ruedas
