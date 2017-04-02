@@ -33,7 +33,14 @@ def posicion():
 
 @app.route("/sensores.html")
 def sensores():
-    resp = make_response(render_template("sensores.html"))
+    ID = str(request.cookies.get("id"))
+    try:
+        path, dirs, files = os.walk("app/static/data/sesiones/"+ID+"/vueltas").next()
+        vueltas = len(files)
+    except:
+        vueltas = 0
+        pass
+    resp = make_response(render_template("sensores.html", vueltas=vueltas))
     resp.cache_control.no_cache = True
     return resp
 
