@@ -1,3 +1,13 @@
+$(function() {
+$( ".sortable" ).sortable({
+    handle : '.panel-heading'
+    // items       : 'div:not(.unsortable)',
+    // placeholder : 'sortable-placeholder'
+});
+$( ".sortable" ).disableSelection();
+
+});
+
 //Trazada
 $(function() {
   var id = getCookie("id")
@@ -42,11 +52,11 @@ $(function() {
       vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
       vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
       vel_ruedas(d2[0],d2[d2.length-1],"volante");
-      plot = $.plot("#flot-line-chart", [d2], options);
+      plot = $.plot("#flot-trazada", [d2], options);
     });
   }
 
-  $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
+  $("#flot-trazada").bind("plotclick", function (event, pos, item) {
     if (item) {
       // $("#clickdata").text(" - click point " + item.datapoint);
       //plot.highlight(item.series, item.datapoint);
@@ -75,7 +85,7 @@ $(function() {
     console.log(coord1+" "+coord2);
   });
 
-    $("#flot-line-chart").bind("plothover",function (event, pos, item) {
+    $("#flot-trazada").bind("plothover",function (event, pos, item) {
 	if (item) {
 	    $("#inst_data").show()
 	    var x = item.datapoint[0].toFixed(2),
@@ -125,7 +135,7 @@ function vel_ruedas(coord1, coord2, sensor){
     // var path = "static/data/sesiones/"+id+"/ruedas.json";
     var ylabel = "rpm"
     var choiceContainer = $("#choices");
-    var plotContainer = "#flot-pie-chart"
+    var plotContainer = "#flot-rpm"
     var ids = "VR"
     var colsize = "col-xs-3"
     break;
@@ -133,7 +143,7 @@ function vel_ruedas(coord1, coord2, sensor){
     // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "mm"
     var choiceContainer = $("#choices2");
-    var plotContainer = "#flot-line-chart-multi"
+    var plotContainer = "#flot-amortiguadores"
     var ids = "CA"
     var colsize = "col-xs-3"
     break;
@@ -141,7 +151,7 @@ function vel_ruedas(coord1, coord2, sensor){
     // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "Grados"
     var choiceContainer = $("#choices3");
-    var plotContainer = "#flot-bar-chart"
+    var plotContainer = "#flot-acelerador"
     var ids = "AT"
     var colsize = "col-xs-3"
     break;
@@ -149,7 +159,7 @@ function vel_ruedas(coord1, coord2, sensor){
     // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "Porcentaje"
     var choiceContainer = $("#choices4");
-    var plotContainer = "#flot-line-chart-moving"
+    var plotContainer = "#flot-direccion"
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
@@ -326,5 +336,5 @@ function vel_ruedas(coord1, coord2, sensor){
       }
 
     }
-    $.plot("#flot-bar-chart2", [d2], options);
+    $.plot("#flot-G", [d2], options);
   });
