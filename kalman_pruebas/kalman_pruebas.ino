@@ -162,7 +162,11 @@ void loop() {
 
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
-    orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+
+    if (!((flat_ant == flat) && (flon_ant == flon))) {
+      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    }
+    
     angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
     velocidad = gps.f_speed_kmph() * km_to_ms;
 
@@ -171,7 +175,7 @@ void loop() {
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
-      z[0] = distancia * cos(grado_to_radian * angulo) * (-1); // Para invertir la imagen
+      z[0] = distancia * cos(grado_to_radian * angulo); // Para invertir la imagen
       z[1] = distancia * sin(grado_to_radian * angulo);
       z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
       z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
@@ -196,8 +200,8 @@ void loop() {
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
     // Corrección de ejes
-    z[2] *= cos(grado_to_radian * (orientacion - 90.0 - orientacion_acelerometro(x[2], x[3])); //ax
-    z[3] *= sin(grado_to_radian * (orientacion - 90.0 - orientacion_acelerometro(x[2], x[3])); // ay
+    z[2] *= cos(grado_to_radian * (orientacion - 90.0 - orientacion_acelerometro(x[2], x[3]))); // ax
+    z[3] *= sin(grado_to_radian * (orientacion - 90.0 - orientacion_acelerometro(x[2], x[3]))); // ay
 
     if ((flat_ant == flat) && (flon_ant == flon)) {
       cont_coincide++;
@@ -261,7 +265,7 @@ static void smartdelay(unsigned long ms)
 }
 
 float orientacion_acelerometro(float lat, float lon) {
-  return 2 * M_PI + atan2(lon, lat);
+  return 90.0 * grado_to_radian - (2 * M_PI + atan2(lon, lat));
 }
 
 float distancia_puntos(float lat_ant, float lon_ant, float lat, float lon) {
