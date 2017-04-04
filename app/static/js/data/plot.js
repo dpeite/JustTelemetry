@@ -1,15 +1,9 @@
 $(function() {
-$( ".sortable" ).sortable({
-    handle : '.panel-heading'
-    // items       : 'div:not(.unsortable)',
-    // placeholder : 'sortable-placeholder'
-});
-$( ".sortable" ).disableSelection();
-
+    trazada()
 });
 
 //Trazada
-$(function() {
+function trazada() {
   var id = getCookie("id")
 
   var choiceContainer = $("#vueltas");
@@ -123,7 +117,7 @@ $(function() {
 	    $("#inst_data").hide()
 	}
     });
-});
+}
 
 //Velocidad de las ruedas
 function vel_ruedas(coord1, coord2, sensor){
