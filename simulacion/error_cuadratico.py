@@ -7,13 +7,15 @@ import time
 start_time = time.time()
 
 #Formato  del JSON:
-# [lat, lon, vx_gps, vy_gps, orientacion, px, py, ax, ay, vx, vy, checkpoint, time]
+# [lat, lon, ax, ay, vx_gps, vy_gps, orientacion, checkpoint, time]
 
 checkpoint = 0
 it_checkpoint = 0
 checkpoint_loc = [] # Coordenadas de los checkpoints
 tam = 6
-error = []
+error = []
+error_cuadratico_minimo = 10000
+
 
 H_best = []
 Q_best = []
@@ -46,14 +48,17 @@ with open('valores_matriz.json') as datos:
         R[2,2] = it[1];
         R[3,3] = it[1];
         R[4,4] = it[2];
-        R[5,5] = it[2];
+        R[5,5] = it[2];
+       
+        delta_t = 0.0
+        t_inicio = 0.0 
 
         for linea in d:
 
-            # z[0] = linea[0] #lat
-            # z[1] = linea[1] #lon
-            # z[2] = linea[7] #ax
-            # z[3] = linea[8] #ay
+            z[0] = linea[0] #lat
+            z[1] = linea[1] #lon
+            z[2] = linea[2] #ax
+            z[3] = linea[3] #ay
             # z[4] = linea[2] #vx
             # z[5] = linea[3] #vy
 
@@ -65,8 +70,19 @@ with open('valores_matriz.json') as datos:
             # x[3] = linea[8] #ay
             # x[4] = linea[9] #vx
             # x[5] = linea[10] #vy
+            
+            delta_t = linea[4] - t_inicio
+            t_inicio = linea[4] 
 
+            F[0,2] = 0.5 * delta_t ** 2
+            F[0,4] = delta_t
+            F[1,3] = 0.5 * delta_t ** 2
+            F[1,5] = delta_t
+            F[4,2] = delta_t
+            F[5,3] = delta_t 
+             
             try:
+                x = F * x_estimada 
                 P = F * P_estimada * trans(F) + Q
                 K = P * trans(H) * inv(H * P * trans(H) + R)
                 x_estimada = x + K * (z - H * x)
@@ -101,7 +117,6 @@ with open('valores_matriz.json') as datos:
         error = []
 
         # Comprobamos si es mejor que el mejor resultado anterior
-        error_cuadratico_minimo = 0
         if ((suma_error_x + suma_error_y) / 2) < error_cuadratico_minimo:
             error_cuadratico_minimo = (suma_error_x + suma_error_y) / 2
 
