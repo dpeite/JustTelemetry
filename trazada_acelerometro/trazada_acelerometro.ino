@@ -120,9 +120,8 @@ void loop() {
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
     // Pasamos la aceleracion (x_estimada) a posición
-    posx_kalman += x_estimada[0] * 0.5 * delta_t*delta_t + vx * delta_t; //px
-    posy_kalman += x_estimada[1] * 0.5 * delta_t*delta_t + vy * delta_t; //px
-
+    posx_kalman += x_estimada[0] * 0.5 * delta_t*delta_t + vx_kalman * delta_t; //px
+    posy_kalman += x_estimada[1] * 0.5 * delta_t*delta_t + vy_kalman * delta_t; //px
 
     // Calculamos la posicion usando sólo las medidas en bruto
     posx += z[0] * 0.5 * delta_t*delta_t + vx * delta_t; //px
