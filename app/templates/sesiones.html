@@ -131,9 +131,12 @@
 																<button type="button" class="btn btn-primary btn-xs editar" data-toggle="tooltip" data-placement="top" title="Editar sesión">
 																	<i class="fa fa-edit fa-fw"></i>
 																</button>
-																<button type="button" class="btn btn-primary btn-xs descargar" data-toggle="tooltip" data-placement="top" title="Descargar sesión">
+
+																<a href="static/data/sesiones/{{ post.id }}/trazada.json" download="Trazada_{{ post.id }}.json">
+																<button type="button" class="btn btn-primary btn-xs descargar" data-toggle="tooltip" data-placement="top" title="Descargar sesión" >
 																	<i class="fa fa-cloud-download fa-fw"></i>
 																</button>
+																</a>
 																<button type="button" class="btn btn-primary btn-xs borrar" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
 																	<i class="glyphicon glyphicon-remove fa-fw"></i>
 																</button>
