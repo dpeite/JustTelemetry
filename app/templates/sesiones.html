@@ -112,9 +112,11 @@
 		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Editar sesión">
 		      <i class="fa fa-edit fa-fw"></i>
                     </button>
+		    <a href="descargar_sesion?id={{ post.id }}" download="{{ post.nombre }}">
 		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Descargar sesión">
-		      <i class="fa fa-cloud-download fa-fw"></i>
+			<i class="fa fa-cloud-download fa-fw"></i>
                     </button>
+		    </a>
 		    <button type="button" id="borrar-{{ post.id }}" class="btn btn-primary btn-xs delete_s" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
 		      <i class="glyphicon glyphicon-remove fa-fw"></i>
                     </button>

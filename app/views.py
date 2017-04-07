@@ -3,6 +3,8 @@ import os
 import shutil
 from app import app
 from flask import render_template, make_response, request
+from io import BytesIO
+import zipfile
 
 @app.route("/")
 @app.route("/index.html")
@@ -110,6 +112,22 @@ def borar_vuelta():
 
 @app.route("/borrar_sesion")
 def borrar_sesion():
-    print str(request.args.get("id"))
     shutil.rmtree('app/static/data/sesiones/' + str(request.args.get("id")))
     return "", 200
+
+@app.route("/descargar_sesion")
+def descargar_sesion():
+    # zip =shutil.make_archive("app/static/data/sesiones/" + str(request.args.get("id")), 'zip', 'app/static/data/sesiones/'+ str(request.args.get("id")))
+    # return send_file(zip)
+    memory_file = BytesIO()
+    with zipfile.ZipFile(memory_file, 'w') as zf:
+        for dirname, subdirs, files in os.walk("app/static/data/sesiones/" + str(request.args.get("id"))):
+            print subdirs
+            if not "vueltas" in dirname:
+                for filename in files:
+                    zf.write(os.path.join(dirname, filename), filename)
+            else:
+                for filename in files:
+                    zf.write(os.path.join(dirname, filename), "vueltas/"+filename)
+    memory_file.seek(0)
+    return send_file(memory_file, attachment_filename= str(request.args.get("id"))  +'.zip', as_attachment=True)
