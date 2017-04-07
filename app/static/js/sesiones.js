@@ -91,6 +91,27 @@ $('.vueltas').click(function(event){
 }); // Cierre event
 
 
+  // Borrar la sesion
+  $('.delete_s').click(function(){
+      console.log(this.id)
+      $.get("borrar_sesion", {id: this.id.split("-")[1]}, function(data, status, xhr){
+        // alert("Data: " + data + "\nStatus: " + status);
+        console.log(xhr.status);
+        $(".borrar-sesiones-correcto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".borrar-sesiones-correcto").slideUp(500);
+        });
+
+
+      })
+      .fail(function(response) {
+        $(".borrar-sesiones-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".borrar-sesiones-incorrecto").slideUp(500);
+        });
+      });
+  }); // Cierre delete_v
+
+
+
 $(function() {
   $("input[name=optionsRadios][value="+getCookie("id")+"]").prop("checked",true);
 });

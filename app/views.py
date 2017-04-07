@@ -107,3 +107,9 @@ def cortar_json():
 def borar_vuelta(): 
     shutil.rmtree('app/static/data/sesiones/' + str(request.args.get("id")) + '/vueltas')
     return "", 200
+
+@app.route("/borrar_sesion")
+def borrar_sesion():
+    print str(request.args.get("id"))
+    shutil.rmtree('app/static/data/sesiones/' + str(request.args.get("id")))
+    return "", 200

@@ -16,10 +16,18 @@
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
   <i class="fa fa-check fa-fw"></i> Vueltas borradas correctamente
       </div>
-      </div>
       <div class="alert alert-danger alert-dismissable oculto borrar-vueltas-incorrecto">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
   <i class="fa fa-times fa-fw"></i> Ha surgido un problema al borrar las vueltas
+      </div>
+      <div class="alert alert-success alert-dismissable oculto borrar-sesiones-correcto">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-check fa-fw"></i> Sesiones borradas correctamente
+      </div>
+      </div>
+      <div class="alert alert-danger alert-dismissable oculto borrar-sesiones-incorrecto">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-times fa-fw"></i> Ha surgido un problema al borrar las sesiones
       </div>
       <div class="col-lg-12">
         <h1 class="page-header">Sesiones</h1>
@@ -107,7 +115,7 @@
 		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Descargar sesión">
 		      <i class="fa fa-cloud-download fa-fw"></i>
                     </button>
-		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
+		    <button type="button" id="borrar-{{ post.id }}" class="btn btn-primary btn-xs delete_s" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
 		      <i class="glyphicon glyphicon-remove fa-fw"></i>
                     </button>
                     <!-- </div> -->
