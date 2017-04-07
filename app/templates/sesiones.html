@@ -113,16 +113,16 @@
                     <!-- </div> -->
 		  </div>
                 </td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.fecha }}</td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.nombre }}</td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.tiempo }}</td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.metros }}</td>
+                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.id }}">{{ post.fecha }}</td>
+                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.id }}">{{ post.nombre }}</td>
+                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.id }}">{{ post.tiempo }}</td>
+                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.id }}">{{ post.metros }}</td>
               </tr>
               <tr>
                 <td colspan="4" class="hiddenRow">
-                  <div id="{{ post.metros }}" class="panel-collapse collapse">
+                  <div id="{{ post.id }}" class="panel-collapse collapse">
                     <div class="panel-body">
-                      {{ post.nombre }}
+                      {{ post.descripcion }}
                     </div>
                   </div>
                 </td>
