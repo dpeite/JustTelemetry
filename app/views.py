@@ -2,7 +2,7 @@ import json
 import os
 import shutil
 from app import app
-from flask import render_template, make_response, request, send_file
+from flask import render_template, make_response, request, send_file, jsonify
 from io import BytesIO
 import zipfile
 
@@ -99,7 +99,6 @@ def cortar_json():
     sensor = str(request.args.get("sensor"))
     try:
         import tramo
-        from flask import jsonify
         return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor)), 200
     except Exception as exc:
         print exc
@@ -131,3 +130,16 @@ def descargar_sesion():
                     zf.write(os.path.join(dirname, filename), "vueltas/"+filename)
     memory_file.seek(0)
     return send_file(memory_file, attachment_filename= str(request.args.get("id"))  +'.zip', as_attachment=True)
+
+@app.route("/editar_datos", methods=["POST"])
+def editar_datos():
+    with open("app/static/data/sesiones/"+request.values["datos[id]"]+"/info.json") as data_file:
+        datos = json.load(data_file)
+
+    for key, value in request.values.iteritems():
+      datos[key.split("[")[1].split("]")[0]] = value
+      
+    with open("app/static/data/sesiones/"+request.values["datos[id]"]+"/info.json", "w") as data_file:
+        json.dump(datos, data_file)
+        
+    return "", 200

@@ -2,7 +2,7 @@ $('.vueltas').click(function(event){
   value = $(event.target).closest('tr').find('[name=optionsRadios]');
 
   code = '<div class="flot-chart"> \
-  <div class="flot-chart-content" id="vueltas"></div> \
+  <div class="flot-chart-content-wide" id="vueltas"></div> \
   </div> \
   </div> \
   <div class="modal-footer"> \
@@ -11,7 +11,9 @@ $('.vueltas').click(function(event){
   </div>';
   $("#modalcontent").empty();
   $("#modalcontent").append(code);
-
+    $(".modal-title").empty();
+    $(".modal-title").append("Seleccionar punto inicio vuelta");
+    
   var coord = null;
 
   $.getJSON("static/data/sesiones/"+value.val()+"/trazada.json", function(d2){
@@ -130,3 +132,61 @@ $('.tooltip-demo').tooltip({
     container: "body"
 });
 
+$('.editar').click(function(event){
+  code = '<div class="modal-body"> \
+<div class="row"> \
+<div class="col-xs-12"> \
+<form id="editar"> \
+  <div class="form-group"> \
+    <label for="editar-nombre">Nombre</label> \
+    <input type="text" name="nombre" class="form-control" id="editar-nombre" placeholder="Email"> \
+  </div> \
+  <div class="form-group"> \
+    <label for="editar-descripcion">Descripción</label> \
+    <input type="text" name="descripcion" class="form-control" id="editar-descripcion" placeholder="Email"> \
+  </div> \
+</form> \
+</div> \
+</div> \
+</div> \
+  <div class="modal-footer"> \
+  <button type="button" class="btn btn-danger buttonleft" data-dismiss="modal">Cancelar</button> \
+  <button type="button" class="btn btn-primary save">Guardar</button> \
+</div>';
+
+  $("#modalcontent").empty();
+  $(".modal-title").empty();
+    $("#modalcontent").append(code);
+    $(".modal-title").append("Editar datos de la sesión");
+    $('#myModal1').modal('show');
+
+    var id  = this.id.split("-")[1]
+    console.log(id)
+    $('.save').click(function(){
+	console.log()
+	var $inputs = $('#editar :input');
+	var values = {};
+	$inputs.each(function() {
+	    values[this.name] = $(this).val();
+	});
+	console.log(values)
+	$('#myModal1').modal('hide');
+
+	values["id"] = id
+	console.log(values)
+	$.post("editar_datos", {datos : values}, function(data, status, xhr){
+        $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".cortar-vueltas-correcto").slideUp(500);
+        });
+	    // $('.tr-'+id).load(location.href +  ' .tr-'+id);
+
+      })
+      .fail(function(response) {
+        $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+          $(".cortar-vueltas-incorrecto").slideUp(500);
+        });
+      });
+
+	
+    });
+});

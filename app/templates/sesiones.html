@@ -89,7 +89,7 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Seleccionar punto inicio vuelta</h4>
+                  <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <!-- <div class="modal-body" id="vueltas" style="height:200%; width:200%;"> -->
                 <div id="modalcontent" class="modal-body">
@@ -102,14 +102,14 @@
 
             <tbody>
               {% for post in posts %}
-              <tr >
+              <tr>
                 <td><input type="radio" name="optionsRadios" value="{{ post.id }}"></td>
                 <td class="col-lg-2">
 		  <div class="tooltip-demo">
                     <button type="button" class="btn btn-primary btn-xs vueltas" data-toggle="tooltip" data-placement="top" title="Selección punto inicio vuelta">
 		      <i class="fa fa-undo fa-fw"></i>
                     </button>
-		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Editar sesión">
+		    <button type="button" id="editar-{{ post.id }}" class="btn btn-primary btn-xs editar" data-toggle="tooltip" data-placement="top" title="Editar sesión">
 		      <i class="fa fa-edit fa-fw"></i>
                     </button>
 		    <a href="descargar_sesion?id={{ post.id }}" download="{{ post.nombre }}">
