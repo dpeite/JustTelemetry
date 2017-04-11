@@ -139,7 +139,7 @@ $('.editar').click(function(event){
 <form id="editar"> \
   <div class="form-group"> \
     <label for="editar-nombre">Nombre</label> \
-    <input type="text" name="nombre" class="form-control" id="editar-nombre" placeholder="Email"> \
+    <input type="text" name="nombre" class="form-control" id="editar-nombre" placeholder="Nombre"> \
   </div> \
   <div class="form-group"> \
     <label for="editar-descripcion">Descripción</label> \
@@ -178,7 +178,11 @@ $('.editar').click(function(event){
         $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
           $(".cortar-vueltas-correcto").slideUp(500);
         });
-	    // $('.tr-'+id).load(location.href +  ' .tr-'+id);
+	    $('#nombre'+id).load(location.href +  ' #nombre'+id);
+	    $('#fecha'+id).load(location.href +  ' #fecha'+id);
+	    $('#tiempo'+id).load(location.href +  ' #tiempo'+id);
+	    $('#metros'+id).load(location.href +  ' #metros'+id);
+	    $('#descripcion'+id).load(location.href +  ' #descripcion'+id+" .panel-body");
 
       })
       .fail(function(response) {
