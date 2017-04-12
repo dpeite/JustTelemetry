@@ -37,7 +37,7 @@ while True:
 
     print (valueRead) #Para poder copiar lo que sale por terminal a un fichero
 
-    asf = valueRead.split("[")
+    asf = valueRead.decode("utf-8").split("[")
     try:
         coord = asf[1].split(",")
 	
