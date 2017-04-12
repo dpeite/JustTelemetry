@@ -31,7 +31,7 @@
 				{% endfor %}
 				</div>
 			      <div class="flot-chart">
-				<div class="flot-chart-content" id="flot-line-chart"></div>
+				<div class="flot-chart-content" id="flot-trazada"></div>
 			      </div>
 			      <span id="clickdata"></span>
 
@@ -146,13 +146,28 @@
 				</div>
 				
 			      </div>
-			      
 			    </div>
 			    <!-- /.panel-body -->
 			</div>
 			<!-- /.panel -->
 		    </div>
 		    <!-- /.col-lg-12 -->
+		    <div id="panel_add_graph" class="col-lg-6">
+		      <div class="panel panel-default">
+			<div class="panel-heading">
+			  Añadir Gráfica
+			</div>
+			<!-- /.panel-heading -->
+			<div class="panel-body">
+			  Seleccione sensor:
+			  <button id="add_graph" type="button" class="btn btn-success">Success</button>
+			  
+			</div>
+			<!-- /.panel-body -->
+		      </div>
+		      <!-- /.panel -->
+		    </div>
+		    <!-- /.col-lg-6 -->
 		    
 		</div>
 		<!-- /.row -->		
@@ -173,7 +188,8 @@
 	<script src="static/js/flot/jquery.flot.resize.js"></script>
 	<script src="static/js/flot/jquery.flot.time.js"></script>
 	<script src="static/js/flot-tooltip/jquery.flot.tooltip.min.js"></script>
-	<script src="static/js/data/flot-sensores.js"></script>
+	<script src="static/js/data/plot.js"></script>
+	<script src="static/js/data/sensores.js"></script>
 	<script src="static/js/flot/jquery.flot.crosshair.js"></script>
 	<script src="static/js/flot/jquery.flot.axislabels.js"></script>
 {% endblock %}

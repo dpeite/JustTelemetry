@@ -1,19 +1,16 @@
-$(function() {
-    trazada()
-});
-
 //Trazada
-function trazada() {
+  var coord1 = null;
+  var coord2 = null;
+
+function trazada(sensores = false) {
   var id = getCookie("id")
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
   choiceContainer.find("input").change(plotAccordingToChoices);
 
-  var plot
-  var coord1 = null;
-  var coord2 = null;
-
+    var plot
+    
   function plotAccordingToChoices() {
 
     var key
@@ -42,10 +39,19 @@ function trazada() {
           clickable: true
         }
       };
-      vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
-      vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
-      vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
-      vel_ruedas(d2[0],d2[d2.length-1],"volante");
+	coord1 = d2[0]
+	coord2 = d2[d2.length-1]
+	if (!sensores){
+	    vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
+	    vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
+	    vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
+	    vel_ruedas(d2[0],d2[d2.length-1],"volante");
+	}
+	else {
+	    if (graficas.length != 0){
+		vel_ruedas(coord1, coord2, "aaa", graficas[0])
+	    }
+	}
       plot = $.plot("#flot-trazada", [d2], options);
     });
   }
@@ -60,12 +66,19 @@ function trazada() {
         plot.highlight(item.series, item.datapoint);
       }
       else if (coord2 == null){
-        coord2 = item.datapoint;
-        plot.highlight(item.series, item.datapoint);
-        vel_ruedas(coord1, coord2, "ruedas")
-        vel_ruedas(coord1, coord2, "amortiguadores")
-        vel_ruedas(coord1, coord2, "acelerador")
-        vel_ruedas(coord1, coord2, "volante")
+          coord2 = item.datapoint;
+          plot.highlight(item.series, item.datapoint);
+	  if (!sensores){
+              vel_ruedas(coord1, coord2, "ruedas")
+              vel_ruedas(coord1, coord2, "amortiguadores")
+              vel_ruedas(coord1, coord2, "acelerador")
+              vel_ruedas(coord1, coord2, "volante")
+	  }
+	  else {
+	    if (graficas.length != 0){
+		vel_ruedas(coord1, coord2, "aaa", graficas[0])
+	    }
+	  }
       }
       else {
         plot.unhighlight(item.series, coord1);
@@ -120,13 +133,12 @@ function trazada() {
 }
 
 //Velocidad de las ruedas
-function vel_ruedas(coord1, coord2, sensor){
+function vel_ruedas(coord1, coord2, sensor, sensores){
 
   var id = getCookie("id")
   var plot = {};
   switch (sensor){
     case "ruedas":
-    // var path = "static/data/sesiones/"+id+"/ruedas.json";
     var ylabel = "rpm"
     var choiceContainer = $("#choices");
     var plotContainer = "#flot-rpm"
@@ -134,7 +146,6 @@ function vel_ruedas(coord1, coord2, sensor){
     var colsize = "col-xs-3"
     break;
     case "amortiguadores":
-    // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "mm"
     var choiceContainer = $("#choices2");
     var plotContainer = "#flot-amortiguadores"
@@ -142,7 +153,6 @@ function vel_ruedas(coord1, coord2, sensor){
     var colsize = "col-xs-3"
     break;
     case "acelerador":
-    // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "Grados"
     var choiceContainer = $("#choices3");
     var plotContainer = "#flot-acelerador"
@@ -150,14 +160,24 @@ function vel_ruedas(coord1, coord2, sensor){
     var colsize = "col-xs-3"
     break;
     case "volante":
-    // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "Porcentaje"
     var choiceContainer = $("#choices4");
     var plotContainer = "#flot-direccion"
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
-
+  default:
+      var xlabel = sensores.xlabel
+      var ylabel = sensores.ylabel
+      var choiceContainer = sensores.choiceContainer
+      var plotContainer = sensores.plotContainer
+      var ids = sensores.ids
+      var colsize = sensores.colsize
+      sensor = sensores.sensores
+      console.log(sensores);
+      console.log(coord1)
+      break;
+      
 
   }
   // console.log(path)
