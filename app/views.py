@@ -1,5 +1,6 @@
 import json
 import os
+from os import listdir
 import shutil
 from app import app
 from flask import render_template, make_response, request, send_file, jsonify
@@ -42,9 +43,20 @@ def sensores():
     except:
         vueltas = 0
         pass
-    resp = make_response(render_template("sensores.html", vueltas=vueltas))
+    sensores = consultar_sensores(ID)
+    resp = make_response(render_template("sensores.html", vueltas=vueltas, sensores=sensores))
     resp.cache_control.no_cache = True
     return resp
+
+def consultar_sensores(id):
+    sensores =  ["ruedas.json", "amortiguadores.json", "volante.json", "acelerador"]
+    sensores_disponibles = []
+    archivos = listdir("app/static/data/sesiones/"+id)
+    for sensor in sensores:
+        if sensor in archivos:
+            sensores_disponibles.append(sensor.split(".")[0])
+    return sensores_disponibles
+
 
 @app.route("/tablas.html")
 def tablas():

@@ -159,9 +159,19 @@
 			</div>
 			<!-- /.panel-heading -->
 			<div class="panel-body">
-			  Seleccione sensor:
+			  Seleccione primer sensor:
+			  <select id="sensor1" class="form-control">
+			    {% for sensor in sensores %}
+			    <option>{{ sensor }}</option>
+			    {% endfor %}
+			  </select>
+			  Seleccione segundo sensor:
+			  <select id="sensor2" class="form-control">
+			    {% for sensor in sensores %}
+			    <option>{{ sensor }}</option>
+			    {% endfor %}
+			    </select>
 			  <button id="add_graph" type="button" class="btn btn-success">Success</button>
-			  
 			</div>
 			<!-- /.panel-body -->
 		      </div>

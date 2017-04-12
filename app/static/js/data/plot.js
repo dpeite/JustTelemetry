@@ -49,7 +49,9 @@ function trazada(sensores = false) {
 	}
 	else {
 	    if (graficas.length != 0){
-		vel_ruedas(coord1, coord2, "aaa", graficas[0])
+		for (i = 0; i < graficas.length; i++){
+		    vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		}
 	    }
 	}
       plot = $.plot("#flot-trazada", [d2], options);
@@ -76,7 +78,9 @@ function trazada(sensores = false) {
 	  }
 	  else {
 	    if (graficas.length != 0){
-		vel_ruedas(coord1, coord2, "aaa", graficas[0])
+		for (i = 0; i < graficas.length; i++){
+		    vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		}
 	    }
 	  }
       }
