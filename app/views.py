@@ -99,7 +99,11 @@ def cortar_json():
     sensor = str(request.args.get("sensor"))
     try:
         import tramo
-        return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor)), 200
+        sensores = sensor.split("-")
+        if len(sensores) == 2:
+            return jsonify(tramo.cortar_varios(lat1, lon1, lat2, lon2, ID, sensores)), 200
+        else:
+            return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor)), 200
     except Exception as exc:
         print exc
         return "", 500
