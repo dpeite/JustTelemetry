@@ -40,7 +40,7 @@ float flat, flon, lat_ini, lon_ini, velocidad;
 float flat_ant, flon_ant;
 float orientacion, delta_t;
 float angulo = 0.0; // Respecto a la posición inicial
-unsigned long age, distancia, dist_acumulada, dist_actual;
+unsigned long age, distancia, dist_acumulada;
 
 float acelx, acely;
 
@@ -129,8 +129,7 @@ void loop() {
     gps.f_get_position(&flat, &flon, &age);
 
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
-    dist_actual = (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
-    dist_acumulada += dist_actual;
+    dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
 
     if (!((flat_ant == flat) && (flon_ant == flon))) {
       orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
@@ -171,6 +170,7 @@ void loop() {
     x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
+    // Detección de pérdida del GPS
     if ((flat_ant == flat) && (flon_ant == flon)) {
       cont_coincide++;
       if (cont_coincide >= perdida_gps) {
@@ -200,7 +200,7 @@ void loop() {
     oper.mulMatrizMatriz((float*)P, (float*)Htras, (float*)PHtras);
     oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
 
-    // En nuestro formato
+    // Actualizamos las coordenadas anteriores en nuestro formato
     posx_ant = x_estimada[0];
     posy_ant = x_estimada[1];
 
@@ -219,11 +219,9 @@ void loop() {
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
 
-    // En formato coordenadas estándar
+    // Actualizamos las coordenadas anteriores en formato coordenadas estándar
     flat_ant = flat;
     flon_ant = flon;
-
-
   }
 } // Cierre Loop
 
