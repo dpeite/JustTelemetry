@@ -1,29 +1,13 @@
 
-/*Hardware setup:
-  MPU9250 Breakout --------- Arduino
-  VDD ---------------------- 3.3V
-  VDDI --------------------- 3.3V
-  SDA ----------------------- A4
-  SCL ----------------------- A5
-  GND ---------------------- GND
-*/
-
 #include <Matrices.h>
 #include <TinyGPS.h>
 #include <MPU9250.h>
-
-// Desomentar para imprimir en formato JSON para la web
-//#define JSON
-
-// Descomentar para enviar las coordenadas originales junto a las obtenidas por Kalman
-//#define COMPARE
-
-// Descomentar para enviar la distancia
-#define DIST
+#include <math.h>
 
 // Dimensión del tamaño del estado
 #define n 6
-#define RESET_ORIENTACION 5
+
+int cont_coincide = 0;
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
@@ -37,38 +21,34 @@ float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0,
 // Vectores de Kalman
 float x[n];
 float x_estimada[n];
-
 float z[n];
 
 // Matrices auxiliares
 float Ftras[n][n], FPant[n][n], FPantFtras[n][n];
-
 float HP[n][n], Htras[n][n], HPHtras[n][n], HPHtras_R[n][n], PHtras[n][n];
-
 float KHP[n][n];
 
 // Vectores auxiliares
-float Hx[n];
-float resta_zHx[n];
-float K_zHx[n];
+float Hx[n], resta_zHx[n], K_zHx[n];
 
 // Para calcular la orientación
 long t_inicial, t_final;
+float posx_ant, posy_ant;
 
 //Variables del GPS
-float flat, flon, medida_giroscopio, lat_ini, lon_ini, velocidad;
+float flat, flon, lat_ini, lon_ini, velocidad;
 float flat_ant, flon_ant;
 float orientacion, delta_t;
-float angulo = 0.0;
+float angulo = 0.0; // Respecto a la posición inicial
 unsigned long age, distancia, dist_acumulada;
-int cont_reset_orientacion = 0;
 
-boolean first = true;
+float acelx, acely;
 
 // Constantes
-const float grado_to_radian = 0.0174533;
+const float grado_to_radian = 0.0174533; // 1 grado son 0.0174533
 const float gravedad = 9.80665; // m/s
 const float km_to_ms = 0.277778;
+const int perdida_gps = 3; // Indica a partir de cuando consideramos que estamos en pérdida
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -134,9 +114,8 @@ void setup() {
   flat_ant = lat_ini;
   flon_ant = lon_ini;
 
-#if defined(JSON) || defined(COMPARE)
   Serial.println('[');
-#endif
+
 } // Cierre setup
 
 void loop() {
@@ -146,54 +125,65 @@ void loop() {
   {
     t_inicial = millis();
 
-    smartdelay(100);
+    smartdelay(50);
     gps.f_get_position(&flat, &flon, &age);
 
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
-    orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+
+    if (!((flat_ant == flat) && (flon_ant == flon))) {
+      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    }
+
     angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
     velocidad = gps.f_speed_kmph() * km_to_ms;
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
-    //myIMU.readGyroData(myIMU.gyroCount);  // Read the x/y/z adc values
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
 
-    // Valor del giroscopio en º/s
-    medida_giroscopio = (float)myIMU.gyroCount[2] * myIMU.gRes; // - myIMU.gyroBias[2];
-    //orientacion += delta_t * medida_giroscopio * grado_to_radian; // He movido aquí el cálculo de la orientación
-    //cont_reset_orientacion++;
-
-    //    if (first || cont_reset_orientacion == RESET_ORIENTACION) {
-    //      first = false;
-    //      cont_reset_orientacion = 0;
-    //      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
-    //    }
+    acelx = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
+    acely = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
-      z[0] = distancia * cos(grado_to_radian * angulo) * (-1); // Para invertir la imagen
-      z[1] = distancia * sin(grado_to_radian * angulo);
-      z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
-      z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
-      z[4] = velocidad * cos(grado_to_radian * orientacion);
-      z[5] = velocidad * sin(grado_to_radian * orientacion);
+      z[0] = distancia * sin(grado_to_radian * angulo); // Para invertir la imagen
+      z[1] = distancia * cos(grado_to_radian * angulo);
+      z[2] = acelx * cos((90 - orientacion) * grado_to_radian) + acely * sin((90 - orientacion) * grado_to_radian);
+      z[3] = acely * cos((90 - orientacion) * grado_to_radian) - acelx * sin((90 - orientacion) * grado_to_radian);
+      z[4] = velocidad * sin(grado_to_radian * orientacion);
+      z[5] = velocidad * cos(grado_to_radian * orientacion);
     } else {
-      // Si no nos movemos la velocidad y la aceleración son 0. Así evitamos errores de sincronía entre GPS e IMU
-      // z[2] = 0.0;
-      // z[3] = 0.0;
-      // z[4] = 0.0;
-      // z[5] = 0.0;
+      //z[0] = 0.0;
+      //z[1] = 0.0;
+      z[2] = 0.0;
+      z[3] = 0.0;
+      z[4] = 0.0;
+      z[5] = 0.0;
     }
 
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = x_estimada[0] + x_estimada[2] * 0.5 * delta_t*delta_t + x_estimada[4] * delta_t; //px
-    x[1] = x_estimada[1] + x_estimada[3] * 0.5 * delta_t*delta_t + x_estimada[5] * delta_t; //py
+    x[0] = x_estimada[0] + x_estimada[2] * 0.5 * delta_t*delta_t + x_estimada[4] * delta_t; // px
+    x[1] = x_estimada[1] + x_estimada[3] * 0.5 * delta_t*delta_t + x_estimada[5] * delta_t; // py
     x[2] = x_estimada[2]; // ax
-    x[3] = x_estimada[3]; //ay
+    x[3] = x_estimada[3]; // ay
     x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
+
+    // Detección de pérdida del GPS
+    if ((flat_ant == flat) && (flon_ant == flon)) {
+      cont_coincide++;
+      if (cont_coincide >= perdida_gps) {
+
+        orientacion = orientacion_acelerometro(x[0], x[1], posx_ant, posy_ant);
+        z[0] = x[0]; //px
+        z[1] = x[1];
+        z[4] = x[4]; // vx
+        z[5] = x[5];
+      }
+    } else {
+      cont_coincide = 0;
+    }
 
     // P = F * P_ant * F_tras + Q
     oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
@@ -210,6 +200,10 @@ void loop() {
     oper.mulMatrizMatriz((float*)P, (float*)Htras, (float*)PHtras);
     oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
 
+    // Actualizamos las coordenadas anteriores en nuestro formato
+    posx_ant = x_estimada[0];
+    posy_ant = x_estimada[1];
+
     // x' = x + K (z - H * x)
     oper.mulMatrizVector((float*)H, (float*)x, (float*)Hx);
     oper.restaVectorVector((float*)z, (float*)Hx, (float*)resta_zHx);
@@ -220,25 +214,12 @@ void loop() {
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
-#ifdef JSON
-    imprimir_json(x_estimada[0], x_estimada[1]);
-#endif
-
-#ifdef DIST
-    imprimir_json_dist(x_estimada[0], x_estimada[1], dist_acumulada);
-#endif
-
-#ifdef COMPARE
-    imprimir_json_comp(x_estimada[0], x_estimada[1], z[0], z[1]);
-#endif
-
-    //#ifndef JSON
-    //    imprimir_coordenadas(x_estimada[0], x_estimada[1]);
-    //#endif
+    imprimir_json_comp(x_estimada[0], x_estimada[1]);
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
 
+    // Actualizamos las coordenadas anteriores en formato coordenadas estándar
     flat_ant = flat;
     flon_ant = flon;
   }
@@ -258,71 +239,24 @@ static void smartdelay(unsigned long ms)
   } while (millis() - start < ms);
 }
 
-/*
-   Método para imprimir las coordenadas en formato LAT,LON,MILLIS
-*/
-void imprimir_coordenadas_tiempo(float lat, float lon) {
-  Serial.print(lat, 8);
-  Serial.print(',');
-  Serial.print(lon, 8);
-  Serial.print(',');
-  Serial.println(millis());
-}
-
-/*
-   Método para imprimir las coordenadas en formato LAT,LON
-*/
-void imprimir_coordenadas(float lat, float lon) {
-  Serial.print(lat, 8);
-  Serial.print(',');
-  Serial.println(lon, 8);
-}
-
-/*
-   Método para imprimir las coordenadas en formato [LAT,LON,MILLIS]
-*/
-void imprimir_json(float lat, float lon) {
-  Serial.print('[');
-  Serial.print(lat, 8);
-  Serial.print(',');
-  Serial.print(lon, 8);
-  Serial.print(',');
-  Serial.print(millis());
-  Serial.print(']');
-  Serial.println(',');
-}
-
-/*
-   Método para imprimir las coordenadas en formato [LAT, LON, DIST, MILLIS]
-*/
-void imprimir_json_dist(float lat, float lon, unsigned long dist) {
-  Serial.print('[');
-  Serial.print(lat, 8);
-  Serial.print(',');
-  Serial.print(lon, 8);
-  Serial.print(',');
-  Serial.print(dist);
-  Serial.print(',');
-  Serial.print(millis());
-  Serial.print(']');
-  Serial.println(',');
+float orientacion_acelerometro(float lat, float lon, float lat_ant, float lon_ant) {
+  return 90.0 * grado_to_radian - (2 * M_PI + atan2(lon - lon_ant, lat - lat_ant));
 }
 
 /*
    Método para imprimir las coordenadas en formato [LAT_KAL,LON_KAL,LAT_ORI,LON_ORI,MILLIS]
 */
-void imprimir_json_comp(float lat_kal, float lon_kal, float lat_ori, float lon_ori) {
+void imprimir_json_comp(float lat_kal, float lon_kal) {
   Serial.print('[');
   Serial.print(lat_kal, 8);
   Serial.print(',');
   Serial.print(lon_kal, 8);
   Serial.print(',');
-  Serial.print(lat_ori, 8);
+  Serial.print(z[0], 8);
   Serial.print(',');
-  Serial.print(lon_ori, 8);
+  Serial.print(z[1], 8);
   Serial.print(',');
   Serial.print(millis());
-  Serial.print(']');
-  Serial.println(',');
+  Serial.println("],");
 }
 

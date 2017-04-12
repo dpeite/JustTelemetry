@@ -2,14 +2,15 @@
 #include <Matrices.h>
 #include <TinyGPS.h>
 #include <MPU9250.h>
+#include <math.h>
 #include <PruebasKalman.h>
 
 // Dimensión del tamaño del estado
 #define n 6
 
 #define PERDIDA
-#define apagar_gps 50
-#define encender_gps 25 
+#define apagar_gps 100
+#define encender_gps 10
 
 unsigned long dist_coords;
 int cont_gps = 0;
@@ -48,7 +49,7 @@ float angulo = 0.0; // Respecto a la posición inicial
 unsigned long age, distancia, dist_acumulada;
 
 // Constantes
-const float grado_to_radian = 0.0174533;
+const float grado_to_radian = 0.0174533; // 1 grado son 0.0174533
 const float gravedad = 9.80665; // m/s
 const float km_to_ms = 0.277778;
 const int perdida_gps = 3;
@@ -147,7 +148,6 @@ void loop() {
     } else { // En otro caso esperamos 50ms y no obtenemos posición
       cont_gps++;
       delay(50);
-     // Serial.println("PERDIDA");
 
       // Si queremos probar que el GPS envía posición invalida:
       //flat = TinyGPS::GPS_INVALID_F_ANGLE;
@@ -162,7 +162,11 @@ void loop() {
 
     distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
     dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
-    orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+
+    if (!((flat_ant == flat) && (flon_ant == flon))) {
+      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    }
+    
     angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
     velocidad = gps.f_speed_kmph() * km_to_ms;
 
@@ -171,7 +175,7 @@ void loop() {
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
-      z[0] = distancia * cos(grado_to_radian * angulo) * (-1); // Para invertir la imagen
+      z[0] = distancia * cos(grado_to_radian * angulo); // Para invertir la imagen
       z[1] = distancia * sin(grado_to_radian * angulo);
       z[2] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
       z[3] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
@@ -195,22 +199,17 @@ void loop() {
     x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
-    // DESCONEXION SOFTWARE
-//    Serial.println(flon_ant,8);
-//    Serial.println(flon,8);
-//    Serial.println(flat_ant,8);
-//    Serial.println(flat,8);
-//    Serial.println(cont_coincide);
-   
+    // Corrección de ejes
+    z[2] *= cos(grado_to_radian * (orientacion - 90.0 - orientacion_acelerometro(x[2], x[3]))); // ax
+    z[3] *= sin(grado_to_radian * (orientacion - 90.0 - orientacion_acelerometro(x[2], x[3]))); // ay
+
     if ((flat_ant == flat) && (flon_ant == flon)) {
       cont_coincide++;
-     // Serial.println("UNO");
       if (cont_coincide >= perdida_gps) {
-        z[0] = x[0];
+        z[0] = x[0]; //px
         z[1] = x[1];
-        z[4] = x[4];
+        z[4] = x[4]; // vx
         z[5] = x[5];
-       // Serial.println("Prueba");
       }
     } else {
       cont_coincide = 0;
@@ -263,6 +262,17 @@ static void smartdelay(unsigned long ms)
     while (Serial1.available())
       gps.encode(Serial1.read());
   } while (millis() - start < ms);
+}
+
+float orientacion_acelerometro(float lat, float lon) {
+  return 90.0 * grado_to_radian - (2 * M_PI + atan2(lon, lat));
+}
+
+float distancia_puntos(float lat_ant, float lon_ant, float lat, float lon) {
+  double x = lat - lat_ant;
+  double y = lon - lon_ant;
+
+  return sqrt(pow(x,2) + pow(y,2));
 }
 
 /*
