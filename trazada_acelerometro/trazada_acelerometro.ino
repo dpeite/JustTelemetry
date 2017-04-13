@@ -14,7 +14,7 @@ float H[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0,
 float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
 
 // Vectores de Kalman
-float x[n], x_estimada[n], z[n];
+float x[n], xEstimada[n], z[n];
 
 // Matrices auxiliares
 float Ftras[n][n], FPant[n][n], FPantFtras[n][n];
@@ -24,15 +24,17 @@ float KHP[n][n];
 // Vectores auxiliares
 float Hx[n], resta_zHx[n], K_zHx[n];
 
-float t_inicial, t_final, delta_t;
+float tiempoInicial, tiempoFinal, deltaTiempo;
 
-float vx, vy;
-float vx_kalman, vy_kalman;
+float orientacion;
+float velocidadX, velocidadY;
+float aceleracionX, aceleracionY;
 float posx, posy;
-float posx_kalman, posy_kalman;
+float posicionAnteriorX, posicionAnteriorY;
 
 // Constantes
 const float gravedad = 9.80665; // m/s
+const float gradoToRadian = 0.0174533;
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -74,25 +76,31 @@ void loop() {
   // Comprobamos que haya nuevos datos
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
   {
-    t_inicial = millis();
+    tiempoInicial = millis();
 
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
 
-    // Obtenemos la velocidad antes de actualizar la aceleración
-    vx = z[0] * delta_t;
-    vy = z[1] * delta_t;
-
-    vx_kalman = x_estimada[0] * delta_t;
-    vy_kalman = x_estimada[1] * delta_t;
-
     // Leemos la medición del acelerometro
-    z[0] = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
-    z[1] = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
+    aceleracionX = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
+    aceleracionY = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
 
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = x_estimada[0];
-    x[1] = x_estimada[1];
+    x[0] = xEstimada[0] + xEstimada[2] * 0.5 * deltaTiempo * deltaTiempo + xEstimada[4] * deltaTiempo; // px
+    x[1] = xEstimada[1] + xEstimada[3] * 0.5 * deltaTiempo * deltaTiempo + xEstimada[5] * deltaTiempo; // py
+    x[2] = xEstimada[2]; // ax
+    x[3] = xEstimada[3]; // ay
+    x[4] = xEstimada[2] * deltaTiempo + xEstimada[4]; // vx
+    x[5] = xEstimada[3] * deltaTiempo + xEstimada[5]; // vy
+
+    orientacion = orientacionAcelerometro(x[0], x[1], posicionAnteriorX, posicionAnteriorY);
+
+    // Obtenemos la velocidad antes de actualizar la aceleración
+    velocidadX = z[2] * deltaTiempo;
+    velocidadY = z[3] * deltaTiempo;
+
+    z[2] = aceleracionX * cos((90 - orientacion) * gradoToRadian) + aceleracionY * sin((90 - orientacion) * gradoToRadian);
+    z[3] = aceleracionY * cos((90 - orientacion) * gradoToRadian) - aceleracionX * sin((90 - orientacion) * gradoToRadian);
 
     // P = F * P_ant * F_tras + Q
     oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
@@ -109,29 +117,28 @@ void loop() {
     oper.mulMatrizMatriz((float*)P, (float*)Htras, (float*)PHtras);
     oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
 
+    // Actualizamos las coordenadas anteriores en nuestro formato
+    posicionAnteriorX = xEstimada[0];
+    posicionAnteriorY = xEstimada[1];
+
     // x' = x + K (z - H * x)
     oper.mulMatrizVector((float*)H, (float*)x, (float*)Hx);
     oper.restaVectorVector((float*)z, (float*)Hx, (float*)resta_zHx);
     oper.mulMatrizVector((float*)K, (float*)resta_zHx, (float*)K_zHx);
-    oper.sumaVectorVector((float*)x, (float*)K_zHx, (float*)x_estimada);
+    oper.sumaVectorVector((float*)x, (float*)K_zHx, (float*)xEstimada);
 
     // P' = P - K * H * P;
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
 
-    // Pasamos la aceleracion (x_estimada) a posición
-    posx_kalman += x_estimada[0] * 0.5 * delta_t*delta_t + vx_kalman * delta_t; //px
-    posy_kalman += x_estimada[1] * 0.5 * delta_t*delta_t + vy_kalman * delta_t; //px
-
     // Calculamos la posicion usando sólo las medidas en bruto
-    posx += z[0] * 0.5 * delta_t*delta_t + vx * delta_t; //px
-    posy += z[1] * 0.5 * delta_t*delta_t + vy * delta_t; //px
+    posx += z[2] * 0.5 * deltaTiempo * deltaTiempo + velocidadX * deltaTiempo; //px
+    posy += z[3] * 0.5 * deltaTiempo * deltaTiempo + velocidadY * deltaTiempo; //px
 
+    tiempoFinal = millis();
+    deltaTiempo = (tiempoFinal - tiempoInicial) / 1000.0f;
 
-    t_final = millis();
-    delta_t = (t_final - t_inicial) / 1000.0f;
-
-    imprimir(posx, posy, posx_kalman, posy_kalman, delta_t);
+    imprimir(posx, posy, xEstimada[0], xEstimada[1], deltaTiempo);
   }
 } // Cierre Loop
 
@@ -150,4 +157,8 @@ void imprimir(float posx, float posy, float posx_kalman, float posy_kalman, floa
   Serial.print(',');
   Serial.print(t);
   Serial.println("],");
+}
+
+float orientacionAcelerometro(float posX, float posY, float posAnteriorX, float posAnteriorY) {
+  return 90.0 * gradoToRadian - (2 * M_PI + atan2(posY - posAnteriorY, posX - posAnteriorX));
 }
