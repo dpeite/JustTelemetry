@@ -110,12 +110,12 @@ void loop() {
 
     // Comprobamos que nos hemos movido del origen
     if (distancia != 0) {
-      z[0] = distancia * cos(grado_to_radian * angulo); 
-      z[1] = distancia * sin(grado_to_radian * angulo);
-      z[2] = acelx * cos(orientacion) + acely * cos(90 + orientacion);
-      z[3] = acelx * sin(orientacion) + acely * sin(90 + orientacion);
-      z[4] = velocidad * cos(grado_to_radian * orientacion);
-      z[5] = velocidad * sin(grado_to_radian * orientacion);
+      z[0] = distancia * sin(grado_to_radian * angulo); 
+      z[1] = distancia * cos(grado_to_radian * angulo);
+      z[2] = acelx * cos((90 - orientacion) * grado_to_radian) + acely * sin((90 - orientacion) * grado_to_radian);
+      z[3] = acely * cos((90 - orientacion) * grado_to_radian) - acelx * sin((90 - orientacion) * grado_to_radian);
+      z[4] = velocidad * sin(grado_to_radian * orientacion);
+      z[5] = velocidad * cos(grado_to_radian * orientacion);
     }
 
     imprimir((float*) z, delta_t);
