@@ -9,7 +9,7 @@
 
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
-float P_estimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
+float PEstimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
 float Q[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
 float R[n][n] = {{2, 0, 0, 0, 0, 0}, {0, 2, 0, 0, 0, 0}, {0, 0, 2, 0, 0, 0}, {0, 0, 0, 2, 0, 0}, {0, 0, 0, 0, 2, 0}, {0, 0, 0, 0, 0, 2}}; // Cuanto mayor menor confianza
 float K[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
@@ -17,17 +17,15 @@ float H[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0,
 float F[n][n] = {{1, 0, 0, 0, 0, 0}, {0, 1, 0, 0, 0, 0}, {0, 0, 1, 0, 0, 0}, {0, 0, 0, 1, 0, 0}, {0, 0, 0, 0, 1, 0}, {0, 0, 0, 0, 0, 1}};
 
 // Vectores de Kalman
-float x[n];
-float x_estimada[n];
-float z[n];
+float x[n], xEstimada[n], z[n];
 
 // Matrices auxiliares
 float Ftras[n][n], FPant[n][n], FPantFtras[n][n];
-float HP[n][n], Htras[n][n], HPHtras[n][n], HPHtras_R[n][n], PHtras[n][n];
+float HP[n][n], Htras[n][n], HPHtras[n][n], HPHtrasR[n][n], PHtras[n][n];
 float KHP[n][n];
 
 // Vectores auxiliares
-float Hx[n], resta_zHx[n], K_zHx[n];
+float Hx[n], restaZHx[n], KZHx[n];
 
 // Para calcular la orientación
 long t_inicial, t_final;
@@ -166,12 +164,12 @@ void loop() {
 
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = x_estimada[0] + x_estimada[2] * 0.5 * delta_t*delta_t + x_estimada[4] * delta_t; // px
-    x[1] = x_estimada[1] + x_estimada[3] * 0.5 * delta_t*delta_t + x_estimada[5] * delta_t; // py
-    x[2] = x_estimada[2]; // ax
-    x[3] = x_estimada[3]; // ay
-    x[4] = x_estimada[2] * delta_t + x_estimada[4]; // vx
-    x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
+    x[0] = xEstimada[0] + xEstimada[2] * 0.5 * delta_t*delta_t + xEstimada[4] * delta_t; // px
+    x[1] = xEstimada[1] + xEstimada[3] * 0.5 * delta_t*delta_t + xEstimada[5] * delta_t; // py
+    x[2] = xEstimada[2]; // ax
+    x[3] = xEstimada[3]; // ay
+    x[4] = xEstimada[2] * delta_t + xEstimada[4]; // vx
+    x[5] = xEstimada[3] * delta_t + xEstimada[5]; // vy
 
     // Detección de pérdida del GPS
     if ((latitudAnterior == latitud) && (longitudAnterior == longitud)) {
@@ -189,7 +187,7 @@ void loop() {
     }
 
     // P = F * P_ant * F_tras + Q
-    oper.mulMatrizMatriz((float*)F, (float*)P_estimada, (float*)FPant);
+    oper.mulMatrizMatriz((float*)F, (float*)PEstimada, (float*)FPant);
     oper.trasponerMatriz((float*)F, (float*)Ftras);
     oper.mulMatrizMatriz((float*)FPant, (float*)Ftras, (float*)FPantFtras);
     oper.sumaMatrizMatriz((float*)FPantFtras, (float*)Q, (float*)P);
@@ -198,26 +196,26 @@ void loop() {
     oper.mulMatrizMatriz((float*)H, (float*)P, (float*)HP);
     oper.trasponerMatriz((float*)H, (float*)Htras);
     oper.mulMatrizMatriz((float*)HP, (float*)Htras, (float*)HPHtras);
-    oper.sumaMatrizMatriz((float*)HPHtras, (float*)R, (float*)HPHtras_R);
-    oper.invertirMatriz((float*)HPHtras_R);
+    oper.sumaMatrizMatriz((float*)HPHtras, (float*)R, (float*)HPHtrasR);
+    oper.invertirMatriz((float*)HPHtrasR);
     oper.mulMatrizMatriz((float*)P, (float*)Htras, (float*)PHtras);
-    oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
+    oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtrasR, (float*)K);
 
     // Actualizamos las coordenadas anteriores en nuestro formato
-    posicionAnteriorX = x_estimada[0];
-    posicionAnteriorY = x_estimada[1];
+    posicionAnteriorX = xEstimada[0];
+    posicionAnteriorY = xEstimada[1];
 
     // x' = x + K (z - H * x)
     oper.mulMatrizVector((float*)H, (float*)x, (float*)Hx);
-    oper.restaVectorVector((float*)z, (float*)Hx, (float*)resta_zHx);
-    oper.mulMatrizVector((float*)K, (float*)resta_zHx, (float*)K_zHx);
-    oper.sumaVectorVector((float*)x, (float*)K_zHx, (float*)x_estimada);
+    oper.restaVectorVector((float*)z, (float*)Hx, (float*)restaZHx);
+    oper.mulMatrizVector((float*)K, (float*)restaZHx, (float*)KZHx);
+    oper.sumaVectorVector((float*)x, (float*)KZHx, (float*)xEstimada);
 
     // P' = P - K * H * P;
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
-    oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)P_estimada);
+    oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)PEstimada);
 
-    imprimir_json_comp(x_estimada[0], x_estimada[1]);
+    imprimir_json_comp(xEstimada[0], xEstimada[1]);
 
     t_final = millis();
     delta_t = (t_final - t_inicial) / 1000.0f;
