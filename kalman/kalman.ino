@@ -57,7 +57,7 @@ Matrices oper(n);
 MPU9250 myIMU;
 TinyGPS gps;
 
-static void smartdelay(unsigned long ms);
+static void smartDelay(unsigned long ms);
 
 void setup() {
 
@@ -92,7 +92,7 @@ void setup() {
   Serial.println("Esperando a adquirir la posición...");
   int cont = 0;
   while (1) {
-    smartdelay(500);
+    smartDelay(500);
     gps.f_get_position(&latitud, &longitud, &tiempoMuestra);
 
     if (latitud != TinyGPS::GPS_INVALID_F_ANGLE) {
@@ -127,7 +127,7 @@ void loop() {
   {
     tiempoInicial = millis();
 
-    smartdelay(50);
+    smartDelay(50);
     gps.f_get_position(&latitud, &longitud, &tiempoMuestra);
 
     distanciaOrigen = (unsigned long) gps.distance_between(latitudInicial, longitudInicial, latitud, longitud);
@@ -177,7 +177,7 @@ void loop() {
       contadorMismaPosicion++;
       if (contadorMismaPosicion >= perdidaGPS) {
 
-        orientacion = orientacion_acelerometro(x[0], x[1], posicionAnteriorX, posicionAnteriorY);
+        orientacion = orientacionAcelerometro(x[0], x[1], posicionAnteriorX, posicionAnteriorY);
         z[0] = x[0]; //px
         z[1] = x[1];
         z[4] = x[4]; // vx
@@ -216,7 +216,7 @@ void loop() {
     oper.mulMatrizVector((float*)K, (float*)HP, (float*)KHP);
     oper.restaMatrizMatriz((float*)P, (float*)KHP, (float*)PEstimada);
 
-    imprimir_json_comp(xEstimada[0], xEstimada[1]);
+    imprimir(xEstimada[0], xEstimada[1]);
 
     tiempoFinal = millis();
     deltaTiempo = (tiempoFinal - tiempoInicial) / 1000.0f;
@@ -231,7 +231,7 @@ void loop() {
    No tengo muy claro como se supone que va este método, venía en el ejemplo de la librería.
    Parece que el parámetro que se le pasa es el tiempo entre muestras
 */
-static void smartdelay(unsigned long ms)
+static void smartDelay(unsigned long ms)
 {
   unsigned long start = millis();
   do
@@ -241,14 +241,14 @@ static void smartdelay(unsigned long ms)
   } while (millis() - start < ms);
 }
 
-float orientacion_acelerometro(float lat, float lon, float lat_ant, float lon_ant) {
+float orientacionAcelerometro(float lat, float lon, float lat_ant, float lon_ant) {
   return 90.0 * grado_to_radian - (2 * M_PI + atan2(lon - lon_ant, lat - lat_ant));
 }
 
 /*
    Método para imprimir las coordenadas en formato [LAT_KAL,LON_KAL,LAT_ORI,LON_ORI,MILLIS]
 */
-void imprimir_json_comp(float lat_kal, float lon_kal) {
+void imprimir(float lat_kal, float lon_kal) {
   Serial.print('[');
   Serial.print(lat_kal, 8);
   Serial.print(',');
