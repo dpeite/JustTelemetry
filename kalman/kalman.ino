@@ -27,9 +27,10 @@ float KHP[n][n];
 // Vectores auxiliares
 float Hx[n], restaZHx[n], KZHx[n];
 
-// Para calcular la orientación
-long t_inicial, t_final;
-float delta_t;
+// Variables del tiempo
+long tiempoInicial, tiempoFinal;
+float deltaTiempo;
+unsigned long tiempoMuestra;
 
 // Variables del GPS
 float latitud, longitud; // Posición actual
@@ -38,7 +39,7 @@ float latitudAnterior, longitudAnterior; // Posición anterior
 float velocidad;
 float orientacion; // Respecto al norte
 float angulo; // Entre la posición inicial y la actual
-unsigned long age, distanciaOrigen, distanciaRecorrida;
+unsigned long distanciaOrigen, distanciaRecorrida;
 int contadorMismaPosicion; // Si estamos en la misma posición incrementa su valor
 
 // Variables del acelerómetro
@@ -92,7 +93,7 @@ void setup() {
   int cont = 0;
   while (1) {
     smartdelay(500);
-    gps.f_get_position(&latitud, &longitud, &age);
+    gps.f_get_position(&latitud, &longitud, &tiempoMuestra);
 
     if (latitud != TinyGPS::GPS_INVALID_F_ANGLE) {
 
@@ -124,10 +125,10 @@ void loop() {
   // Comprobamos que haya nuevos datos
   if (myIMU.readByte(MPU9250_ADDRESS, INT_STATUS) & 0x01)
   {
-    t_inicial = millis();
+    tiempoInicial = millis();
 
     smartdelay(50);
-    gps.f_get_position(&latitud, &longitud, &age);
+    gps.f_get_position(&latitud, &longitud, &tiempoMuestra);
 
     distanciaOrigen = (unsigned long) gps.distance_between(latitudInicial, longitudInicial, latitud, longitud);
     distanciaRecorrida += (unsigned long) gps.distance_between(latitudAnterior, longitudAnterior, latitud, longitud);
@@ -164,12 +165,12 @@ void loop() {
 
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = xEstimada[0] + xEstimada[2] * 0.5 * delta_t*delta_t + xEstimada[4] * delta_t; // px
-    x[1] = xEstimada[1] + xEstimada[3] * 0.5 * delta_t*delta_t + xEstimada[5] * delta_t; // py
+    x[0] = xEstimada[0] + xEstimada[2] * 0.5 * deltaTiempo*deltaTiempo + xEstimada[4] * deltaTiempo; // px
+    x[1] = xEstimada[1] + xEstimada[3] * 0.5 * deltaTiempo*deltaTiempo + xEstimada[5] * deltaTiempo; // py
     x[2] = xEstimada[2]; // ax
     x[3] = xEstimada[3]; // ay
-    x[4] = xEstimada[2] * delta_t + xEstimada[4]; // vx
-    x[5] = xEstimada[3] * delta_t + xEstimada[5]; // vy
+    x[4] = xEstimada[2] * deltaTiempo + xEstimada[4]; // vx
+    x[5] = xEstimada[3] * deltaTiempo + xEstimada[5]; // vy
 
     // Detección de pérdida del GPS
     if ((latitudAnterior == latitud) && (longitudAnterior == longitud)) {
@@ -217,8 +218,8 @@ void loop() {
 
     imprimir_json_comp(xEstimada[0], xEstimada[1]);
 
-    t_final = millis();
-    delta_t = (t_final - t_inicial) / 1000.0f;
+    tiempoFinal = millis();
+    deltaTiempo = (tiempoFinal - tiempoInicial) / 1000.0f;
 
     // Actualizamos las coordenadas anteriores en formato coordenadas estándar
     latitudAnterior = latitud;
