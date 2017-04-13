@@ -32,9 +32,8 @@ float Hx[n], resta_zHx[n], K_zHx[n];
 // Para calcular la orientación
 long t_inicial, t_final;
 float delta_t;
-float posx_ant, posy_ant;
 
-//Variables del GPS
+// Variables del GPS
 float latitud, longitud; // Posición actual
 float latitudInicial, longitudInicial; // Posición inicial
 float latitudAnterior, longitudAnterior; // Posición anterior
@@ -44,7 +43,9 @@ float angulo; // Entre la posición inicial y la actual
 unsigned long age, distanciaOrigen, distanciaRecorrida;
 int contadorMismaPosicion; // Si estamos en la misma posición incrementa su valor
 
-float acelx, acely;
+// Variables del acelerómetro
+float aceleracionX, aceleracionY;
+float posicionAnteriorX, posicionAnteriorY;
 
 // Constantes
 const float grado_to_radian = 0.0174533; // 1 grado son 0.0174533
@@ -143,15 +144,15 @@ void loop() {
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
 
-    acelx = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
-    acely = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
+    aceleracionX = (float)myIMU.accelCount[0] * myIMU.aRes * gravedad; // - accelBias[0]; Aceleración X
+    aceleracionY = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
 
     // Comprobamos que nos hemos movido del origen
     if (distanciaOrigen != 0) {
       z[0] = distanciaOrigen * sin(grado_to_radian * angulo); // Para invertir la imagen
       z[1] = distanciaOrigen * cos(grado_to_radian * angulo);
-      z[2] = acelx * cos((90 - orientacion) * grado_to_radian) + acely * sin((90 - orientacion) * grado_to_radian);
-      z[3] = acely * cos((90 - orientacion) * grado_to_radian) - acelx * sin((90 - orientacion) * grado_to_radian);
+      z[2] = aceleracionX * cos((90 - orientacion) * grado_to_radian) + aceleracionY * sin((90 - orientacion) * grado_to_radian);
+      z[3] = aceleracionY * cos((90 - orientacion) * grado_to_radian) - aceleracionX * sin((90 - orientacion) * grado_to_radian);
       z[4] = velocidad * sin(grado_to_radian * orientacion);
       z[5] = velocidad * cos(grado_to_radian * orientacion);
     } else {
@@ -177,7 +178,7 @@ void loop() {
       contadorMismaPosicion++;
       if (contadorMismaPosicion >= perdidaGPS) {
 
-        orientacion = orientacion_acelerometro(x[0], x[1], posx_ant, posy_ant);
+        orientacion = orientacion_acelerometro(x[0], x[1], posicionAnteriorX, posicionAnteriorY);
         z[0] = x[0]; //px
         z[1] = x[1];
         z[4] = x[4]; // vx
@@ -203,8 +204,8 @@ void loop() {
     oper.mulMatrizMatriz((float*)PHtras, (float*)HPHtras_R, (float*)K);
 
     // Actualizamos las coordenadas anteriores en nuestro formato
-    posx_ant = x_estimada[0];
-    posy_ant = x_estimada[1];
+    posicionAnteriorX = x_estimada[0];
+    posicionAnteriorY = x_estimada[1];
 
     // x' = x + K (z - H * x)
     oper.mulMatrizVector((float*)H, (float*)x, (float*)Hx);
