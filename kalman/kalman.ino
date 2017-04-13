@@ -163,14 +163,17 @@ void loop() {
       z[5] = 0.0;
     }
 
+    // Actualizamos la matriz F
+    F[0][2] = 0.5 * deltaTiempo * deltaTiempo;
+    F[0][4] = deltaTiempo;
+    F[1][3] = 0.5 * deltaTiempo * deltaTiempo;
+    F[1][5] = deltaTiempo;
+    F[4][2] = deltaTiempo;
+    F[5][3] = deltaTiempo;
+
     // Calculamos Kalman
     // x = F * x_ant
-    x[0] = xEstimada[0] + xEstimada[2] * 0.5 * deltaTiempo*deltaTiempo + xEstimada[4] * deltaTiempo; // px
-    x[1] = xEstimada[1] + xEstimada[3] * 0.5 * deltaTiempo*deltaTiempo + xEstimada[5] * deltaTiempo; // py
-    x[2] = xEstimada[2]; // ax
-    x[3] = xEstimada[3]; // ay
-    x[4] = xEstimada[2] * deltaTiempo + xEstimada[4]; // vx
-    x[5] = xEstimada[3] * deltaTiempo + xEstimada[5]; // vy
+    oper.mulMatrizVector((float*) F, (float*) xEstimada, (float*) x);
 
     // Detección de pérdida del GPS
     if ((latitudAnterior == latitud) && (longitudAnterior == longitud)) {
