@@ -133,17 +133,21 @@ $('.tooltip-demo').tooltip({
 });
 
 $('.editar').click(function(event){
-  code = '<div class="modal-body"> \
+    var id  = this.id.split("-")[1]
+    console.log($('#descripcion'+id).val())
+    code = '<div class="modal-body"> \
 <div class="row"> \
 <div class="col-xs-12"> \
 <form id="editar"> \
   <div class="form-group"> \
     <label for="editar-nombre">Nombre</label> \
-    <input type="text" name="nombre" class="form-control" id="editar-nombre" placeholder="Nombre"> \
+    <input type="text" name="nombre" class="form-control" id="editar-nombre" value="'+$('#nombre'+id).text()+'">\
   </div> \
   <div class="form-group"> \
     <label for="editar-descripcion">Descripción</label> \
-    <input type="text" name="descripcion" class="form-control" id="editar-descripcion" placeholder="Email"> \
+<input type="text" name="descripcion" class="form-control" id="editar-descripcion" value="'+$('#descripcion'+id).text().trim()+'"> \
+    <label for="editar-descripcion">Fecha</label> \
+<input type="date" name="fecha" class="form-control" id="editar-fecha" value="'+$('#fecha'+id).text()+'"> \
   </div> \
 </form> \
 </div> \
@@ -160,8 +164,6 @@ $('.editar').click(function(event){
     $(".modal-title").append("Editar datos de la sesión");
     $('#myModal1').modal('show');
 
-    var id  = this.id.split("-")[1]
-    console.log(id)
     $('.save').click(function(){
 	console.log()
 	var $inputs = $('#editar :input');
