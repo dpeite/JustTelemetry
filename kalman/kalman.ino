@@ -47,9 +47,9 @@ float aceleracionX, aceleracionY;
 float posicionAnteriorX, posicionAnteriorY;
 
 // Constantes
-const float grado_to_radian = 0.0174533; // 1 grado son 0.0174533
+const float gradoToRadian = 0.0174533; // 1 grado son 0.0174533
 const float gravedad = 9.80665; // m/s
-const float km_to_ms = 0.277778;
+const float kmToMs = 0.277778;
 const int perdidaGPS = 3; // Indica a partir de cuando consideramos que estamos en pérdida
 
 // Creamos la instancia de la librería
@@ -138,7 +138,7 @@ void loop() {
     }
 
     angulo = gps.course_to(latitudInicial, longitudInicial, latitud, longitud);
-    velocidad = gps.f_speed_kmph() * km_to_ms;
+    velocidad = gps.f_speed_kmph() * kmToMs;
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
     myIMU.readAccelData(myIMU.accelCount);  // Read the x/y/z adc values
@@ -148,12 +148,12 @@ void loop() {
 
     // Comprobamos que nos hemos movido del origen
     if (distanciaOrigen != 0) {
-      z[0] = distanciaOrigen * sin(grado_to_radian * angulo); // Para invertir la imagen
-      z[1] = distanciaOrigen * cos(grado_to_radian * angulo);
-      z[2] = aceleracionX * cos((90 - orientacion) * grado_to_radian) + aceleracionY * sin((90 - orientacion) * grado_to_radian);
-      z[3] = aceleracionY * cos((90 - orientacion) * grado_to_radian) - aceleracionX * sin((90 - orientacion) * grado_to_radian);
-      z[4] = velocidad * sin(grado_to_radian * orientacion);
-      z[5] = velocidad * cos(grado_to_radian * orientacion);
+      z[0] = distanciaOrigen * sin(gradoToRadian * angulo); // Para invertir la imagen
+      z[1] = distanciaOrigen * cos(gradoToRadian * angulo);
+      z[2] = aceleracionX * cos((90 - orientacion) * gradoToRadian) + aceleracionY * sin((90 - orientacion) * gradoToRadian);
+      z[3] = aceleracionY * cos((90 - orientacion) * gradoToRadian) - aceleracionX * sin((90 - orientacion) * gradoToRadian);
+      z[4] = velocidad * sin(gradoToRadian * orientacion);
+      z[5] = velocidad * cos(gradoToRadian * orientacion);
     } else {
       //z[0] = 0.0;
       //z[1] = 0.0;
@@ -241,18 +241,18 @@ static void smartDelay(unsigned long ms)
   } while (millis() - start < ms);
 }
 
-float orientacionAcelerometro(float lat, float lon, float lat_ant, float lon_ant) {
-  return 90.0 * grado_to_radian - (2 * M_PI + atan2(lon - lon_ant, lat - lat_ant));
+float orientacionAcelerometro(float posX, float posY, float posAnteriorX, float posAnteriorY) {
+  return 90.0 * gradoToRadian - (2 * M_PI + atan2(posY - posAnteriorY, posX - posAnteriorX));
 }
 
 /*
    Método para imprimir las coordenadas en formato [LAT_KAL,LON_KAL,LAT_ORI,LON_ORI,MILLIS]
 */
-void imprimir(float lat_kal, float lon_kal) {
+void imprimir(float lat, float lon) {
   Serial.print('[');
-  Serial.print(lat_kal, 8);
+  Serial.print(lat, 8);
   Serial.print(',');
-  Serial.print(lon_kal, 8);
+  Serial.print(lon, 8);
   Serial.print(',');
   Serial.print(z[0], 8);
   Serial.print(',');
