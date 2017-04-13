@@ -7,8 +7,6 @@
 // Dimensión del tamaño del estado
 #define n 6
 
-int cont_coincide = 0;
-
 // Matrices de Kalman
 float P[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}}; // Cuanto menor más eficaz
 float P_estimada[n][n] = {{0.1, 0, 0, 0, 0, 0}, {0, 0.1, 0, 0, 0, 0}, {0, 0, 0.1, 0, 0, 0}, {0, 0, 0, 0.1, 0, 0}, {0, 0, 0, 0, 0.1, 0}, {0, 0, 0, 0, 0, 0.1}};
@@ -33,14 +31,18 @@ float Hx[n], resta_zHx[n], K_zHx[n];
 
 // Para calcular la orientación
 long t_inicial, t_final;
+float delta_t;
 float posx_ant, posy_ant;
 
 //Variables del GPS
-float flat, flon, lat_ini, lon_ini, velocidad;
-float flat_ant, flon_ant;
-float orientacion, delta_t;
-float angulo = 0.0; // Respecto a la posición inicial
-unsigned long age, distancia, dist_acumulada;
+float latitud, longitud; // Posición actual
+float latitudInicial, longitudInicial; // Posición inicial
+float latitudAnterior, longitudAnterior; // Posición anterior
+float velocidad;
+float orientacion; // Respecto al norte
+float angulo; // Entre la posición inicial y la actual
+unsigned long age, distanciaOrigen, distanciaRecorrida;
+int contadorMismaPosicion; // Si estamos en la misma posición incrementa su valor
 
 float acelx, acely;
 
@@ -48,7 +50,7 @@ float acelx, acely;
 const float grado_to_radian = 0.0174533; // 1 grado son 0.0174533
 const float gravedad = 9.80665; // m/s
 const float km_to_ms = 0.277778;
-const int perdida_gps = 3; // Indica a partir de cuando consideramos que estamos en pérdida
+const int perdidaGPS = 3; // Indica a partir de cuando consideramos que estamos en pérdida
 
 // Creamos la instancia de la librería
 Matrices oper(n);
@@ -91,12 +93,12 @@ void setup() {
   int cont = 0;
   while (1) {
     smartdelay(500);
-    gps.f_get_position(&flat, &flon, &age);
+    gps.f_get_position(&latitud, &longitud, &age);
 
-    if (flat != TinyGPS::GPS_INVALID_F_ANGLE) {
+    if (latitud != TinyGPS::GPS_INVALID_F_ANGLE) {
 
       // Para comprobar que ha detectado bien la posición esperamos hasta recibir 5 veces las mismas coordenadas
-      if (flat == lat_ini && flon == lon_ini) {
+      if (latitud == latitudInicial && longitud == longitudInicial) {
         cont++;
 
         if (cont == 5) {
@@ -105,14 +107,14 @@ void setup() {
         }
       } else {
         // Si no coinciden tomamos las que acabamos de coger como iniciales
-        lat_ini = flat;
-        lon_ini = flon;
+        latitudInicial = latitud;
+        longitudInicial = longitud;
       }
     } // Cierre if valid coords
   } // Cierre while
 
-  flat_ant = lat_ini;
-  flon_ant = lon_ini;
+  latitudAnterior = latitudInicial;
+  longitudAnterior = longitudInicial;
 
   Serial.println('[');
 
@@ -126,16 +128,16 @@ void loop() {
     t_inicial = millis();
 
     smartdelay(50);
-    gps.f_get_position(&flat, &flon, &age);
+    gps.f_get_position(&latitud, &longitud, &age);
 
-    distancia = (unsigned long) gps.distance_between(lat_ini, lon_ini, flat, flon);
-    dist_acumulada += (unsigned long) gps.distance_between(flat_ant, flon_ant, flat, flon);
+    distanciaOrigen = (unsigned long) gps.distance_between(latitudInicial, longitudInicial, latitud, longitud);
+    distanciaRecorrida += (unsigned long) gps.distance_between(latitudAnterior, longitudAnterior, latitud, longitud);
 
-    if (!((flat_ant == flat) && (flon_ant == flon))) {
-      orientacion = gps.course_to(flat_ant, flon_ant, flat, flon);
+    if (!((latitudAnterior == latitud) && (longitudAnterior == longitud))) {
+      orientacion = gps.course_to(latitudAnterior, longitudAnterior, latitud, longitud);
     }
 
-    angulo = gps.course_to(lat_ini, lon_ini, flat, flon);
+    angulo = gps.course_to(latitudInicial, longitudInicial, latitud, longitud);
     velocidad = gps.f_speed_kmph() * km_to_ms;
 
     // La resolución la he movido arriba, si da error volver a ponerlas aquí
@@ -145,9 +147,9 @@ void loop() {
     acely = (float)myIMU.accelCount[1] * myIMU.aRes * gravedad; // - accelBias[1]; Aceleración Y
 
     // Comprobamos que nos hemos movido del origen
-    if (distancia != 0) {
-      z[0] = distancia * sin(grado_to_radian * angulo); // Para invertir la imagen
-      z[1] = distancia * cos(grado_to_radian * angulo);
+    if (distanciaOrigen != 0) {
+      z[0] = distanciaOrigen * sin(grado_to_radian * angulo); // Para invertir la imagen
+      z[1] = distanciaOrigen * cos(grado_to_radian * angulo);
       z[2] = acelx * cos((90 - orientacion) * grado_to_radian) + acely * sin((90 - orientacion) * grado_to_radian);
       z[3] = acely * cos((90 - orientacion) * grado_to_radian) - acelx * sin((90 - orientacion) * grado_to_radian);
       z[4] = velocidad * sin(grado_to_radian * orientacion);
@@ -171,9 +173,9 @@ void loop() {
     x[5] = x_estimada[3] * delta_t + x_estimada[5]; // vy
 
     // Detección de pérdida del GPS
-    if ((flat_ant == flat) && (flon_ant == flon)) {
-      cont_coincide++;
-      if (cont_coincide >= perdida_gps) {
+    if ((latitudAnterior == latitud) && (longitudAnterior == longitud)) {
+      contadorMismaPosicion++;
+      if (contadorMismaPosicion >= perdidaGPS) {
 
         orientacion = orientacion_acelerometro(x[0], x[1], posx_ant, posy_ant);
         z[0] = x[0]; //px
@@ -182,7 +184,7 @@ void loop() {
         z[5] = x[5];
       }
     } else {
-      cont_coincide = 0;
+      contadorMismaPosicion = 0;
     }
 
     // P = F * P_ant * F_tras + Q
@@ -220,8 +222,8 @@ void loop() {
     delta_t = (t_final - t_inicial) / 1000.0f;
 
     // Actualizamos las coordenadas anteriores en formato coordenadas estándar
-    flat_ant = flat;
-    flon_ant = flon;
+    latitudAnterior = latitud;
+    longitudAnterior = longitud;
   }
 } // Cierre Loop
 
