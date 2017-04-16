@@ -163,7 +163,7 @@
 			    <div class="col-lg-6">
 			  Seleccione tipo sensor eje x:
 			  <select id="sensor1" class="form-control">
-			    <option></option>
+			    <option disabled selected value>- Tipo Sensor</option>
 			    {% for sensor in sensores %}
 			    <option>{{ sensor }}</option>
 			    {% endfor %}
@@ -172,7 +172,7 @@
 			  <div class="col-lg-6">
 			  Seleccione tipo sensor eje y:
 			  <select id="sensor2" class="form-control">
-			    <option></option>
+			    <option disabled selected value>- Tipo Sensor</option>
 			    {% for sensor in sensores %}
 			    <option>{{ sensor }}</option>
 			    {% endfor %}
@@ -184,13 +184,13 @@
 			    <div class="col-lg-6">
 			  Seleccione sensor eje x:
 			  <select id="subsensor1" class="form-control">
-
+			    <option disabled selected value>-- Tipo SubSensor</option>
  			  </select>
 			    </div>
 			  <div class="col-lg-6">
 			  Seleccione sensor eje y:
 			  <select id="subsensor2" class="form-control">
-
+			    <option disabled selected value>-- Tipo SubSensor</option>
 			  </select>
 			  </div>
 			  </div>
@@ -198,7 +198,7 @@
 			  
 			  <div class="col-lg-12 vueltas">
 			  </div>
-			  <button id="add_graph" type="button" class="btn btn-success btn-block">Añadir</button>
+			  <button id="add_graph" type="button" class="btn btn-success btn-block" disabled="disabled">Añadir</button>
 			  </div>
 			  </div>
 			<!-- /.panel-body -->

@@ -59,8 +59,9 @@ function RefreshSomeEventListener() {
 $('#sensor1').on( 'input', function() {
     console.log("Modificado selector")
     var sensor1 = $('#sensor1').find(":selected").text();
+    var sensor2 = $('#sensor2').find(":selected").text();
     $('#subsensor1').empty()
-    if (sensor1 != ""){
+
       $.get("get_sensores", {id: id, sensor: sensor1}, function(data, status, xhr){
 	  $.each(data, function(key, value) {
 	      $('#subsensor1')
@@ -69,16 +70,20 @@ $('#sensor1').on( 'input', function() {
 			  .text(value));
 	  });
       });
+
+    if (sensor2){
+	$("#add_graph").prop('disabled', false);
     }
-}); 
+});
 
 
 $('#sensor2').on( 'input', function() {
     console.log("Modificado selector")
-    var sensor1 = $('#sensor2').find(":selected").text();
+    var sensor1 = $('#sensor1').find(":selected").text();
+    var sensor2 = $('#sensor2').find(":selected").text();
     $('#subsensor2').empty()
-    if (sensor1 != ""){
-      $.get("get_sensores", {id: id, sensor: sensor1}, function(data, status, xhr){
+
+      $.get("get_sensores", {id: id, sensor: sensor2}, function(data, status, xhr){
 	  $.each(data, function(key, value) {
 	      $('#subsensor2')
 	          .append($("<option></option>")
@@ -86,7 +91,11 @@ $('#sensor2').on( 'input', function() {
 			  .text(value));
 	  });
       });
+
+    if (sensor1){
+	$("#add_graph").prop('disabled', false);
     }
+
 }); 
 
 
