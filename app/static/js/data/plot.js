@@ -1,15 +1,16 @@
 //Trazada
-$(function() {
+  var coord1 = null;
+  var coord2 = null;
   var id = getCookie("id")
+
+function trazada(sensores = false) {
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
   choiceContainer.find("input").change(plotAccordingToChoices);
 
-  var plot
-  var coord1 = null;
-  var coord2 = null;
-
+    var plot
+    
   function plotAccordingToChoices() {
 
     var key
@@ -38,15 +39,28 @@ $(function() {
           clickable: true
         }
       };
-      vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
-      vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
-      vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
-      vel_ruedas(d2[0],d2[d2.length-1],"volante");
-      plot = $.plot("#flot-line-chart", [d2], options);
+	coord1 = d2[0]
+	coord2 = d2[d2.length-1]
+	if (!sensores){
+	    vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
+	    vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
+	    vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
+	    vel_ruedas(d2[0],d2[d2.length-1],"volante");
+	}
+	else {
+	    if (graficas.length != 0){
+		for (i = 0; i < graficas.length; i++){
+		    if (graficas[i] != null){
+			vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		    }
+		}
+	    }
+	}
+      plot = $.plot("#flot-trazada", [d2], options);
     });
   }
 
-  $("#flot-line-chart").bind("plotclick", function (event, pos, item) {
+  $("#flot-trazada").bind("plotclick", function (event, pos, item) {
     if (item) {
       // $("#clickdata").text(" - click point " + item.datapoint);
       //plot.highlight(item.series, item.datapoint);
@@ -56,12 +70,23 @@ $(function() {
         plot.highlight(item.series, item.datapoint);
       }
       else if (coord2 == null){
-        coord2 = item.datapoint;
-        plot.highlight(item.series, item.datapoint);
-        vel_ruedas(coord1, coord2, "ruedas")
-        vel_ruedas(coord1, coord2, "amortiguadores")
-        vel_ruedas(coord1, coord2, "acelerador")
-        vel_ruedas(coord1, coord2, "volante")
+          coord2 = item.datapoint;
+          plot.highlight(item.series, item.datapoint);
+	  if (!sensores){
+              vel_ruedas(coord1, coord2, "ruedas")
+              vel_ruedas(coord1, coord2, "amortiguadores")
+              vel_ruedas(coord1, coord2, "acelerador")
+              vel_ruedas(coord1, coord2, "volante")
+	  }
+	  else {
+	    if (graficas.length != 0){
+		for (i = 0; i < graficas.length; i++){
+		    if (graficas[i] != null){
+			vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		    }
+		}
+	    }
+	  }
       }
       else {
         plot.unhighlight(item.series, coord1);
@@ -75,7 +100,7 @@ $(function() {
     console.log(coord1+" "+coord2);
   });
 
-    $("#flot-line-chart").bind("plothover",function (event, pos, item) {
+    $("#flot-trazada").bind("plothover",function (event, pos, item) {
 	if (item) {
 	    $("#inst_data").show()
 	    var x = item.datapoint[0].toFixed(2),
@@ -113,47 +138,54 @@ $(function() {
 	    $("#inst_data").hide()
 	}
     });
-});
+}
 
 //Velocidad de las ruedas
-function vel_ruedas(coord1, coord2, sensor){
+function vel_ruedas(coord1, coord2, sensor, sensores){
 
   var id = getCookie("id")
   var plot = {};
   switch (sensor){
     case "ruedas":
-    // var path = "static/data/sesiones/"+id+"/ruedas.json";
     var ylabel = "rpm"
     var choiceContainer = $("#choices");
-    var plotContainer = "#flot-pie-chart"
+    var plotContainer = "#flot-rpm"
     var ids = "VR"
     var colsize = "col-xs-3"
     break;
     case "amortiguadores":
-    // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "mm"
     var choiceContainer = $("#choices2");
-    var plotContainer = "#flot-line-chart-multi"
+    var plotContainer = "#flot-amortiguadores"
     var ids = "CA"
     var colsize = "col-xs-3"
     break;
     case "acelerador":
-    // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "Grados"
     var choiceContainer = $("#choices3");
-    var plotContainer = "#flot-bar-chart"
+    var plotContainer = "#flot-acelerador"
     var ids = "AT"
     var colsize = "col-xs-3"
     break;
     case "volante":
-    // var path = "static/data/sesiones/"+id+"/amortiguador.json";
     var ylabel = "Porcentaje"
     var choiceContainer = $("#choices4");
-    var plotContainer = "#flot-line-chart-moving"
+    var plotContainer = "#flot-direccion"
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
-
+  default:
+      var xlabel = sensores.xlabel
+      var ylabel = sensores.ylabel
+      var choiceContainer = sensores.choiceContainer
+      var plotContainer = sensores.plotContainer
+      var ids = sensores.ids
+      var colsize = sensores.colsize
+      sensor = sensores.sensores
+      console.log(sensores);
+      console.log(coord1)
+      break;
+      
 
   }
   // console.log(path)
@@ -255,24 +287,29 @@ function vel_ruedas(coord1, coord2, sensor){
                 break;
               }
             }
-
+	      // j = 1;
             // Now Interpolate
             var y,
             p1 = series.data[j - 1],
             p2 = series.data[j];
-
-            if (p1 == null) {
-              y = p2[1];
-            } else if (p2 == null) {
-              y = p1[1];
-            } else {0
-              y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-            }
-            $("#"+ids+"-lat").text("Lat: "+ (p1[2] + (p2[2] - p1[2]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
-            $("#"+ids+"-lat").parent().css('visibility', 'visible');
-            $("#"+ids+"-lon").text("Lon: "+(p1[3] + (p2[3] - p1[3]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
-            $("#"+ids+"-lon").parent().css('visibility', 'visible');
-            $("#"+ids+"-"+series.label).text(series.label+" = "+y.toFixed(2))
+	      try {
+		  interpolate(y, p1, p2, ids, pos, series)
+	      }
+	      catch (err){
+		  console.log(err)
+	      }
+            // if (p1 == null) {
+            //   y = p2[1];
+            // } else if (p2 == null) {
+            //   y = p1[1];
+            // } else {0
+            //   y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+            // }
+            // $("#"+ids+"-lat").text("Lat: "+ (p1[2] + (p2[2] - p1[2]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
+            // $("#"+ids+"-lat").parent().css('visibility', 'visible');
+            // $("#"+ids+"-lon").text("Lon: "+(p1[3] + (p2[3] - p1[3]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
+            // $("#"+ids+"-lon").parent().css('visibility', 'visible');
+            // $("#"+ids+"-"+series.label).text(series.label+" = "+y.toFixed(2))
           }
         }
 
@@ -311,20 +348,3 @@ function vel_ruedas(coord1, coord2, sensor){
 
     });
   }
-
-  //Fuerzas G
-  $(function() {
-    var d2 = [[-2.5, -2.5], [2.5, 2.5], [-2.5, 0], [2.5, 0],[0, 2.5],[0, -2.5],[2.5, -2.5],[-2.5, 2.5]];
-    var options = {
-      lines : {show : false},
-      points : {show : true},
-      grid: { show:true,
-        markings: [
-          { xaxis: { from: 0, to: 0 }, color:"red" },
-          { yaxis: { from: 0, to: 0 }, color:"red" }
-        ]
-      }
-
-    }
-    $.plot("#flot-bar-chart2", [d2], options);
-  });

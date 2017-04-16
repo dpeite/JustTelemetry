@@ -16,10 +16,18 @@
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
   <i class="fa fa-check fa-fw"></i> Vueltas borradas correctamente
       </div>
-      </div>
       <div class="alert alert-danger alert-dismissable oculto borrar-vueltas-incorrecto">
         <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
   <i class="fa fa-times fa-fw"></i> Ha surgido un problema al borrar las vueltas
+      </div>
+      <div class="alert alert-success alert-dismissable oculto borrar-sesiones-correcto">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-check fa-fw"></i> Sesiones borradas correctamente
+      </div>
+      </div>
+      <div class="alert alert-danger alert-dismissable oculto borrar-sesiones-incorrecto">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+  <i class="fa fa-times fa-fw"></i> Ha surgido un problema al borrar las sesiones
       </div>
       <div class="col-lg-12">
         <h1 class="page-header">Sesiones</h1>
@@ -81,7 +89,7 @@
               <div class="modal-content">
                 <div class="modal-header">
                   <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                  <h4 class="modal-title" id="myModalLabel">Seleccionar punto inicio vuelta</h4>
+                  <h4 class="modal-title" id="myModalLabel"></h4>
                 </div>
                 <!-- <div class="modal-body" id="vueltas" style="height:200%; width:200%;"> -->
                 <div id="modalcontent" class="modal-body">
@@ -94,35 +102,37 @@
 
             <tbody>
               {% for post in posts %}
-              <tr >
+              <tr>
                 <td><input type="radio" name="optionsRadios" value="{{ post.id }}"></td>
                 <td class="col-lg-2">
 		  <div class="tooltip-demo">
                     <button type="button" class="btn btn-primary btn-xs vueltas" data-toggle="tooltip" data-placement="top" title="Selección punto inicio vuelta">
 		      <i class="fa fa-undo fa-fw"></i>
                     </button>
-		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Editar sesión">
+		    <button type="button" id="editar-{{ post.id }}" class="btn btn-primary btn-xs editar" data-toggle="tooltip" data-placement="top" title="Editar sesión">
 		      <i class="fa fa-edit fa-fw"></i>
                     </button>
+		    <a href="descargar_sesion?id={{ post.id }}" download="{{ post.nombre }}">
 		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Descargar sesión">
-		      <i class="fa fa-cloud-download fa-fw"></i>
+			<i class="fa fa-cloud-download fa-fw"></i>
                     </button>
-		    <button type="button" class="btn btn-primary btn-xs" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
+		    </a>
+		    <button type="button" id="borrar-{{ post.id }}" class="btn btn-primary btn-xs delete_s" data-toggle="tooltip" data-placement="top" title="Borrar sesión">
 		      <i class="glyphicon glyphicon-remove fa-fw"></i>
                     </button>
                     <!-- </div> -->
 		  </div>
                 </td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.fecha }}</td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.nombre }}</td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.tiempo }}</td>
-                <td data-toggle="collapse" data-parent="#accordion" href="#{{ post.metros }}">{{ post.metros }}</td>
+                <td id="fecha{{ post.id }}" data-toggle="collapse" data-parent="#accordion" href="#descripcion{{ post.id }}">{{ post.fecha }}</td>
+                <td id="nombre{{ post.id }}" data-toggle="collapse" data-parent="#accordion" href="#descripcion{{ post.id }}">{{ post.nombre }}</td>
+                <td id="tiempo{{ post.id }}"data-toggle="collapse" data-parent="#accordion" href="#descripcion{{ post.id }}">{{ post.tiempo }}</td>
+                <td id="metros{{ post.id }}"data-toggle="collapse" data-parent="#accordion" href="#descripcion{{ post.id }}">{{ post.metros }}</td>
               </tr>
               <tr>
                 <td colspan="4" class="hiddenRow">
-                  <div id="{{ post.metros }}" class="panel-collapse collapse">
+                  <div id="descripcion{{ post.id }}" class="panel-collapse collapse">
                     <div class="panel-body">
-                      {{ post.nombre }}
+                      {{ post.descripcion }}
                     </div>
                   </div>
                 </td>
