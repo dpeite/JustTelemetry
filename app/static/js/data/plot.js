@@ -1,9 +1,9 @@
 //Trazada
   var coord1 = null;
   var coord2 = null;
+  var id = getCookie("id")
 
 function trazada(sensores = false) {
-  var id = getCookie("id")
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
@@ -50,7 +50,9 @@ function trazada(sensores = false) {
 	else {
 	    if (graficas.length != 0){
 		for (i = 0; i < graficas.length; i++){
-		    vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		    if (graficas[i] != null){
+			vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		    }
 		}
 	    }
 	}
@@ -79,7 +81,9 @@ function trazada(sensores = false) {
 	  else {
 	    if (graficas.length != 0){
 		for (i = 0; i < graficas.length; i++){
-		    vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		    if (graficas[i] != null){
+			vel_ruedas(coord1, coord2, "aaa", graficas[i])
+		    }
 		}
 	    }
 	  }

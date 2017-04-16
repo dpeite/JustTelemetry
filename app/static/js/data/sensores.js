@@ -8,7 +8,10 @@ var graficas = []
 $("#add_graph").click(function() {
     var sensor1 = $('#sensor1').find(":selected").text();
     var sensor2 = $('#sensor2').find(":selected").text();
+    var subsensor1 = $('#subsensor1').find(":selected").text();
+    var subsensor2 = $('#subsensor2').find(":selected").text();
 
+    
     var html = '<div id="panel-'+(graficas.length+1)+'" class="col-lg-6"> \
                        <div class="panel panel-default"> \
                         <div class="panel-heading"> \
@@ -30,7 +33,7 @@ $("#add_graph").click(function() {
 <!-- /.col-lg-6 -->';
     
     $("#panel_add_graph").before(html)
-    datos = {ylabel:sensor2,xlabel:sensor1, choiceContainer : $("#choices-"+(graficas.length+1)), plotContainer : $("#grafica-"+(graficas.length+1)), ids : "sensores"+(graficas.length+1), colsize : "col-xs-3", sensores : sensor1+"-"+sensor2}
+    datos = {ylabel:sensor2,xlabel:sensor1, choiceContainer : $("#choices-"+(graficas.length+1)), plotContainer : $("#grafica-"+(graficas.length+1)), ids : "sensores"+(graficas.length+1), colsize : "col-xs-3", sensores : sensor1+"_"+subsensor1+"-"+sensor2+"_"+subsensor2}
     graficas.push(datos)
     console.log(graficas)
     vel_ruedas(coord1, coord2, "sensores", datos)
@@ -51,6 +54,41 @@ function RefreshSomeEventListener() {
 	console.log($(this).parent().parent().parent())
 });
 }
+
+
+$('#sensor1').on( 'input', function() {
+    console.log("Modificado selector")
+    var sensor1 = $('#sensor1').find(":selected").text();
+    $('#subsensor1').empty()
+    if (sensor1 != ""){
+      $.get("get_sensores", {id: id, sensor: sensor1}, function(data, status, xhr){
+	  $.each(data, function(key, value) {
+	      $('#subsensor1')
+	          .append($("<option></option>")
+			  .attr("value",key)
+			  .text(value));
+	  });
+      });
+    }
+}); 
+
+
+$('#sensor2').on( 'input', function() {
+    console.log("Modificado selector")
+    var sensor1 = $('#sensor2').find(":selected").text();
+    $('#subsensor2').empty()
+    if (sensor1 != ""){
+      $.get("get_sensores", {id: id, sensor: sensor1}, function(data, status, xhr){
+	  $.each(data, function(key, value) {
+	      $('#subsensor2')
+	          .append($("<option></option>")
+			  .attr("value",key)
+			  .text(value));
+	  });
+      });
+    }
+}); 
+
 
 function interpolate(y, p1, p2, ids, pos, series){
     if (p1 == null) {

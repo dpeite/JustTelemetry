@@ -159,3 +159,12 @@ def editar_datos():
         json.dump(datos, data_file)
         
     return "", 200
+
+@app.route("/get_sensores")
+def get_sensores(): 
+    ID = str(request.args.get("id"))
+    sensor = str(request.args.get("sensor"))
+    with open("app/static/data/sesiones/"+ID+"/"+sensor+".json") as data_file:
+        info = json.load(data_file)
+
+    return jsonify(info.keys())
