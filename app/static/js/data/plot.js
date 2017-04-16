@@ -348,3 +348,12 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 
     });
   }
+
+$("#siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+<div class="col-lg-12"> \
+DD: Delantero Derecho </br> \
+DI: Delantero Izquierdo </br> \
+TD: Trasero Derecho </br> \
+TI: Trasero Izquierdo </br> \
+</div> \
+' });
