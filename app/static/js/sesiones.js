@@ -196,3 +196,30 @@ $('.editar').click(function(event){
 	
     });
 });
+
+$('#subir_sesion').click(function(){
+    console.log("siii")
+    var data = new FormData();
+    jQuery.each(jQuery('#file')[0].files, function(i, file) {
+	data.append('file-'+i, file);
+    });
+    var other_data = $('#upload_sesion').serializeArray();
+    $.each(other_data,function(key,input){
+	if (input.value){
+	    data.append(input.name,input.value);
+	}
+    });
+
+    jQuery.ajax({
+	url: 'upload_sesion',
+	data: data,
+	cache: false,
+	contentType: false,
+	processData: false,
+	type: 'POST',
+	success: function(data){
+	    $('#myModal').modal('hide');
+	}
+    });
+
+});

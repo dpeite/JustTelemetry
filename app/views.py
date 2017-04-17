@@ -149,16 +149,28 @@ def descargar_sesion():
 
 @app.route("/editar_datos", methods=["POST"])
 def editar_datos():
-    with open("app/static/data/sesiones/"+request.values["datos[id]"]+"/info.json") as data_file:
+    ID = request.values["datos[id]"]
+    datos = request.values
+    print datos
+    editar_datos_fichero(ID,datos)
+    return "", 200
+
+def editar_datos_fichero(ID, valores, form=None):
+    with open("app/static/data/sesiones/"+ID+"/info.json") as data_file:
         datos = json.load(data_file)
 
-    for key, value in request.values.iteritems():
-      datos[key.split("[")[1].split("]")[0]] = value
+    for key, value in valores.iteritems():
+        if not form:
+            datos[key.split("[")[1].split("]")[0]] = value
+        else:
+            try:
+                print key
+                datos[key] = value
+            except exc as Exception:
+                print exc
       
-    with open("app/static/data/sesiones/"+request.values["datos[id]"]+"/info.json", "w") as data_file:
+    with open("app/static/data/sesiones/"+ID+"/info.json", "w") as data_file:
         json.dump(datos, data_file)
-        
-    return "", 200
 
 @app.route("/get_sensores")
 def get_sensores(): 
@@ -168,3 +180,27 @@ def get_sensores():
         info = json.load(data_file)
 
     return jsonify(info.keys())
+
+@app.route("/upload_sesion", methods=["POST"])
+def upload_sesion():
+    # print request.form["descripcion"]
+    file = request.files['file-0']
+    file_name = file.filename.split(".")[0]
+    if allowed_file(file.filename):
+        if not os.path.exists("app/static/data/sesiones/"+file_name):
+            os.makedirs("app/static/data/sesiones/"+file_name)
+            zip_ref = zipfile.ZipFile(file)
+            zip_ref.extractall("app/static/data/sesiones/"+file_name)
+            zip_ref.close()
+        else:
+            return "La sesion ya existe con ese id", 500
+        print file_name
+        editar_datos_fichero(file_name, request.values, form=True)
+        return "", 200
+    else:
+        return "Extension no permitida", 500
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = set(['zip'])
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

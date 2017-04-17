@@ -50,18 +50,26 @@
                 <h4 class="modal-title" id="myModalLabel">Importar</h4>
               </div>
               <div class="modal-body">
+		<form id="upload_sesion">
                 <div class="form-group">
-                  <label>Introduzca el archivo</label>
-                  <input type="file">
+                  <label>Modificar Información de la sesión</label></br><i>Si los campos se dejan en blanco, la información de la sesión no será modificada</i>
+                  <input type="text" name="nombre" class="form-control" placeholder="Introduzca el nombre">
                 </div>
                 <div class="form-group">
-                  <label>Información Adicional</label>
-                  <input class="form-control" placeholder="Introduzca la descripción">
+                  <input type="text" name="descripcion" class="form-control" placeholder="Introduzca la descripción">
                 </div>
+                <div class="form-group">
+                  <input type="date" name="fecha" class="form-control" placeholder="Introduzca la fecha">
+                </div>
+                <div class="form-group">
+                  <label>Seleccione el archivo</label>
+                  <input id="file" type="file" name="file">
+                </div>
+		</form>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">Guardar cambios</button>
+                <button id="subir_sesion" type="button" class="btn btn-primary">Guardar cambios</button>
               </div>
             </div>
             <!-- /.modal-content -->
