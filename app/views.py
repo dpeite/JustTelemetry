@@ -49,7 +49,7 @@ def sensores():
     return resp
 
 def consultar_sensores(id):
-    sensores =  ["ruedas.json", "amortiguadores.json", "volante.json", "acelerador"]
+    sensores =  ["ruedas.json", "amortiguadores.json", "volante.json", "acelerador.json"]
     sensores_disponibles = []
     archivos = listdir("app/static/data/sesiones/"+id)
     for sensor in sensores:
