@@ -204,3 +204,23 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = set(['zip'])
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route("/info_sesiones")
+def info_sesiones():
+    source = "/home/manu/git/JustTelemetry/app/static/data/sesiones/"
+    files = os.listdir(source)
+
+    lista_sesiones = {}
+    for f in files:
+
+        print source + f+ "/info.json"
+        with open(source + f + '/info.json') as new_file:
+            info_json = json.load(new_file)
+
+        if info_json["fecha"] in lista_sesiones:
+            lista_sesiones[info_json["fecha"]] += 1
+        else:
+            lista_sesiones[info_json["fecha"]] = 1
+
+
+    return jsonify(lista_sesiones), 200
