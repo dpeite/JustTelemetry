@@ -210,17 +210,44 @@ def info_sesiones():
     source = "/home/manu/git/JustTelemetry/app/static/data/sesiones/"
     files = os.listdir(source)
 
+    distancia = 0
+    numero_sesiones = 0
+    tiempo_total = 288 # hardcode
+    array_sesiones = []
     lista_sesiones = {}
     for f in files:
 
-        print source + f+ "/info.json"
         with open(source + f + '/info.json') as new_file:
             info_json = json.load(new_file)
 
-        if info_json["fecha"] in lista_sesiones:
-            lista_sesiones[info_json["fecha"]] += 1
+        distancia += int(info_json["metros"])
+        numero_sesiones += 1
+
+        # Para contar el nmero de sesiones
+        if info_json["fecha"].split()[0] in lista_sesiones:
+            lista_sesiones[info_json["fecha"].split()[0]] += 1
         else:
-            lista_sesiones[info_json["fecha"]] = 1
+            lista_sesiones[info_json["fecha"].split()[0]] = 1
 
+    print lista_sesiones
+    array_sesiones = []
+    for x in lista_sesiones:
+        sesion = {}
+        sesion["fecha"] = x
+        sesion["numero"] = lista_sesiones[x]
+        array_sesiones.append(sesion)
 
-    return jsonify(lista_sesiones), 200
+    print numero_sesiones
+    print array_sesiones
+
+    fichero = {}
+    fichero["numero"] = numero_sesiones
+    fichero["distancia"] = distancia
+    fichero["tiempo"] = tiempo_total
+    fichero["errores"] = 3
+    fichero["sesiones"] = array_sesiones
+
+    with open('/home/manu/git/JustTelemetry/app/static/data/dash.json', 'wb') as new_file:
+        json.dump(fichero, new_file)
+
+    return "", 200

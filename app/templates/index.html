@@ -17,7 +17,7 @@
               <i class="fa fa-info-circle  fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">26</div>
+              <div class="huge" id="n_sesiones">26</div>
               <div>Número de sesiones</div>
             </div>
           </div>
@@ -39,7 +39,7 @@
               <i class="fa fa-tachometer fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">12</div>
+              <div class="huge" id="distancia">12</div>
               <div>Km recorridos</div>
             </div>
           </div>
@@ -61,7 +61,7 @@
               <i class="fa fa-clock-o fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">288:28:8</div>
+              <div class="huge" id="tiempo">288:28:8</div>
               <div>Tiempo total</div>
             </div>
           </div>
@@ -83,7 +83,7 @@
               <i class="fa fa-times-circle-o fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">13</div>
+              <div class="huge" id="n_errores">13</div>
               <div>Errores</div>
             </div>
           </div>
@@ -178,5 +178,5 @@
 
  <!-- Para obtener el número de sesiones -->
 <script src="static/js/index.js"></script>
-<script>carga();</script>
+<script>obtener_datos();</script>
 {% endblock %}
