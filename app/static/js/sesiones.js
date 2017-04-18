@@ -232,6 +232,9 @@ $('#subir_sesion').click(function(){
     type: 'POST',
     success: function(data){
       $('#myModal').modal('hide');
+
+      // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
     }
   });
 
