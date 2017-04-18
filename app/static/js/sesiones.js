@@ -11,9 +11,9 @@ $('.vueltas').click(function(event){
   </div>';
   $("#modalcontent").empty();
   $("#modalcontent").append(code);
-    $(".modal-title").empty();
-    $(".modal-title").append("Seleccionar punto inicio vuelta");
-    
+  $(".modal-title").empty();
+  $(".modal-title").append("Seleccionar punto inicio vuelta");
+  
   var coord = null;
 
   $.getJSON("static/data/sesiones/"+value.val()+"/trazada.json", function(d2){
@@ -53,9 +53,9 @@ $('.vueltas').click(function(event){
   $('.save').click(function(){
     if (!$('.save').hasClass('disabled')){
       $('#myModal1').modal('hide');
-	console.log("huehuehue");
-	console.log(value.val());
-	$.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
+      console.log("huehuehue");
+      console.log(value.val());
+      $.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
         // alert("Data: " + data + "\nStatus: " + status);
         console.log(xhr.status);
         $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
@@ -75,42 +75,42 @@ $('.vueltas').click(function(event){
 
   // Borrar las vueltas
   $('.delete_v').click(function(){
-   $.get("borrar_vuelta", {id: value.val()}, function(data, status, xhr){
-        // alert("Data: " + data + "\nStatus: " + status);
-        console.log(xhr.status);
-        $(".borrar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
-          $(".borrar-vueltas-correcto").slideUp(500);
-        });
-
-
-      })
-      .fail(function(response) {
-        $(".borrar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
-          $(".borrar-vueltas-incorrecto").slideUp(500);
-        });
+    $.get("borrar_vuelta", {id: value.val()}, function(data, status, xhr){
+      // alert("Data: " + data + "\nStatus: " + status);
+      console.log(xhr.status);
+      $(".borrar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".borrar-vueltas-correcto").slideUp(500);
       });
+
+
+    })
+    .fail(function(response) {
+      $(".borrar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".borrar-vueltas-incorrecto").slideUp(500);
+      });
+    });
   }); // Cierre delete_v
 }); // Cierre event
 
 
-  // Borrar la sesion
-  $('.delete_s').click(function(){
-      console.log(this.id)
-      $.get("borrar_sesion", {id: this.id.split("-")[1]}, function(data, status, xhr){
-        // alert("Data: " + data + "\nStatus: " + status);
-        console.log(xhr.status);
-        $(".borrar-sesiones-correcto").fadeTo(2000, 500).slideUp(500, function(){
-          $(".borrar-sesiones-correcto").slideUp(500);
-        });
+// Borrar la sesion
+$('.delete_s').click(function(){
+  console.log(this.id)
+  $.get("borrar_sesion", {id: this.id.split("-")[1]}, function(data, status, xhr){
+    // alert("Data: " + data + "\nStatus: " + status);
+    console.log(xhr.status);
+    $(".borrar-sesiones-correcto").fadeTo(2000, 500).slideUp(500, function(){
+      $(".borrar-sesiones-correcto").slideUp(500);
+    });
 
 
-      })
-      .fail(function(response) {
-        $(".borrar-sesiones-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
-          $(".borrar-sesiones-incorrecto").slideUp(500);
-        });
-      });
-  }); // Cierre delete_v
+  })
+  .fail(function(response) {
+    $(".borrar-sesiones-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+      $(".borrar-sesiones-incorrecto").slideUp(500);
+    });
+  });
+}); // Cierre delete_v
 
 
 
@@ -128,98 +128,98 @@ $('input[name="optionsRadios"]').on("click", function(e) {
 });
 
 $('.tooltip-demo').tooltip({
-    selector: "[data-toggle=tooltip]",
-    container: "body"
+  selector: "[data-toggle=tooltip]",
+  container: "body"
 });
 
 $('.editar').click(function(event){
-    var id  = this.id.split("-")[1]
-    console.log($('#descripcion'+id).val())
-    code = '<div class="modal-body"> \
-<div class="row"> \
-<div class="col-xs-12"> \
-<form id="editar"> \
+  var id  = this.id.split("-")[1]
+  console.log($('#descripcion'+id).val())
+  code = '<div class="modal-body"> \
+  <div class="row"> \
+  <div class="col-xs-12"> \
+  <form id="editar"> \
   <div class="form-group"> \
-    <label for="editar-nombre">Nombre</label> \
-    <input type="text" name="nombre" class="form-control" id="editar-nombre" value="'+$('#nombre'+id).text()+'">\
+  <label for="editar-nombre">Nombre</label> \
+  <input type="text" name="nombre" class="form-control" id="editar-nombre" value="'+$('#nombre'+id).text()+'">\
   </div> \
   <div class="form-group"> \
-    <label for="editar-descripcion">Descripción</label> \
-<input type="text" name="descripcion" class="form-control" id="editar-descripcion" value="'+$('#descripcion'+id).text().trim()+'"> \
-    <label for="editar-descripcion">Fecha</label> \
-<input type="date" name="fecha" class="form-control" id="editar-fecha" value="'+$('#fecha'+id).text()+'"> \
+  <label for="editar-descripcion">Descripción</label> \
+  <input type="text" name="descripcion" class="form-control" id="editar-descripcion" value="'+$('#descripcion'+id).text().trim()+'"> \
+  <label for="editar-descripcion">Fecha</label> \
+  <input type="date" name="fecha" class="form-control" id="editar-fecha" value="'+$('#fecha'+id).text()+'"> \
   </div> \
-</form> \
-</div> \
-</div> \
-</div> \
+  </form> \
+  </div> \
+  </div> \
+  </div> \
   <div class="modal-footer"> \
   <button type="button" class="btn btn-danger buttonleft" data-dismiss="modal">Cancelar</button> \
   <button type="button" class="btn btn-primary save">Guardar</button> \
-</div>';
+  </div>';
 
   $("#modalcontent").empty();
   $(".modal-title").empty();
-    $("#modalcontent").append(code);
-    $(".modal-title").append("Editar datos de la sesión");
-    $('#myModal1').modal('show');
+  $("#modalcontent").append(code);
+  $(".modal-title").append("Editar datos de la sesión");
+  $('#myModal1').modal('show');
 
-    $('.save').click(function(){
-	console.log()
-	var $inputs = $('#editar :input');
-	var values = {};
-	$inputs.each(function() {
-	    values[this.name] = $(this).val();
-	});
-	console.log(values)
-	$('#myModal1').modal('hide');
-
-	values["id"] = id
-	console.log(values)
-	$.post("editar_datos", {datos : values}, function(data, status, xhr){
-        $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
-          $(".cortar-vueltas-correcto").slideUp(500);
-        });
-	    $('#nombre'+id).load(location.href +  ' #nombre'+id);
-	    $('#fecha'+id).load(location.href +  ' #fecha'+id);
-	    $('#tiempo'+id).load(location.href +  ' #tiempo'+id);
-	    $('#metros'+id).load(location.href +  ' #metros'+id);
-	    $('#descripcion'+id).load(location.href +  ' #descripcion'+id+" .panel-body");
-
-      })
-      .fail(function(response) {
-        $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
-          $(".cortar-vueltas-incorrecto").slideUp(500);
-        });
-      });
-
-	
+  $('.save').click(function(){
+    console.log()
+    var $inputs = $('#editar :input');
+    var values = {};
+    $inputs.each(function() {
+      values[this.name] = $(this).val();
     });
+    console.log(values)
+    $('#myModal1').modal('hide');
+
+    values["id"] = id
+    console.log(values)
+    $.post("editar_datos", {datos : values}, function(data, status, xhr){
+      $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".cortar-vueltas-correcto").slideUp(500);
+      });
+      $('#nombre'+id).load(location.href +  ' #nombre'+id);
+      $('#fecha'+id).load(location.href +  ' #fecha'+id);
+      $('#tiempo'+id).load(location.href +  ' #tiempo'+id);
+      $('#metros'+id).load(location.href +  ' #metros'+id);
+      $('#descripcion'+id).load(location.href +  ' #descripcion'+id+" .panel-body");
+
+    })
+    .fail(function(response) {
+      $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".cortar-vueltas-incorrecto").slideUp(500);
+      });
+    });
+
+
+  });
 });
 
 $('#subir_sesion').click(function(){
-    console.log("siii")
-    var data = new FormData();
-    jQuery.each(jQuery('#file')[0].files, function(i, file) {
-	data.append('file-'+i, file);
-    });
-    var other_data = $('#upload_sesion').serializeArray();
-    $.each(other_data,function(key,input){
-	if (input.value){
-	    data.append(input.name,input.value);
-	}
-    });
+  console.log("siii")
+  var data = new FormData();
+  jQuery.each(jQuery('#file')[0].files, function(i, file) {
+    data.append('file-'+i, file);
+  });
+  var other_data = $('#upload_sesion').serializeArray();
+  $.each(other_data,function(key,input){
+    if (input.value){
+      data.append(input.name,input.value);
+    }
+  });
 
-    jQuery.ajax({
-	url: 'upload_sesion',
-	data: data,
-	cache: false,
-	contentType: false,
-	processData: false,
-	type: 'POST',
-	success: function(data){
-	    $('#myModal').modal('hide');
-	}
-    });
+  jQuery.ajax({
+    url: 'upload_sesion',
+    data: data,
+    cache: false,
+    contentType: false,
+    processData: false,
+    type: 'POST',
+    success: function(data){
+      $('#myModal').modal('hide');
+    }
+  });
 
 });

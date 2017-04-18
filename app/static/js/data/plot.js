@@ -1,7 +1,7 @@
 //Trazada
-  var coord1 = null;
-  var coord2 = null;
-  var id = getCookie("id")
+var coord1 = null;
+var coord2 = null;
+var id = getCookie("id")
 
 function trazada(sensores = false) {
 
@@ -9,8 +9,8 @@ function trazada(sensores = false) {
   plotAccordingToChoices();
   choiceContainer.find("input").change(plotAccordingToChoices);
 
-    var plot
-    
+  var plot
+
   function plotAccordingToChoices() {
 
     var key
@@ -39,23 +39,23 @@ function trazada(sensores = false) {
           clickable: true
         }
       };
-	coord1 = d2[0]
-	coord2 = d2[d2.length-1]
-	if (!sensores){
-	    vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
-	    vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
-	    vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
-	    vel_ruedas(d2[0],d2[d2.length-1],"volante");
-	}
-	else {
-	    if (graficas.length != 0){
-		for (i = 0; i < graficas.length; i++){
-		    if (graficas[i] != null){
-			vel_ruedas(coord1, coord2, "aaa", graficas[i])
-		    }
-		}
-	    }
-	}
+      coord1 = d2[0]
+      coord2 = d2[d2.length-1]
+      if (!sensores){
+        vel_ruedas(d2[0],d2[d2.length-1],"ruedas");
+        vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
+        vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
+        vel_ruedas(d2[0],d2[d2.length-1],"volante");
+      }
+      else {
+        if (graficas.length != 0){
+          for (i = 0; i < graficas.length; i++){
+            if (graficas[i] != null){
+              vel_ruedas(coord1, coord2, "aaa", graficas[i])
+            }
+          }
+        }
+      }
       plot = $.plot("#flot-trazada", [d2], options);
     });
   }
@@ -70,23 +70,23 @@ function trazada(sensores = false) {
         plot.highlight(item.series, item.datapoint);
       }
       else if (coord2 == null){
-          coord2 = item.datapoint;
-          plot.highlight(item.series, item.datapoint);
-	  if (!sensores){
-              vel_ruedas(coord1, coord2, "ruedas")
-              vel_ruedas(coord1, coord2, "amortiguadores")
-              vel_ruedas(coord1, coord2, "acelerador")
-              vel_ruedas(coord1, coord2, "volante")
-	  }
-	  else {
-	    if (graficas.length != 0){
-		for (i = 0; i < graficas.length; i++){
-		    if (graficas[i] != null){
-			vel_ruedas(coord1, coord2, "aaa", graficas[i])
-		    }
-		}
-	    }
-	  }
+        coord2 = item.datapoint;
+        plot.highlight(item.series, item.datapoint);
+        if (!sensores){
+          vel_ruedas(coord1, coord2, "ruedas")
+          vel_ruedas(coord1, coord2, "amortiguadores")
+          vel_ruedas(coord1, coord2, "acelerador")
+          vel_ruedas(coord1, coord2, "volante")
+        }
+        else {
+          if (graficas.length != 0){
+            for (i = 0; i < graficas.length; i++){
+              if (graficas[i] != null){
+                vel_ruedas(coord1, coord2, "aaa", graficas[i])
+              }
+            }
+          }
+        }
       }
       else {
         plot.unhighlight(item.series, coord1);
@@ -100,44 +100,44 @@ function trazada(sensores = false) {
     console.log(coord1+" "+coord2);
   });
 
-    $("#flot-trazada").bind("plothover",function (event, pos, item) {
-	if (item) {
-	    $("#inst_data").show()
-	    var x = item.datapoint[0].toFixed(2),
-		y = item.datapoint[1].toFixed(2);
-	    datos = item.series.data[item.dataIndex]
-	    for (i=3; i < datos.length; i++) {
-		var html = '';
-		    console.log(datos[i]["data"])
-		    $.each(datos[i]["data"], function(key, value){
-			html += '<tr>';
-			html += '<td>'+key+'</td>' ;
-			html += '<td>'+value+'</td>' ;
-			html += '</tr>';
-		    });
-		    console.log(datos[i]["label"])
-		    switch (datos[i]["label"]){
-		    case "ruedas":
-			table_id = "VR-TR"
-			break
-		    case "amortiguadores":
-			table_id = "CA-TR"
-			break
-		    case "acelerador":
-			table_id = "AC-TR"
-			break
-		    case "volante":
-			table_id = "GD-TR"
-			break
-		    }
-		    $("#"+table_id).html(html)
-		}
-	    }
-	else {
-	    console.log("Ocultamos")
-	    $("#inst_data").hide()
-	}
-    });
+  $("#flot-trazada").bind("plothover",function (event, pos, item) {
+    if (item) {
+      $("#inst_data").show()
+      var x = item.datapoint[0].toFixed(2),
+      y = item.datapoint[1].toFixed(2);
+      datos = item.series.data[item.dataIndex]
+      for (i=3; i < datos.length; i++) {
+        var html = '';
+        console.log(datos[i]["data"])
+        $.each(datos[i]["data"], function(key, value){
+          html += '<tr>';
+          html += '<td>'+key+'</td>' ;
+          html += '<td>'+value+'</td>' ;
+          html += '</tr>';
+        });
+        console.log(datos[i]["label"])
+        switch (datos[i]["label"]){
+          case "ruedas":
+          table_id = "VR-TR"
+          break
+          case "amortiguadores":
+          table_id = "CA-TR"
+          break
+          case "acelerador":
+          table_id = "AC-TR"
+          break
+          case "volante":
+          table_id = "GD-TR"
+          break
+        }
+        $("#"+table_id).html(html)
+      }
+    }
+    else {
+      console.log("Ocultamos")
+      $("#inst_data").hide()
+    }
+  });
 }
 
 //Velocidad de las ruedas
@@ -174,18 +174,18 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
-  default:
-      var xlabel = sensores.xlabel
-      var ylabel = sensores.ylabel
-      var choiceContainer = sensores.choiceContainer
-      var plotContainer = sensores.plotContainer
-      var ids = sensores.ids
-      var colsize = sensores.colsize
-      sensor = sensores.sensores
-      console.log(sensores);
-      console.log(coord1)
-      break;
-      
+    default:
+    var xlabel = sensores.xlabel
+    var ylabel = sensores.ylabel
+    var choiceContainer = sensores.choiceContainer
+    var plotContainer = sensores.plotContainer
+    var ids = sensores.ids
+    var colsize = sensores.colsize
+    sensor = sensores.sensores
+    console.log(sensores);
+    console.log(coord1)
+    break;
+
 
   }
   // console.log(path)
@@ -287,17 +287,17 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
                 break;
               }
             }
-	      // j = 1;
+            // j = 1;
             // Now Interpolate
             var y,
             p1 = series.data[j - 1],
             p2 = series.data[j];
-	      try {
-		  interpolate(y, p1, p2, ids, pos, series)
-	      }
-	      catch (err){
-		  console.log(err)
-	      }
+            try {
+              interpolate(y, p1, p2, ids, pos, series)
+            }
+            catch (err){
+              console.log(err)
+            }
             // if (p1 == null) {
             //   y = p2[1];
             // } else if (p2 == null) {
@@ -344,16 +344,16 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
           }
         });
       });
-      
+
 
     });
   }
 
-$("#siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
-<div class="col-lg-12"> \
-DD: Delantero Derecho </br> \
-DI: Delantero Izquierdo </br> \
-TD: Trasero Derecho </br> \
-TI: Trasero Izquierdo </br> \
-</div> \
-' });
+  $("#siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  <div class="col-lg-12"> \
+  DD: Delantero Derecho </br> \
+  DI: Delantero Izquierdo </br> \
+  TD: Trasero Derecho </br> \
+  TI: Trasero Izquierdo </br> \
+  </div> \
+  ' });
