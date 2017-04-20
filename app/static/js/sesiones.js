@@ -116,7 +116,7 @@ $('.delete_s').click(function(){
 
     // Actualizamos la info de la dashboard
       $.get("info_sesiones", null, function(data, status, xhr){});
-
+      location.reload(true);
   })
   .fail(function(response) {
     $(".borrar-sesiones-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
@@ -235,6 +235,7 @@ $('#subir_sesion').click(function(){
 
       // Actualizamos la info de la dashboard
       $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
     }
   });
 
