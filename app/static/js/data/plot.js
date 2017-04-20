@@ -349,7 +349,17 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     });
   }
 
-  $("#siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  // No variar el orden
+  $("#siglas-acelerador").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  <div class="col-lg-12"> \
+  1: Potenciometro lineal 1 </br> \
+  2: Potenciometro lineal 2 </br> \
+  3: Potenciometro lineal 3 </br> \
+  4: Potenciometro lineal 4 </br> \
+  </div> \
+  ' });
+
+  $(".siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
   <div class="col-lg-12"> \
   DD: Delantero Derecho </br> \
   DI: Delantero Izquierdo </br> \
