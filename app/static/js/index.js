@@ -12,8 +12,12 @@ function obtener_datos() {
 
 	$.getJSON("static/data/dash.json", function(d2){
 		document.getElementById("n_sesiones").innerHTML = d2["numero"];
-		document.getElementById("distancia").innerHTML = d2["distancia"];
+		document.getElementById("distancia").innerHTML = numberWithCommas(d2["distancia"]);
 		document.getElementById("tiempo").innerHTML = d2["tiempo"];
 		document.getElementById("n_errores").innerHTML = d2["errores"];
     });
+}
+
+function numberWithCommas(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, " ");
 }
