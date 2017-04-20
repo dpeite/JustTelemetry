@@ -5,9 +5,11 @@ $(function() {
 
 
 //Fuerzas G
-$(function() {
-  var d2 = [[-2.5, -2.5], [2.5, 2.5], [-2.5, 0], [2.5, 0],[0, 2.5],[0, -2.5],[2.5, -2.5],[-2.5, 2.5]];
-  var options = {
+// $(function() {
+function fuerzas_g(d2){
+    // var d2 = [[-2.5, -2.5], [2.5, 2.5], [-2.5, 0], [2.5, 0],[0, 2.5],[0, -2.5],[2.5, -2.5],[-2.5, 2.5]];
+    console.log(d2)
+    var options = {
     lines : {show : false},
     points : {show : true},
     grid: { show:true,
@@ -15,11 +17,19 @@ $(function() {
         { xaxis: { from: 0, to: 0 }, color:"red" },
         { yaxis: { from: 0, to: 0 }, color:"red" }
       ]
-    }
+	  },
+	 legend: {
+            labelFormatter: function(label, series) {
+              // series is the series object for the label
+              return null
+            }
+          },
 
   }
-  $.plot("#flot-G", [d2], options);
-});
+    var plot = $.plot("#flot-G", [d2["Fuerzas"]], options);
+    var series = plot.getData()
+    $("#choices5").children().css("background-color",series[0].color)
+}
 
 function interpolate(y, p1, p2, ids, pos, series){
   if (p1 == null) {

@@ -46,6 +46,7 @@ function trazada(sensores = false) {
         vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
         vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
         vel_ruedas(d2[0],d2[d2.length-1],"volante");
+        vel_ruedas(d2[0],d2[d2.length-1],"fuerzas");
       }
       else {
         if (graficas.length != 0){
@@ -77,6 +78,7 @@ function trazada(sensores = false) {
           vel_ruedas(coord1, coord2, "amortiguadores")
           vel_ruedas(coord1, coord2, "acelerador")
           vel_ruedas(coord1, coord2, "volante")
+          vel_ruedas(coord1, coord2, "fuerzas")
         }
         else {
           if (graficas.length != 0){
@@ -174,6 +176,14 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
+    case "fuerzas":
+    var ylabel = "Porcentaje"
+    var choiceContainer = $("#choices5")
+    var plotContainer = "#flot-g"
+    var ids = "FG"
+    var colsize = "col-xs-12"
+    break;
+
     default:
     var xlabel = sensores.xlabel
     var ylabel = sensores.ylabel
@@ -191,7 +201,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
   // console.log(path)
   $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor}, function(data, status, xhr){
     var datasets = data
-
+      
     var i = 0;
     $.each(datasets, function(key, val) {
       val.color = i;
@@ -208,6 +218,13 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
       choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
 
     }
+
+    if (sensor == "fuerzas"){
+      fuerzas_g(datasets)
+      return 0
+    }
+
+
     choiceContainer.find(":input").change(plotAccordingToChoices);
 
     function plotAccordingToChoices() {
