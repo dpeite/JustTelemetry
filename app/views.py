@@ -212,7 +212,7 @@ def info_sesiones():
 
     distancia = 0
     numero_sesiones = 0
-    tiempo_total = 288 # hardcode
+    tiempo_total = 0
     array_sesiones = []
     lista_sesiones = {}
     for f in files:
@@ -222,6 +222,10 @@ def info_sesiones():
 
         distancia += int(info_json["metros"])
         numero_sesiones += 1
+
+        # Contamos el tiempo
+        m, s = info_json["tiempo"].split(' ')
+        tiempo_total += int(m[:-1]) * 60 + int(s[:-1])
 
         # Para contar el nmero de sesiones
         if info_json["fecha"].split()[0] in lista_sesiones:
@@ -243,7 +247,11 @@ def info_sesiones():
     fichero = {}
     fichero["numero"] = numero_sesiones
     fichero["distancia"] = distancia
-    fichero["tiempo"] = tiempo_total
+
+    m, s = divmod(tiempo_total, 60)
+    h, m = divmod(m, 60)
+    str_tiempo = "%d:%02d:%02d" % (h, m, s)
+    fichero["tiempo"] = str_tiempo
     fichero["errores"] = 3
     fichero["sesiones"] = array_sesiones
 
