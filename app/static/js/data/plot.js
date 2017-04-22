@@ -3,7 +3,7 @@ var coord1 = null;
 var coord2 = null;
 var id = getCookie("id")
 
-function trazada(sensores = false) {
+function trazada(sensores = false, dist = false) {
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
@@ -199,7 +199,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 
   }
   // console.log(path)
-  $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor}, function(data, status, xhr){
+    $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor, dist: dist}, function(data, status, xhr){
     var datasets = data
       
     var i = 0;
@@ -240,9 +240,9 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
           data.push(datasets[key]);
         }
       });
-
-      if (data.length > 0) {
-        plot[ids] = $.plot(plotContainer, data, {
+	
+	if (data.length > 0) {
+	   var options = {
           xaxis: {
             tickDecimals: 0
           },
@@ -263,13 +263,25 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
             show: true
           },
           xaxes: [{
-            axisLabel: 'ms',
+              // axisLabel: 'ms',
+	      tickFormatter : function suffixFormatter(val, axis) {
+		  if (dist == false){
+		      return (val / 1000).toFixed(axis.tickDecimals) + " s";
+		  }
+		  else{
+		      return val+ " m";
+		  }
+	      }
           }],
           yaxes: [{
             axisLabel: ylabel,
           }]
-
-        });
+	   }
+	    if (sensores){
+		delete options["xaxes"][0]["tickFormatter"]
+		options["xaxes"][0]["axisLabel"] = xlabel
+	    }
+        plot[ids] = $.plot(plotContainer, data, options);
       }
 
 
