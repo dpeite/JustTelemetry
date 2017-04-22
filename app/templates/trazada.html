@@ -1,0 +1,144 @@
+{% block trazada %}
+<div class="col-lg-12">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Trazada  <i id="siglas" data-trigger="hover" class="glyphicon glyphicon-info-sign fa-fw"  title="Abreviaturas"> </i>
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <div id="vueltas" style="float:right; width:15%;" data-toggle="buttons">
+              <label class="btn btn-primary col-xs-12 vueltas">
+                <input type="radio" name="vuelta" value="trazada" checked="True" id="LAP-trazada"></input>
+                <div id="asdf">Trazada</div>
+              </label>
+              {% for n in range(vueltas) %}
+              <label class="btn btn-primary col-xs-12 vueltas">
+                <input type="radio" name="vuelta" value="{{n}}" id="LAP-{n{}}"></input>
+                <div>{{n}}</div>
+              </label>
+              {% endfor %}
+            </div>
+            <div class="flot-chart">
+              <div class="flot-chart-content" id="flot-trazada"></div>
+            </div>
+            <span id="clickdata"></span>
+
+            <div id="inst_data" class="col-lg-12" style="display: none;">
+              <div class="col-lg-3">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    Velocidad Ruedas
+                  </div>
+                  <!-- /.panel-heading -->
+                  <div class="panel-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Pos</th>
+                            <th>Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody id="VR-TR">
+
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- /.table-responsive -->
+                  </div>
+                  <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+              </div>
+
+              <div class="col-lg-3">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    Compresión del Amortiguador
+                  </div>
+                  <!-- /.panel-heading -->
+                  <div class="panel-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Pos</th>
+                            <th>Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody id="CA-TR">
+
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- /.table-responsive -->
+                  </div>
+                  <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+              </div>
+
+              <div class="col-lg-3">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    Giro de la dirección
+                  </div>
+                  <!-- /.panel-heading -->
+                  <div class="panel-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Pos</th>
+                            <th>Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody id="GD-TR">
+
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- /.table-responsive -->
+                  </div>
+                  <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+              </div>
+
+
+              <div class="col-lg-3">
+                <div class="panel panel-default">
+                  <div class="panel-heading">
+                    Porcentaje Acelerador
+                  </div>
+                  <!-- /.panel-heading -->
+                  <div class="panel-body">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th>Pos</th>
+                            <th>Valor</th>
+                          </tr>
+                        </thead>
+                        <tbody id="AC-TR">
+
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- /.table-responsive -->
+                  </div>
+                  <!-- /.panel-body -->
+                </div>
+                <!-- /.panel -->
+              </div>
+
+            </div>
+
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-12 -->
+{% endblock %}

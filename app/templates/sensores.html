@@ -1,0 +1,96 @@
+{% block sensores %}
+<div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Velocidad de las ruedas
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <!-- <p id="choices" style="float:right; width:15%;"></p> -->
+            <!-- <div id="choices" class="btn-group" data-toggle="buttons" style="float:right; width:15%;"> -->
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-rpm"></div>
+            </div>
+            <div id="choices" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Compresión del amortiguador
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <!-- <p id="choices2" style="float:right; width:15%;"></p> -->
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-amortiguadores"></div>
+            </div>
+            <div id="choices2" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Giro de la direccion
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-direccion"></div>
+            </div>
+            <div id="choices4" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon1boton" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Porcentaje del acelerador y throttle
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <!-- <p id="choices3" style="float:right; width:15%;"></p> -->
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-acelerador"></div>
+            </div>
+            <div id="choices3" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Fuerzas G
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-G"></div>
+            </div>
+	    <div id="choices5" class="btn-group col-xs-12" data-toggle="buttons"></div>
+	    <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+{% endblock %}
