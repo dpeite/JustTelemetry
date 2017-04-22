@@ -1,7 +1,7 @@
 import json
 import random
 
-with open('ruedas2.json') as json_data:
+with open('acelerador2.json') as json_data:
     d = json.load(json_data)
     # print(d)
 first = True
@@ -24,9 +24,9 @@ for key in d.keys():
                     array_dist.append(dist)
                 else:
                     element.append(array_dist[idx])
-                # print element
+                print element
             first = False
 
     
-with open('ruedas.json', 'w') as outfile:
+with open('acelerador.json', 'w') as outfile:
         json.dump(d, outfile)
