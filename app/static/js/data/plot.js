@@ -240,9 +240,9 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
           data.push(datasets[key]);
         }
       });
-
-      if (data.length > 0) {
-        plot[ids] = $.plot(plotContainer, data, {
+	
+	if (data.length > 0) {
+	   var options = {
           xaxis: {
             tickDecimals: 0
           },
@@ -276,8 +276,12 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
           yaxes: [{
             axisLabel: ylabel,
           }]
-
-        });
+	   }
+	    if (sensores){
+		delete options["xaxes"][0]["tickFormatter"]
+		options["xaxes"][0]["axisLabel"] = xlabel
+	    }
+        plot[ids] = $.plot(plotContainer, data, options);
       }
 
 
