@@ -34,8 +34,8 @@ def posicion():
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/sensores.html")
-def sensores():
+@app.route("/relacion.html")
+def relacion():
     ID = str(request.cookies.get("id"))
     try:
         path, dirs, files = os.walk("app/static/data/sesiones/"+ID+"/vueltas").next()
@@ -44,7 +44,7 @@ def sensores():
         vueltas = 0
         pass
     sensores = consultar_sensores(ID)
-    resp = make_response(render_template("sensores.html", vueltas=vueltas, sensores=sensores))
+    resp = make_response(render_template("relacion.html", vueltas=vueltas, sensores=sensores))
     resp.cache_control.no_cache = True
     return resp
 
