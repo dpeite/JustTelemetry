@@ -13,9 +13,7 @@ def cortar(lat1, lon1, lat2, lon2, ID, sensor, dist):
                     if (element[2] == lat1 and element[3] == lon1) or dentro:
                         dentro = True
                         if dist:
-                            print element
                             element[0],element[4]=element[4],element[0]
-                            print element
                         datos.append(element)
                     if (element[2] == lat2 and element[3] == lon2):
                         break;
@@ -36,8 +34,9 @@ def cortar(lat1, lon1, lat2, lon2, ID, sensor, dist):
                     for index, element in enumerate(info[key][elements]):
                         print element[2]
                         if (element[2] == lat2 and element[3] == lon2) or dentro:
-                            print "Dentro"
                             dentro = True
+                            if dist:
+                                element[0],element[4]=element[4],element[0]
                             datos.append(element)
                         if (element[2] == lat1 and element[3] == lon1):
                             break;
