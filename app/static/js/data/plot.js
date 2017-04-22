@@ -263,7 +263,15 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
             show: true
           },
           xaxes: [{
-            axisLabel: 'ms',
+              // axisLabel: 'ms',
+	      tickFormatter : function suffixFormatter(val, axis) {
+		  if (dist == false){
+		      return (val / 1000).toFixed(axis.tickDecimals) + " s";
+		  }
+		  else{
+		      return val+ " m";
+		  }
+	      }
           }],
           yaxes: [{
             axisLabel: ylabel,
