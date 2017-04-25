@@ -217,7 +217,7 @@ def allowed_file(filename):
 
 @app.route("/info_sesiones")
 def info_sesiones():
-    source = "/home/manu/git/JustTelemetry/app/static/data/sesiones/"
+    source = "app/static/data/sesiones/"
     files = os.listdir(source)
 
     distancia = 0
@@ -265,7 +265,7 @@ def info_sesiones():
     fichero["errores"] = 3
     fichero["sesiones"] = array_sesiones
 
-    with open('/home/manu/git/JustTelemetry/app/static/data/dash.json', 'wb') as new_file:
+    with open('app/static/data/dash.json', 'wb') as new_file:
         json.dump(fichero, new_file)
 
     return "", 200
