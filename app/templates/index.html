@@ -17,7 +17,7 @@
               <i class="fa fa-info-circle  fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">26</div>
+              <div class="huge" id="n_sesiones">26</div>
               <div>Número de sesiones</div>
             </div>
           </div>
@@ -39,8 +39,8 @@
               <i class="fa fa-tachometer fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">12</div>
-              <div>Km recorridos</div>
+              <div class="huge" id="distancia">12</div>
+              <div>m recorridos</div>
             </div>
           </div>
         </div>
@@ -61,7 +61,7 @@
               <i class="fa fa-clock-o fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">288:28:8</div>
+              <div class="huge" id="tiempo">288:28:8</div>
               <div>Tiempo total</div>
             </div>
           </div>
@@ -83,7 +83,7 @@
               <i class="fa fa-times-circle-o fa-5x"></i>
             </div>
             <div class="col-xs-9 text-right">
-              <div class="huge">13</div>
+              <div class="huge" id="n_errores">13</div>
               <div>Errores</div>
             </div>
           </div>
@@ -103,30 +103,11 @@
     <div class="col-lg-8">
       <div class="panel panel-default">
         <div class="panel-heading">
-          <i class="fa fa-bar-chart-o fa-fw"></i> Area Chart Example
-          <div class="pull-right">
-            <div class="btn-group">
-              <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
-                Actions
-                <span class="caret"></span>
-              </button>
-              <ul class="dropdown-menu pull-right" role="menu">
-                <li><a href="#">Action</a>
-                </li>
-                <li><a href="#">Another action</a>
-                </li>
-                <li><a href="#">Something else here</a>
-                </li>
-                <li class="divider"></li>
-                <li><a href="#">Separated link</a>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <i class="fa fa-bar-chart-o fa-fw"></i> Número de sesiones
         </div>
         <!-- /.panel-heading -->
         <div class="panel-body">
-          <div id="morris-area-chart"></div>
+          <div id="morris-bar-chart"></div>
         </div>
         <!-- /.panel-body -->
       </div>
@@ -143,32 +124,27 @@
         <div class="panel-body">
           <div class="list-group">
             <a href="#" class="list-group-item">
-              <i class="fa fa-comment fa-fw"></i> New Comment
-              <span class="pull-right text-muted small"><em>4 minutes ago</em>
-              </span>
-            </a>
-            <a href="#" class="list-group-item">
-              <i class="fa fa-envelope fa-fw"></i> Message Sent
-              <span class="pull-right text-muted small"><em>27 minutes ago</em>
-              </span>
-            </a>
-            <a href="#" class="list-group-item">
-              <i class="fa fa-tasks fa-fw"></i> New Task
-              <span class="pull-right text-muted small"><em>43 minutes ago</em>
-              </span>
-            </a>
-            <a href="#" class="list-group-item">
-              <i class="fa fa-upload fa-fw"></i> Server Rebooted
+              <i class="fa fa-power-off fa-fw"></i> Coche encendido
               <span class="pull-right text-muted small"><em>11:32 AM</em>
               </span>
             </a>
             <a href="#" class="list-group-item">
-              <i class="fa fa-bolt fa-fw"></i> Server Crashed!
+              <i class="fa fa-bolt fa-fw"></i> ¡Excepción en el servidor!
               <span class="pull-right text-muted small"><em>11:13 AM</em>
               </span>
             </a>
             <a href="#" class="list-group-item">
-              <i class="fa fa-warning fa-fw"></i> Server Not Responding
+              <i class="fa fa-warning fa-fw"></i> Rango erróneo del acelerador
+              <span class="pull-right text-muted small"><em>10:57 AM</em>
+              </span>
+            </a>
+            <a href="#" class="list-group-item">
+              <i class="fa fa-warning fa-fw"></i> ABS no funcionando
+              <span class="pull-right text-muted small"><em>10:57 AM</em>
+              </span>
+            </a>
+            <a href="#" class="list-group-item">
+              <i class="fa fa-warning fa-fw"></i> Temperatura del motor elevada
               <span class="pull-right text-muted small"><em>10:57 AM</em>
               </span>
             </a>
@@ -182,6 +158,7 @@
     <!-- /.col-lg-4 -->
   </div>
   <!-- /.row -->
+
 </div>
 <!-- /#page-wrapper -->
 {% endblock %}
@@ -198,4 +175,8 @@
 <script src="static/js/raphael/raphael.min.js"></script>
 <script src="static/js/morrisjs/morris.min.js"></script>
 <script src="static/js/data/morris-data.js"></script>
+
+ <!-- Para obtener el número de sesiones -->
+<script src="static/js/index.js"></script>
+<script>obtener_datos();</script>
 {% endblock %}

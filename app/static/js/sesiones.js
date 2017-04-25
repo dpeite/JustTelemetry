@@ -52,12 +52,25 @@ $('.vueltas').click(function(event){
 
   $('.save').click(function(){
     if (!$('.save').hasClass('disabled')){
-      $('#myModal1').modal('hide');
+
+          code = '<div class="flot-chart"> \
+                  <div id="loading"> \
+                  <i class="fa fa-refresh fa-spin fa-5x fa-fw img-responsive"></i> \
+                  <span class="sr-only">Loading...</span> \
+                  </div> \
+           </div>';
+        $("#modalcontent").empty();
+        $("#modalcontent").append(code);
+        $(".modal-title").empty();
+        //$(".modal-title").append("Seleccionar punto inicio vuelta");
+
+
       console.log("huehuehue");
       console.log(value.val());
       $.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
         // alert("Data: " + data + "\nStatus: " + status);
         console.log(xhr.status);
+       $('#myModal1').modal('hide');
         $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
           $(".cortar-vueltas-correcto").slideUp(500);
         });
@@ -103,7 +116,9 @@ $('.delete_s').click(function(){
       $(".borrar-sesiones-correcto").slideUp(500);
     });
 
-
+    // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
   })
   .fail(function(response) {
     $(".borrar-sesiones-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
@@ -219,6 +234,10 @@ $('#subir_sesion').click(function(){
     type: 'POST',
     success: function(data){
       $('#myModal').modal('hide');
+
+      // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
     }
   });
 

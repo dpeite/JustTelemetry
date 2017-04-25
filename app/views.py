@@ -214,3 +214,58 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = set(['zip'])
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route("/info_sesiones")
+def info_sesiones():
+    source = "/home/manu/git/JustTelemetry/app/static/data/sesiones/"
+    files = os.listdir(source)
+
+    distancia = 0
+    numero_sesiones = 0
+    tiempo_total = 0
+    array_sesiones = []
+    lista_sesiones = {}
+    for f in files:
+
+        with open(source + f + '/info.json') as new_file:
+            info_json = json.load(new_file)
+
+        distancia += int(info_json["metros"])
+        numero_sesiones += 1
+
+        # Contamos el tiempo
+        m, s = info_json["tiempo"].split(' ')
+        tiempo_total += int(m[:-1]) * 60 + int(s[:-1])
+
+        # Para contar el nmero de sesiones
+        if info_json["fecha"].split()[0] in lista_sesiones:
+            lista_sesiones[info_json["fecha"].split()[0]] += 1
+        else:
+            lista_sesiones[info_json["fecha"].split()[0]] = 1
+
+    print lista_sesiones
+    array_sesiones = []
+    for x in lista_sesiones:
+        sesion = {}
+        sesion["fecha"] = x
+        sesion["numero"] = lista_sesiones[x]
+        array_sesiones.append(sesion)
+
+    print numero_sesiones
+    print array_sesiones
+
+    fichero = {}
+    fichero["numero"] = numero_sesiones
+    fichero["distancia"] = distancia
+
+    m, s = divmod(tiempo_total, 60)
+    h, m = divmod(m, 60)
+    str_tiempo = "%d:%02d:%02d" % (h, m, s)
+    fichero["tiempo"] = str_tiempo
+    fichero["errores"] = 3
+    fichero["sesiones"] = array_sesiones
+
+    with open('/home/manu/git/JustTelemetry/app/static/data/dash.json', 'wb') as new_file:
+        json.dump(fichero, new_file)
+
+    return "", 200
