@@ -54,9 +54,11 @@ $('.vueltas').click(function(event){
     if (!$('.save').hasClass('disabled')){
 
           code = '<div class="flot-chart"> \
+                  <div id="loading"> \
                   <i class="fa fa-refresh fa-spin fa-5x fa-fw img-responsive"></i> \
                   <span class="sr-only">Loading...</span> \
-                  </div>';
+                  </div> \
+           </div>';
         $("#modalcontent").empty();
         $("#modalcontent").append(code);
         $(".modal-title").empty();
@@ -68,7 +70,7 @@ $('.vueltas').click(function(event){
       $.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
         // alert("Data: " + data + "\nStatus: " + status);
         console.log(xhr.status);
-       //$('#myModal1').modal('hide');
+       $('#myModal1').modal('hide');
         $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
           $(".cortar-vueltas-correcto").slideUp(500);
         });
