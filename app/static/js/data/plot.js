@@ -201,7 +201,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
   // console.log(path)
     $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor, dist: dist}, function(data, status, xhr){
     var datasets = data
-      
+
     var i = 0;
     $.each(datasets, function(key, val) {
       val.color = i;
@@ -240,7 +240,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
           data.push(datasets[key]);
         }
       });
-	
+
 	if (data.length > 0) {
 	   var options = {
           xaxis: {
@@ -375,7 +375,12 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
       });
 
 
-    });
+    }).fail(function(response) {
+        console.log("*/-a/fsd-*as/f*-a/sd-*/f-")
+	console.log(ids)
+	console.log($('#ids'))
+	$('#'+ids).hide();
+      });
   }
 
   // No variar el orden
