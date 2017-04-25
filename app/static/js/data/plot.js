@@ -3,7 +3,7 @@ var coord1 = null;
 var coord2 = null;
 var id = getCookie("id")
 
-function trazada(sensores = false) {
+function trazada(sensores = false, dist = false) {
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
@@ -46,6 +46,7 @@ function trazada(sensores = false) {
         vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
         vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
         vel_ruedas(d2[0],d2[d2.length-1],"volante");
+        vel_ruedas(d2[0],d2[d2.length-1],"fuerzas");
       }
       else {
         if (graficas.length != 0){
@@ -77,6 +78,7 @@ function trazada(sensores = false) {
           vel_ruedas(coord1, coord2, "amortiguadores")
           vel_ruedas(coord1, coord2, "acelerador")
           vel_ruedas(coord1, coord2, "volante")
+          vel_ruedas(coord1, coord2, "fuerzas")
         }
         else {
           if (graficas.length != 0){
@@ -174,6 +176,14 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
+    case "fuerzas":
+    var ylabel = "Porcentaje"
+    var choiceContainer = $("#choices5")
+    var plotContainer = "#flot-g"
+    var ids = "FG"
+    var colsize = "col-xs-12"
+    break;
+
     default:
     var xlabel = sensores.xlabel
     var ylabel = sensores.ylabel
@@ -189,7 +199,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 
   }
   // console.log(path)
-  $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor}, function(data, status, xhr){
+    $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor, dist: dist}, function(data, status, xhr){
     var datasets = data
 
     var i = 0;
@@ -208,6 +218,13 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
       choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
 
     }
+
+    if (sensor == "fuerzas"){
+      fuerzas_g(datasets)
+      return 0
+    }
+
+
     choiceContainer.find(":input").change(plotAccordingToChoices);
 
     function plotAccordingToChoices() {
@@ -224,8 +241,8 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
         }
       });
 
-      if (data.length > 0) {
-        plot[ids] = $.plot(plotContainer, data, {
+	if (data.length > 0) {
+	   var options = {
           xaxis: {
             tickDecimals: 0
           },
@@ -246,13 +263,25 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
             show: true
           },
           xaxes: [{
-            axisLabel: 'ms',
+              // axisLabel: 'ms',
+	      tickFormatter : function suffixFormatter(val, axis) {
+		  if (dist == false){
+		      return (val / 1000).toFixed(axis.tickDecimals) + " s";
+		  }
+		  else{
+		      return val+ " m";
+		  }
+	      }
           }],
           yaxes: [{
             axisLabel: ylabel,
           }]
-
-        });
+	   }
+	    if (sensores){
+		delete options["xaxes"][0]["tickFormatter"]
+		options["xaxes"][0]["axisLabel"] = xlabel
+	    }
+        plot[ids] = $.plot(plotContainer, data, options);
       }
 
 
@@ -346,10 +375,25 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
       });
 
 
-    });
+    }).fail(function(response) {
+        console.log("*/-a/fsd-*as/f*-a/sd-*/f-")
+	console.log(ids)
+	console.log($('#ids'))
+	$('#'+ids).hide();
+      });
   }
 
-  $("#siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  // No variar el orden
+  $("#siglas-acelerador").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  <div class="col-lg-12"> \
+  1: Potenciometro lineal 1 </br> \
+  2: Potenciometro lineal 2 </br> \
+  3: Potenciometro lineal 3 </br> \
+  4: Potenciometro lineal 4 </br> \
+  </div> \
+  ' });
+
+  $(".siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
   <div class="col-lg-12"> \
   DD: Delantero Derecho </br> \
   DI: Delantero Izquierdo </br> \

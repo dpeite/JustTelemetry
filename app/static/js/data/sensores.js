@@ -1,6 +1,5 @@
 $(function() {
-  var sensores = true
-  trazada(sensores)
+    trazada(sensores = true, dist = false)
 });
 
 var graficas = []

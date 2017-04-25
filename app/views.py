@@ -6,6 +6,7 @@ from app import app
 from flask import render_template, make_response, request, send_file, jsonify
 from io import BytesIO
 import zipfile
+import ast
 
 @app.route("/")
 @app.route("/index.html")
@@ -30,12 +31,19 @@ def tiempo():
 
 @app.route("/posicion.html")
 def posicion():
-    resp = make_response(render_template("posicion.html"))
+    ID = str(request.cookies.get("id"))
+    try:
+        path, dirs, files = os.walk("app/static/data/sesiones/"+ID+"/vueltas").next()
+        vueltas = len(files)
+    except:
+        vueltas = 0
+        pass
+    resp = make_response(render_template("posicion.html", vueltas=vueltas))
     resp.cache_control.no_cache = True
     return resp
 
-@app.route("/sensores.html")
-def sensores():
+@app.route("/relacion.html")
+def relacion():
     ID = str(request.cookies.get("id"))
     try:
         path, dirs, files = os.walk("app/static/data/sesiones/"+ID+"/vueltas").next()
@@ -44,7 +52,7 @@ def sensores():
         vueltas = 0
         pass
     sensores = consultar_sensores(ID)
-    resp = make_response(render_template("sensores.html", vueltas=vueltas, sensores=sensores))
+    resp = make_response(render_template("relacion.html", vueltas=vueltas, sensores=sensores))
     resp.cache_control.no_cache = True
     return resp
 
@@ -109,13 +117,15 @@ def cortar_json():
     lon2 = float(request.args.get("lon2"))
     ID = str(request.args.get("id"))
     sensor = str(request.args.get("sensor"))
+    dist = str(request.args.get("dist")).capitalize()
+    dist =  ast.literal_eval(dist)
     try:
         import tramo
         sensores = sensor.split("-")
         if len(sensores) == 2:
             return jsonify(tramo.cortar_varios(lat1, lon1, lat2, lon2, ID, sensores)), 200
         else:
-            return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor)), 200
+            return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor, dist)), 200
     except Exception as exc:
         print exc
         return "", 500

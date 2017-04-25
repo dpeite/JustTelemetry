@@ -1,5 +1,5 @@
 $(function() {
-    trazada(sensores = false, dist = false)
+    trazada(sensores = false, dist = true)
 });
 
 
