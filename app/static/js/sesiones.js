@@ -200,6 +200,8 @@ $('.editar').click(function(event){
       $('#tiempo'+id).load(location.href +  ' #tiempo'+id);
       $('#metros'+id).load(location.href +  ' #metros'+id);
       $('#descripcion'+id).load(location.href +  ' #descripcion'+id+" .panel-body");
+    // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
 
     })
     .fail(function(response) {
