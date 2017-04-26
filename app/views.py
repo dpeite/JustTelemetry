@@ -174,7 +174,7 @@ def editar_datos_fichero(ID, valores, form=None):
             datos[key.split("[")[1].split("]")[0]] = value
         else:
             try:
-                print key
+                #print key
                 datos[key] = value
             except exc as Exception:
                 print exc
@@ -214,6 +214,38 @@ def allowed_file(filename):
     ALLOWED_EXTENSIONS = set(['zip'])
     return '.' in filename and \
         filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@app.route("/upload_sesion_ip", methods=["POST"])
+def upload_sesion_ip():
+
+    for key, value in request.values.iteritems():
+        if (key == "ip"):
+            ip = value
+
+    # TODO:Obtener JSON usando la IP
+
+
+    import parser_datos
+    file = parser_datos.obtenerZip()
+    file_name = file.filename.split(".")[0]
+
+    if allowed_file(file.filename):
+        if not os.path.exists("app/static/data/sesiones/"+file_name):
+            os.makedirs("app/static/data/sesiones/"+file_name)
+            zip_ref = zipfile.ZipFile(file.filename)
+            zip_ref.extractall("app/static/data/sesiones/"+file_name)
+            zip_ref.close()
+
+            os.remove(file.filename) # Eliminamos el ZIP
+        else:
+            return "La sesion ya existe con ese id", 500
+        print file_name
+        editar_datos_fichero(file_name, request.values, form=True)
+        return "", 200
+    else:
+        return "Extension no permitida", 500
+
+    return "", 200
 
 @app.route("/info_sesiones")
 def info_sesiones():

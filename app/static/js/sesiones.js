@@ -230,23 +230,8 @@ $('#subir_sesion').click(function(){
             data.append(input.name,input.value);
           }
     });
-  } // Cierre IF Desde fichero
-  else {
 
-    if (!checkValidIP($('#campo_ip').val())) {
-      // Hacer algo para indicar que no se ha mandado la petición/ IP incorrecta
-      return;
-    }
-    var other_data = $('#upload_sesion_ip').serializeArray();
-      $.each(other_data,function(key,input){
-        console.log(input.name)
-          if (input.value){
-            data.append(input.name,input.value);
-          }
-    });
-  }
-
-  jQuery.ajax({
+        jQuery.ajax({
     url: 'upload_sesion',
     data: data,
     cache: false,
@@ -261,6 +246,37 @@ $('#subir_sesion').click(function(){
       location.reload(true);
     }
   });
+  } // Cierre IF Desde fichero
+  else {
+
+    if (!checkValidIP($('#campo_ip').val())) {
+      // Hacer algo para indicar que no se ha mandado la petición/ IP incorrecta
+      return;
+    }
+    var other_data = $('#upload_sesion_ip').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            data.append(input.name,input.value);
+          }
+    });
+
+  jQuery.ajax({
+    url: 'upload_sesion_ip',
+    data: data,
+    cache: false,
+    contentType: false,
+    processData: false,
+    type: 'POST',
+    success: function(data){
+      $('#myModal').modal('hide');
+
+      // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
+    }
+  });
+  } // Cierre else
 
 });
 
