@@ -217,15 +217,30 @@ $('.editar').click(function(event){
 $('#subir_sesion').click(function(){
   console.log("siii")
   var data = new FormData();
-  jQuery.each(jQuery('#file')[0].files, function(i, file) {
-    data.append('file-'+i, file);
-  });
-  var other_data = $('#upload_sesion').serializeArray();
-  $.each(other_data,function(key,input){
-    if (input.value){
-      data.append(input.name,input.value);
-    }
-  });
+
+  if ($('.nav-tabs .active').text() == "Desde fichero") {
+      jQuery.each(jQuery('#file')[0].files, function(i, file) {
+          data.append('file-'+i, file);
+      });
+
+      var other_data = $('#upload_sesion').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            data.append(input.name,input.value);
+          }
+    });
+  } // Cierre IF Desde fichero
+  else {
+    var other_data = $('#upload_sesion_ip').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            console.log(input.value)
+            data.append(input.name,input.value);
+          }
+    });
+  }
 
   jQuery.ajax({
     url: 'upload_sesion',
