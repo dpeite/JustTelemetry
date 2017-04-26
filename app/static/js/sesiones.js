@@ -232,11 +232,15 @@ $('#subir_sesion').click(function(){
     });
   } // Cierre IF Desde fichero
   else {
+
+    if (!checkValidIP($('#campo_ip').val())) {
+      // Hacer algo para indicar que no se ha mandado la petición/ IP incorrecta
+      return;
+    }
     var other_data = $('#upload_sesion_ip').serializeArray();
       $.each(other_data,function(key,input){
         console.log(input.name)
           if (input.value){
-            console.log(input.value)
             data.append(input.name,input.value);
           }
     });
@@ -259,3 +263,8 @@ $('#subir_sesion').click(function(){
   });
 
 });
+
+function checkValidIP (ip) {
+    var rx = /^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
+    return rx.test(ip);
+}
