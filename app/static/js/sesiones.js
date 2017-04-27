@@ -1,4 +1,4 @@
-$('.vueltas').click(function(event){
+$('.cortar_vueltas').click(function(event){
   value = $(event.target).closest('tr').find('[name=optionsRadios]');
 
   code = '<div class="flot-chart"> \
@@ -192,8 +192,8 @@ $('.editar').click(function(event){
     values["id"] = id
     console.log(values)
     $.post("editar_datos", {datos : values}, function(data, status, xhr){
-      $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
-        $(".cortar-vueltas-correcto").slideUp(500);
+      $(".editar-correcto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".editar-correcto").slideUp(500);
       });
       $('#nombre'+id).load(location.href +  ' #nombre'+id);
       $('#fecha'+id).load(location.href +  ' #fecha'+id);
@@ -205,8 +205,8 @@ $('.editar').click(function(event){
 
     })
     .fail(function(response) {
-      $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
-        $(".cortar-vueltas-incorrecto").slideUp(500);
+      $(".editar-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".editar-incorrecto").slideUp(500);
       });
     });
 
