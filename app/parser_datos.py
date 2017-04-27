@@ -84,6 +84,7 @@ def obtenerZip():
     fjson_info["descripcion"] = "Prueba realizada en " + "circuito" + " usando un " + "coche" + "(" + "clase" + ")"
     fjson_info["nombre"] = "circuito" + "-pCars"
     fjson_info["metros"] = 2 * 1000
+    fjson_info["tiempo"] = "1m 1s"
 
     id_sesion = random.randint(1000, 10000)
 

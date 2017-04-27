@@ -237,6 +237,10 @@ def upload_sesion_ip():
             zip_ref.close()
 
             os.remove(file.filename) # Eliminamos el ZIP
+
+            for item in os.listdir("app/"):
+                if item.endswith(".json") and not ("datos_in" in item):
+                    os.remove("app/" + item)
         else:
             return "La sesion ya existe con ese id", 500
         print file_name
