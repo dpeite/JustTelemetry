@@ -217,17 +217,21 @@ $('.editar').click(function(event){
 $('#subir_sesion').click(function(){
   console.log("siii")
   var data = new FormData();
-  jQuery.each(jQuery('#file')[0].files, function(i, file) {
-    data.append('file-'+i, file);
-  });
-  var other_data = $('#upload_sesion').serializeArray();
-  $.each(other_data,function(key,input){
-    if (input.value){
-      data.append(input.name,input.value);
-    }
-  });
 
-  jQuery.ajax({
+  if ($('.nav-tabs .active').text() == "Desde fichero") {
+      jQuery.each(jQuery('#file')[0].files, function(i, file) {
+          data.append('file-'+i, file);
+      });
+
+      var other_data = $('#upload_sesion').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            data.append(input.name,input.value);
+          }
+    });
+
+        jQuery.ajax({
     url: 'upload_sesion',
     data: data,
     cache: false,
@@ -242,5 +246,41 @@ $('#subir_sesion').click(function(){
       location.reload(true);
     }
   });
+  } // Cierre IF Desde fichero
+  else {
+
+    if (!checkValidIP($('#campo_ip').val())) {
+      // Hacer algo para indicar que no se ha mandado la petición/ IP incorrecta
+      return;
+    }
+    var other_data = $('#upload_sesion_ip').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            data.append(input.name,input.value);
+          }
+    });
+
+  jQuery.ajax({
+    url: 'upload_sesion_ip',
+    data: data,
+    cache: false,
+    contentType: false,
+    processData: false,
+    type: 'POST',
+    success: function(data){
+      $('#myModal').modal('hide');
+
+      // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
+    }
+  });
+  } // Cierre else
 
 });
+
+function checkValidIP (ip) {
+    var rx = /^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
+    return rx.test(ip);
+}

@@ -50,23 +50,51 @@
               <h4 class="modal-title" id="myModalLabel">Importar</h4>
             </div>
             <div class="modal-body">
-              <form id="upload_sesion">
-                <div class="form-group">
-                  <label>Modificar Información de la sesión</label></br><i>Si los campos se dejan en blanco, la información de la sesión no será modificada</i>
-                  <input type="text" name="nombre" class="form-control" placeholder="Introduzca el nombre">
-                </div>
-                <div class="form-group">
-                  <input type="text" name="descripcion" class="form-control" placeholder="Introduzca la descripción">
-                </div>
-                <div class="form-group">
-                  <input type="date" name="fecha" class="form-control" placeholder="Introduzca la fecha">
-                </div>
-                <div class="form-group">
-                  <label>Seleccione el archivo</label>
-                  <input id="file" type="file" name="file">
-                </div>
-              </form>
-            </div>
+              <div class="tabbable"> <!-- Only required for left/right tabs -->
+                <ul class="nav nav-tabs">
+                  <li class="active"><a href="#tab1" data-toggle="tab">Desde fichero</a></li>
+                  <li><a href="#tab2" data-toggle="tab">Desde IP</a></li>
+                </ul>
+                <div class="tab-content">
+                  <div class="tab-pane active" id="tab1">
+                    <form id="upload_sesion">
+                      <div class="form-group">
+                        <label>Modificar Información de la sesión</label></br><i>Si los campos se dejan en blanco, la información de la sesión no será modificada</i>
+                        <input type="text" name="nombre" class="form-control" placeholder="Introduzca el nombre">
+                      </div>
+                      <div class="form-group">
+                        <input type="text" name="descripcion" class="form-control" placeholder="Introduzca la descripción">
+                      </div>
+                      <div class="form-group">
+                        <input type="date" name="fecha" class="form-control" placeholder="Introduzca la fecha">
+                      </div>
+                      <div class="form-group">
+                        <label>Seleccione el archivo</label>
+                        <input id="file" type="file" name="file">
+                      </div>
+                    </form>
+                  </div>
+                  <div class="tab-pane" id="tab2">
+                    <form id="upload_sesion_ip">
+                      <div class="form-group">
+                        <label>Modificar Información de la sesión</label></br><i>Si los campos se dejan en blanco, la información de la sesión no será modificada</i>
+                        <input type="text" name="nombre" class="form-control" placeholder="Introduzca el nombre">
+                      </div>
+                      <div class="form-group">
+                        <input type="text" name="descripcion" class="form-control" placeholder="Introduzca la descripción">
+                      </div>
+                      <div class="form-group">
+                        <input type="date" name="fecha" class="form-control" placeholder="Introduzca la fecha">
+                      </div>
+                      <div class="form-group">
+                        <label>Dirección IP del servidor</label></br>
+                        <input type="text" name="ip" id="campo_ip" class="form-control" placeholder="Introduzca la IP">
+                      </div>
+                    </form>
+                  </div> <!-- Cierre tab 2 -->
+                </div> <!-- Cierre tab content -->
+              </div> <!-- Cierre tabbable -->
+            </div> <!-- Cierre Modal body -->
             <div class="modal-footer">
               <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
               <button id="subir_sesion" type="button" class="btn btn-primary">Guardar cambios</button>
