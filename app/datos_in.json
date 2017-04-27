@@ -1,0 +1,58 @@
+[
+    {
+        "datetime": 9876546546,
+        "values": {
+            "maf": 12.3,
+            "rpm": 1254.36,
+            "acelerator": 0.26,
+            "prueba" : {
+                "DD" : 1,
+                "DI" : 2,
+                "TD" : 3,
+                "TI" : 4
+            }
+        }
+    },
+    {
+        "datetime": 9876546546,
+        "values": {
+            "maf": 12.3,
+            "rpm": 1254.36,
+            "acelerator": 0.26,
+            "prueba" : {
+                "DD" : 1,
+                "DI" : 2,
+                "TD" : 3,
+                "TI" : 4
+            }
+        }
+    },
+    {
+        "datetime": 9876546546,
+        "values": {
+            "maf": 12.3,
+            "rpm": 1254.36,
+            "acelerator": 0.26,
+            "prueba" : {
+                "DD" : 1,
+                "DI" : 2,
+                "TD" : 3,
+                "TI" : 4
+            }
+        }
+    },
+    {
+        "datetime": 9876546546,
+        "values": {
+            "maf": 12.3,
+            "rpm": 1254.36,
+            "acelerator": 0.26,
+            "prueba" : {
+                "DD" : 1,
+                "DI" : 2,
+                "TD" : 3,
+                "TI" : 4
+            }
+        }
+    }
+]
