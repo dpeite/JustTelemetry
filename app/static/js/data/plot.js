@@ -252,7 +252,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
             tickDecimals: 0
           },
           crosshair: {
-            mode: "x"
+              mode: "x"
           },
           grid : {
             hoverable : true,
@@ -285,6 +285,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 	    if (sensores){
 		delete options["xaxes"][0]["tickFormatter"]
 		options["xaxes"][0]["axisLabel"] = xlabel
+		options["crosshair"]["mode"] = "xy"
 	    }
         plot[ids] = $.plot(plotContainer, data, options);
       }
