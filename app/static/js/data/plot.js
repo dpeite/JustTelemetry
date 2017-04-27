@@ -192,6 +192,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var ids = sensores.ids
     var colsize = sensores.colsize
     sensor = sensores.sensores
+    var rel_sensores = true
     console.log(sensores);
     console.log(coord1)
     break;
@@ -210,10 +211,14 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 
     // insert checkboxes
     if (!$.trim(choiceContainer.html())){
-      $.each(datasets, function(key, val) {
+	$.each(datasets, function(key, val) {
+	    if (rel_sensores){
+		choiceContainer.append("<label style='visibility: hidden; class='btn btn-primary active "+colsize+"' for='"+ids+"2-" + val.label + "'>" +"<input type='checkbox' name='" + key + "' checked='checked' id='"+ids+"2-" + val.label + "'></input>"+"<div id='"+ids+"-"+val.label+"'> "+val.label+" </div>"  + "</label>");
+	    }
+	    else {
         choiceContainer.append("<label class='btn btn-primary active "+colsize+"' for='"+ids+"2-" + val.label + "'>" +"<input type='checkbox' name='" + key + "' checked='checked' id='"+ids+"2-" + val.label + "'></input>"+"<div id='"+ids+"-"+val.label+"'> "+val.label+" </div>"  + "</label>");
+	    }
       });
-
       choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lat'>Lat</div>"  + "</label>");
       choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
 
