@@ -125,6 +125,8 @@ def cortar_json():
         if len(sensores) == 2:
             return jsonify(tramo.cortar_varios(lat1, lon1, lat2, lon2, ID, sensores)), 200
         else:
+            if "fuerzas" in sensor:
+                dist = False
             return jsonify(tramo.cortar(lat1, lon1, lat2, lon2, ID, sensor, dist)), 200
     except Exception as exc:
         print exc
