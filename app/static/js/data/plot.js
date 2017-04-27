@@ -98,7 +98,7 @@ function trazada(sensores = false, dist = false) {
         coord2 = null;
       }
     }
-    $("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
+    // $("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
     console.log(coord1+" "+coord2);
   });
 
