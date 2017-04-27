@@ -163,14 +163,14 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var colsize = "col-xs-3"
     break;
     case "acelerador":
-    var ylabel = "Grados"
+    var ylabel = "Porcentaje"
     var choiceContainer = $("#choices3");
     var plotContainer = "#flot-acelerador"
     var ids = "AT"
     var colsize = "col-xs-3"
     break;
     case "volante":
-    var ylabel = "Porcentaje"
+    var ylabel = "Grados"
     var choiceContainer = $("#choices4");
     var plotContainer = "#flot-direccion"
     var ids = "GD"
