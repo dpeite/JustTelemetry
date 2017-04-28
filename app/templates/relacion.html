@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+{% block content %}
+<!-- Page Content -->
+<div id="page-wrapper">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-lg-12">
+        <h1 class="page-header">Graficas con respecto al tiempo</h1>
+      </div>
+      <!-- /.col-lg-12 -->
+    </div>
+    <!-- /.row -->
+    <div class="row">
+
+      {% include "trazada.html" %}
+      {% block trazada %}{% endblock %}
+      
+      <div id="panel_add_graph" class="col-lg-6">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Añadir Gráfica
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <div class="col-lg-12">
+              <div class="col-lg-6">
+                Seleccione tipo sensor eje x:
+                <select id="sensor1" class="form-control">
+                  <option disabled selected value>- Tipo Sensor</option>
+                  {% for sensor in sensores %}
+                  <option>{{ sensor }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-lg-6">
+                Seleccione tipo sensor eje y:
+                <select id="sensor2" class="form-control">
+                  <option disabled selected value>- Tipo Sensor</option>
+                  {% for sensor in sensores %}
+                  <option>{{ sensor }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+
+            <div class="col-lg-12">
+              <div class="col-lg-6">
+                Seleccione sensor eje x:
+                <select id="subsensor1" class="form-control">
+                  <option disabled selected value>-- Tipo SubSensor</option>
+                </select>
+              </div>
+              <div class="col-lg-6">
+                Seleccione sensor eje y:
+                <select id="subsensor2" class="form-control">
+                  <option disabled selected value>-- Tipo SubSensor</option>
+                </select>
+              </div>
+            </div>
+
+
+            <div class="col-lg-12 vueltas">
+            </div>
+            <button id="add_graph" type="button" class="btn btn-success btn-block" disabled="disabled">Añadir</button>
+          </div>
+        </div>
+        <!-- /.panel-body -->
+      </div>
+      <!-- /.panel -->
+    </div>
+    <!-- /.col-lg-6 -->
+
+  </div>
+  <!-- /.row -->
+</div>
+<!-- /.container-fluid -->
+</div>
+<!-- /#page-wrapper -->
+{% endblock %}
+
+{% block javascript %}
+{{ super() }}
+<script src="static/js/sensores.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
+<!-- Flot Charts JavaScript -->
+<script src="static/js/flot/excanvas.min.js"></script>
+<script src="static/js/flot/jquery.flot.js"></script>
+<script src="static/js/flot/jquery.flot.pie.js"></script>
+<script src="static/js/flot/jquery.flot.resize.js"></script>
+<script src="static/js/flot/jquery.flot.time.js"></script>
+<script src="static/js/flot-tooltip/jquery.flot.tooltip.min.js"></script>
+<script src="static/js/data/plot.js"></script>
+<script src="static/js/data/sensores.js"></script>
+<script src="static/js/flot/jquery.flot.crosshair.js"></script>
+<script src="static/js/flot/jquery.flot.axislabels.js"></script>
+{% endblock %}

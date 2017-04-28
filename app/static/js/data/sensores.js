@@ -1,6 +1,5 @@
 $(function() {
-  var sensores = true
-  trazada(sensores)
+    trazada(sensores = true, dist = false)
 });
 
 var graficas = []
@@ -100,19 +99,21 @@ $('#sensor2').on( 'input', function() {
 
 
 function interpolate(y, p1, p2, ids, pos, series){
-  if (p1 == null) {
-    console.log(p1)
-    console.log(p2)
-    y = p2[1];
-  } else if (p2 == null) {
-    y = p1[1];
-  } else {
-    y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
-  }
-  // $("#"+ids+"-lat").text("Lat: "+ (p1[3] + (p2[3] - p1[3]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
-  // $("#"+ids+"-lat").parent().css('visibility', 'visible');
-  // $("#"+ids+"-lon").text("Lon: "+(p1[4] + (p2[4] - p1[4]) * (pos.x - p1[0]) / (p2[0] - p1[0])).toFixed(2))
-  // $("#"+ids+"-lon").parent().css('visibility', 'visible');
-  $("#"+ids+"-"+series.label).text(series.label+" = "+y.toFixed(2))
+  // if (p1 == null) {
+  //   console.log(p1)
+  //   console.log(p2)
+  //   y = p2[1];
+  // } else if (p2 == null) {
+  //   y = p1[1];
+  // } else {
+  //   y = p1[1] + (p2[1] - p1[1]) * (pos.x - p1[0]) / (p2[0] - p1[0]);
+    // }
+    x = pos.x
+    y = pos.y
+    $("#"+ids+"-lat").text("Eje x: "+ x.toFixed(2))
+  $("#"+ids+"-lat").parent().css('visibility', 'visible');
+    $("#"+ids+"-lon").text("Eje y: "+ y.toFixed(2))
+  $("#"+ids+"-lon").parent().css('visibility', 'visible');
+    // $("#"+ids+"-"+series.label).text(series.label+" = "+y.toFixed(2))
 
 }

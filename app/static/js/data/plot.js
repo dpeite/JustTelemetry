@@ -3,7 +3,7 @@ var coord1 = null;
 var coord2 = null;
 var id = getCookie("id")
 
-function trazada(sensores = false) {
+function trazada(sensores = false, dist = false) {
 
   var choiceContainer = $("#vueltas");
   plotAccordingToChoices();
@@ -46,6 +46,7 @@ function trazada(sensores = false) {
         vel_ruedas(d2[0],d2[d2.length-1],"amortiguadores");
         vel_ruedas(d2[0],d2[d2.length-1],"acelerador");
         vel_ruedas(d2[0],d2[d2.length-1],"volante");
+        vel_ruedas(d2[0],d2[d2.length-1],"fuerzas");
       }
       else {
         if (graficas.length != 0){
@@ -77,6 +78,7 @@ function trazada(sensores = false) {
           vel_ruedas(coord1, coord2, "amortiguadores")
           vel_ruedas(coord1, coord2, "acelerador")
           vel_ruedas(coord1, coord2, "volante")
+          vel_ruedas(coord1, coord2, "fuerzas")
         }
         else {
           if (graficas.length != 0){
@@ -96,7 +98,7 @@ function trazada(sensores = false) {
         coord2 = null;
       }
     }
-    $("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
+    // $("#clickdata").text("Inicio: " + coord1 + " Fin: " + coord2);
     console.log(coord1+" "+coord2);
   });
 
@@ -161,19 +163,27 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var colsize = "col-xs-3"
     break;
     case "acelerador":
-    var ylabel = "Grados"
+    var ylabel = "Porcentaje"
     var choiceContainer = $("#choices3");
     var plotContainer = "#flot-acelerador"
     var ids = "AT"
     var colsize = "col-xs-3"
     break;
     case "volante":
-    var ylabel = "Porcentaje"
+    var ylabel = "Grados"
     var choiceContainer = $("#choices4");
     var plotContainer = "#flot-direccion"
     var ids = "GD"
     var colsize = "col-xs-12"
     break;
+    case "fuerzas":
+    var ylabel = "Porcentaje"
+    var choiceContainer = $("#choices5")
+    var plotContainer = "#flot-g"
+    var ids = "FG"
+    var colsize = "col-xs-12"
+    break;
+
     default:
     var xlabel = sensores.xlabel
     var ylabel = sensores.ylabel
@@ -182,6 +192,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
     var ids = sensores.ids
     var colsize = sensores.colsize
     sensor = sensores.sensores
+    var rel_sensores = true
     console.log(sensores);
     console.log(coord1)
     break;
@@ -189,7 +200,7 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 
   }
   // console.log(path)
-  $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor}, function(data, status, xhr){
+    $.get("cortar_json", {lat1: coord1[0], lon1: coord1[1],lat2: coord2[0], lon2: coord2[1], id: id, sensor: sensor, dist: dist}, function(data, status, xhr){
     var datasets = data
 
     var i = 0;
@@ -200,14 +211,25 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
 
     // insert checkboxes
     if (!$.trim(choiceContainer.html())){
-      $.each(datasets, function(key, val) {
+	$.each(datasets, function(key, val) {
+	    if (rel_sensores){
+		choiceContainer.append("<label style='visibility: hidden; class='btn btn-primary active "+colsize+"' for='"+ids+"2-" + val.label + "'>" +"<input type='checkbox' name='" + key + "' checked='checked' id='"+ids+"2-" + val.label + "'></input>"+"<div id='"+ids+"-"+val.label+"'> "+val.label+" </div>"  + "</label>");
+	    }
+	    else {
         choiceContainer.append("<label class='btn btn-primary active "+colsize+"' for='"+ids+"2-" + val.label + "'>" +"<input type='checkbox' name='" + key + "' checked='checked' id='"+ids+"2-" + val.label + "'></input>"+"<div id='"+ids+"-"+val.label+"'> "+val.label+" </div>"  + "</label>");
+	    }
       });
-
       choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lat'>Lat</div>"  + "</label>");
       choiceContainer.next().append("<label class='btn btn-primary col-xs-6' style='visibility: hidden;'>" + "<div id='"+ids+"-lon'>Lon</div>"  + "</label>");
 
     }
+
+    if (sensor == "fuerzas"){
+      fuerzas_g(datasets)
+      return 0
+    }
+
+
     choiceContainer.find(":input").change(plotAccordingToChoices);
 
     function plotAccordingToChoices() {
@@ -224,13 +246,13 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
         }
       });
 
-      if (data.length > 0) {
-        plot[ids] = $.plot(plotContainer, data, {
+	if (data.length > 0) {
+	   var options = {
           xaxis: {
             tickDecimals: 0
           },
           crosshair: {
-            mode: "x"
+              mode: "x"
           },
           grid : {
             hoverable : true,
@@ -246,13 +268,26 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
             show: true
           },
           xaxes: [{
-            axisLabel: 'ms',
+              // axisLabel: 'ms',
+	      tickFormatter : function suffixFormatter(val, axis) {
+		  if (dist == false){
+		      return (val / 1000).toFixed(axis.tickDecimals) + " s";
+		  }
+		  else{
+		      return val+ " m";
+		  }
+	      }
           }],
           yaxes: [{
             axisLabel: ylabel,
           }]
-
-        });
+	   }
+	    if (sensores){
+		delete options["xaxes"][0]["tickFormatter"]
+		options["xaxes"][0]["axisLabel"] = xlabel
+		options["crosshair"]["mode"] = "xy"
+	    }
+        plot[ids] = $.plot(plotContainer, data, options);
       }
 
 
@@ -346,10 +381,25 @@ function vel_ruedas(coord1, coord2, sensor, sensores){
       });
 
 
-    });
+    }).fail(function(response) {
+        console.log("*/-a/fsd-*as/f*-a/sd-*/f-")
+	console.log(ids)
+	console.log($('#ids'))
+	$('#'+ids).hide();
+      });
   }
 
-  $("#siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  // No variar el orden
+  $("#siglas-acelerador").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
+  <div class="col-lg-12"> \
+  1: Potenciometro lineal 1 </br> \
+  2: Potenciometro lineal 2 </br> \
+  3: Potenciometro lineal 3 </br> \
+  4: Potenciometro lineal 4 </br> \
+  </div> \
+  ' });
+
+  $(".siglas").popover({ trigger: "hover", placement : "left", html : "true", content : ' \
   <div class="col-lg-12"> \
   DD: Delantero Derecho </br> \
   DI: Delantero Izquierdo </br> \

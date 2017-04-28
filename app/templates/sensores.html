@@ -1,233 +1,96 @@
-{% extends "layout.html" %}
-{% block content %}
-<!-- Page Content -->
-<div id="page-wrapper">
-  <div class="container-fluid">
-    <div class="row">
-      <div class="col-lg-12">
-        <h1 class="page-header">Graficas con respecto al tiempo</h1>
-      </div>
-      <!-- /.col-lg-12 -->
-    </div>
-    <!-- /.row -->
-    <div class="row">
-      <div class="col-lg-12">
+{% block sensores %}
+<div class="col-lg-6" id="VR">
         <div class="panel panel-default">
           <div class="panel-heading">
-            Trazada
+            Velocidad de las ruedas <i data-trigger="hover" class="glyphicon glyphicon-info-sign fa-fw siglas"  title="Abreviaturas"> </i>
           </div>
           <!-- /.panel-heading -->
           <div class="panel-body">
-            <div id="vueltas" style="float:right; width:15%;" data-toggle="buttons">
-              <label class="btn btn-primary col-xs-12 vueltas">
-                <input type="radio" name="vuelta" value="trazada" checked="True" id="LAP-trazada"></input>
-                <div id="asdf">Trazada</div>
-              </label>
-              {% for n in range(vueltas) %}
-              <label class="btn btn-primary col-xs-12 vueltas">
-                <input type="radio" name="vuelta" value="{{n}}" id="LAP-{n{}}"></input>
-                <div>{{n}}</div>
-              </label>
-              {% endfor %}
-            </div>
+            <!-- <p id="choices" style="float:right; width:15%;"></p> -->
+            <!-- <div id="choices" class="btn-group" data-toggle="buttons" style="float:right; width:15%;"> -->
             <div class="flot-chart">
-              <div class="flot-chart-content" id="flot-trazada"></div>
+              <div class="flot-chart-content-wide" id="flot-rpm"></div>
             </div>
-            <span id="clickdata"></span>
-
-            <div id="inst_data" class="col-lg-12" style="display: none;">
-              <div class="col-lg-3">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    Velocidad Ruedas
-                  </div>
-                  <!-- /.panel-heading -->
-                  <div class="panel-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Pos</th>
-                            <th>Valor</th>
-                          </tr>
-                        </thead>
-                        <tbody id="VR-TR">
-
-                        </tbody>
-                      </table>
-                    </div>
-                    <!-- /.table-responsive -->
-                  </div>
-                  <!-- /.panel-body -->
-                </div>
-                <!-- /.panel -->
-              </div>
-
-              <div class="col-lg-3">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    Compresión del Amortiguador
-                  </div>
-                  <!-- /.panel-heading -->
-                  <div class="panel-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Pos</th>
-                            <th>Valor</th>
-                          </tr>
-                        </thead>
-                        <tbody id="CA-TR">
-
-                        </tbody>
-                      </table>
-                    </div>
-                    <!-- /.table-responsive -->
-                  </div>
-                  <!-- /.panel-body -->
-                </div>
-                <!-- /.panel -->
-              </div>
-
-              <div class="col-lg-3">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    Giro de la dirección
-                  </div>
-                  <!-- /.panel-heading -->
-                  <div class="panel-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Pos</th>
-                            <th>Valor</th>
-                          </tr>
-                        </thead>
-                        <tbody id="GD-TR">
-
-                        </tbody>
-                      </table>
-                    </div>
-                    <!-- /.table-responsive -->
-                  </div>
-                  <!-- /.panel-body -->
-                </div>
-                <!-- /.panel -->
-              </div>
-
-
-              <div class="col-lg-3">
-                <div class="panel panel-default">
-                  <div class="panel-heading">
-                    Porcentaje Acelerador
-                  </div>
-                  <!-- /.panel-heading -->
-                  <div class="panel-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Pos</th>
-                            <th>Valor</th>
-                          </tr>
-                        </thead>
-                        <tbody id="AC-TR">
-
-                        </tbody>
-                      </table>
-                    </div>
-                    <!-- /.table-responsive -->
-                  </div>
-                  <!-- /.panel-body -->
-                </div>
-                <!-- /.panel -->
-              </div>
-
-            </div>
+            <div id="choices" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
           </div>
           <!-- /.panel-body -->
         </div>
         <!-- /.panel -->
       </div>
-      <!-- /.col-lg-12 -->
-      <div id="panel_add_graph" class="col-lg-6">
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6" id="CA">
         <div class="panel panel-default">
           <div class="panel-heading">
-            Añadir Gráfica
+            Compresión del amortiguador <i data-trigger="hover" class="glyphicon glyphicon-info-sign fa-fw siglas"  title="Abreviaturas"> </i>
           </div>
           <!-- /.panel-heading -->
           <div class="panel-body">
-            <div class="col-lg-12">
-              <div class="col-lg-6">
-                Seleccione tipo sensor eje x:
-                <select id="sensor1" class="form-control">
-                  <option disabled selected value>- Tipo Sensor</option>
-                  {% for sensor in sensores %}
-                  <option>{{ sensor }}</option>
-                  {% endfor %}
-                </select>
-              </div>
-              <div class="col-lg-6">
-                Seleccione tipo sensor eje y:
-                <select id="sensor2" class="form-control">
-                  <option disabled selected value>- Tipo Sensor</option>
-                  {% for sensor in sensores %}
-                  <option>{{ sensor }}</option>
-                  {% endfor %}
-                </select>
-              </div>
+            <!-- <p id="choices2" style="float:right; width:15%;"></p> -->
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-amortiguadores"></div>
             </div>
-
-            <div class="col-lg-12">
-              <div class="col-lg-6">
-                Seleccione sensor eje x:
-                <select id="subsensor1" class="form-control">
-                  <option disabled selected value>-- Tipo SubSensor</option>
-                </select>
-              </div>
-              <div class="col-lg-6">
-                Seleccione sensor eje y:
-                <select id="subsensor2" class="form-control">
-                  <option disabled selected value>-- Tipo SubSensor</option>
-                </select>
-              </div>
-            </div>
-
-
-            <div class="col-lg-12 vueltas">
-            </div>
-            <button id="add_graph" type="button" class="btn btn-success btn-block" disabled="disabled">Añadir</button>
+            <div id="choices2" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
           </div>
+          <!-- /.panel-body -->
         </div>
-        <!-- /.panel-body -->
+        <!-- /.panel -->
       </div>
-      <!-- /.panel -->
-    </div>
-    <!-- /.col-lg-6 -->
-
-  </div>
-  <!-- /.row -->
-</div>
-<!-- /.container-fluid -->
-</div>
-<!-- /#page-wrapper -->
-{% endblock %}
-
-{% block javascript %}
-{{ super() }}
-<script src="static/js/sensores.js"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
-<!-- Flot Charts JavaScript -->
-<script src="static/js/flot/excanvas.min.js"></script>
-<script src="static/js/flot/jquery.flot.js"></script>
-<script src="static/js/flot/jquery.flot.pie.js"></script>
-<script src="static/js/flot/jquery.flot.resize.js"></script>
-<script src="static/js/flot/jquery.flot.time.js"></script>
-<script src="static/js/flot-tooltip/jquery.flot.tooltip.min.js"></script>
-<script src="static/js/data/plot.js"></script>
-<script src="static/js/data/sensores.js"></script>
-<script src="static/js/flot/jquery.flot.crosshair.js"></script>
-<script src="static/js/flot/jquery.flot.axislabels.js"></script>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6" id="GD">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Giro de la direccion
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-direccion"></div>
+            </div>
+            <div id="choices4" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon1boton" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6" id="AT">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Porcentaje del acelerador y throttle <i id="siglas-acelerador" data-trigger="hover" class="glyphicon glyphicon-info-sign fa-fw siglas"  title="Abreviaturas"> </i>
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <!-- <p id="choices3" style="float:right; width:15%;"></p> -->
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-acelerador"></div>
+            </div>
+            <div id="choices3" class="btn-group col-xs-12" data-toggle="buttons"></div>
+            <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
+      <div class="col-lg-6" id="FG">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Fuerzas G
+          </div>
+          <!-- /.panel-heading -->
+          <div class="panel-body">
+            <div class="flot-chart">
+              <div class="flot-chart-content-wide" id="flot-G"></div>
+            </div>
+	    <div id="choices5" class="btn-group col-xs-12" data-toggle="buttons"></div>
+	    <div class="btn-group col-xs-12 latlon" data-toggle="buttons"></div>
+          </div>
+          <!-- /.panel-body -->
+        </div>
+        <!-- /.panel -->
+      </div>
+      <!-- /.col-lg-6 -->
 {% endblock %}

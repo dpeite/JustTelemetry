@@ -1,4 +1,4 @@
-$('.vueltas').click(function(event){
+$('.cortar_vueltas').click(function(event){
   value = $(event.target).closest('tr').find('[name=optionsRadios]');
 
   code = '<div class="flot-chart"> \
@@ -52,12 +52,25 @@ $('.vueltas').click(function(event){
 
   $('.save').click(function(){
     if (!$('.save').hasClass('disabled')){
-      $('#myModal1').modal('hide');
+
+          code = '<div class="flot-chart"> \
+                  <div id="loading"> \
+                  <i class="fa fa-refresh fa-spin fa-5x fa-fw img-responsive"></i> \
+                  <span class="sr-only">Loading...</span> \
+                  </div> \
+           </div>';
+        $("#modalcontent").empty();
+        $("#modalcontent").append(code);
+        $(".modal-title").empty();
+        //$(".modal-title").append("Seleccionar punto inicio vuelta");
+
+
       console.log("huehuehue");
       console.log(value.val());
       $.get("cortar_vueltas", {lat: coord[0], lon: coord[1], id: value.val()}, function(data, status, xhr){
         // alert("Data: " + data + "\nStatus: " + status);
         console.log(xhr.status);
+       $('#myModal1').modal('hide');
         $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
           $(".cortar-vueltas-correcto").slideUp(500);
         });
@@ -103,7 +116,9 @@ $('.delete_s').click(function(){
       $(".borrar-sesiones-correcto").slideUp(500);
     });
 
-
+    // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
   })
   .fail(function(response) {
     $(".borrar-sesiones-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
@@ -177,19 +192,21 @@ $('.editar').click(function(event){
     values["id"] = id
     console.log(values)
     $.post("editar_datos", {datos : values}, function(data, status, xhr){
-      $(".cortar-vueltas-correcto").fadeTo(2000, 500).slideUp(500, function(){
-        $(".cortar-vueltas-correcto").slideUp(500);
+      $(".editar-correcto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".editar-correcto").slideUp(500);
       });
       $('#nombre'+id).load(location.href +  ' #nombre'+id);
       $('#fecha'+id).load(location.href +  ' #fecha'+id);
       $('#tiempo'+id).load(location.href +  ' #tiempo'+id);
       $('#metros'+id).load(location.href +  ' #metros'+id);
       $('#descripcion'+id).load(location.href +  ' #descripcion'+id+" .panel-body");
+    // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
 
     })
     .fail(function(response) {
-      $(".cortar-vueltas-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
-        $(".cortar-vueltas-incorrecto").slideUp(500);
+      $(".editar-incorrecto").fadeTo(2000, 500).slideUp(500, function(){
+        $(".editar-incorrecto").slideUp(500);
       });
     });
 
@@ -200,17 +217,21 @@ $('.editar').click(function(event){
 $('#subir_sesion').click(function(){
   console.log("siii")
   var data = new FormData();
-  jQuery.each(jQuery('#file')[0].files, function(i, file) {
-    data.append('file-'+i, file);
-  });
-  var other_data = $('#upload_sesion').serializeArray();
-  $.each(other_data,function(key,input){
-    if (input.value){
-      data.append(input.name,input.value);
-    }
-  });
 
-  jQuery.ajax({
+  if ($('.nav-tabs .active').text() == "Desde fichero") {
+      jQuery.each(jQuery('#file')[0].files, function(i, file) {
+          data.append('file-'+i, file);
+      });
+
+      var other_data = $('#upload_sesion').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            data.append(input.name,input.value);
+          }
+    });
+
+        jQuery.ajax({
     url: 'upload_sesion',
     data: data,
     cache: false,
@@ -219,7 +240,47 @@ $('#subir_sesion').click(function(){
     type: 'POST',
     success: function(data){
       $('#myModal').modal('hide');
+
+      // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
     }
   });
+  } // Cierre IF Desde fichero
+  else {
+
+    if (!checkValidIP($('#campo_ip').val())) {
+      // Hacer algo para indicar que no se ha mandado la petición/ IP incorrecta
+      return;
+    }
+    var other_data = $('#upload_sesion_ip').serializeArray();
+      $.each(other_data,function(key,input){
+        console.log(input.name)
+          if (input.value){
+            data.append(input.name,input.value);
+          }
+    });
+
+  jQuery.ajax({
+    url: 'upload_sesion_ip',
+    data: data,
+    cache: false,
+    contentType: false,
+    processData: false,
+    type: 'POST',
+    success: function(data){
+      $('#myModal').modal('hide');
+
+      // Actualizamos la info de la dashboard
+      $.get("info_sesiones", null, function(data, status, xhr){});
+      location.reload(true);
+    }
+  });
+  } // Cierre else
 
 });
+
+function checkValidIP (ip) {
+    var rx = /^(?!0)(?!.*\.$)((1?\d?\d|25[0-5]|2[0-4]\d)(\.|$)){4}$/;
+    return rx.test(ip);
+}
